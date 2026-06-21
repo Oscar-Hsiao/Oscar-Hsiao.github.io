@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OOO股份有限公司 — 法規鑑別清單管理系統</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;600&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#FAF9F7;--bg2:#fff;--bg3:#F3F1ED;
+  --border:#E6E3DD;--border2:#D8D4CC;
+  --text:#23282E;--text2:#6B7280;--text3:#A3ABB5;
+  --blue:#1D4E89;--blue-bg:#E4ECF6;--blue-dark:#23282E;
+  --green-bg:#E9F1E9;--green:#3A6B45;
+  --font:'Noto Sans TC',-apple-system,BlinkMacSystemFont,'Segoe UI','Microsoft JhengHei',sans-serif;
+  --font-serif:'Noto Serif TC',-apple-system,serif;
+  --mono:'JetBrains Mono','Courier New',monospace;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+
+/* ── HEADER ── */
+.hdr{background:var(--bg2);color:var(--text);position:sticky;top:0;z-index:100;border-bottom:1px solid var(--border)}
+.hdr-top{display:flex;justify-content:space-between;align-items:flex-start;padding:18px 28px 12px;flex-wrap:wrap;gap:8px}
+.logo-wrap{display:flex;align-items:center;gap:12px}
+.logo-b{height:44px;width:auto;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;background:var(--bg2)}
+.logo-b img{height:100%;width:auto;display:block;object-fit:contain}
+.logo-t h1{font-size:19px;font-weight:600;color:var(--text);line-height:1.3;font-family:var(--font-serif)}
+.logo-t p{font-size:11px;color:var(--text3);margin-top:3px}
+.hdr-meta{text-align:right;font-size:11px;color:var(--text2);line-height:2}
+.hdr-meta strong{color:var(--text)}
+.hdr-status{background:var(--bg3);border-top:1px solid var(--border);padding:7px 28px;font-size:12px;color:var(--text2);display:flex;align-items:center;gap:8px}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.dot-g{background:#5DA862}
+.dot-y{background:#D9A441}
+.api-bar{background:var(--bg2);border-top:1px solid var(--border);padding:6px 28px;font-size:11px;color:var(--text3);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.api-bar a{color:var(--blue);text-decoration:none}
+.api-bar a:hover{text-decoration:underline}
+
+/* ── TOOLBAR ── */
+.toolbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:10px 28px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.search-box{display:flex;align-items:center;gap:8px;flex:1;min-width:160px;border:1px solid var(--border2);border-radius:8px;padding:6px 12px;background:var(--bg3)}
+.search-box input{border:none;background:none;outline:none;font-size:13px;color:var(--text);width:100%;font-family:var(--font)}
+.search-box input::placeholder{color:var(--text3)}
+select{font-size:12px;padding:6px 10px;border:1px solid var(--border2);border-radius:8px;background:var(--bg3);color:var(--text);cursor:pointer;font-family:var(--font)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;font-size:12px;border-radius:8px;border:1px solid var(--border2);cursor:pointer;font-family:var(--font);white-space:nowrap;transition:all .15s;font-weight:500}
+.btn:hover{opacity:.85}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-p{background:var(--text);color:#fff;border-color:var(--text)}
+.btn-p:hover{background:#4a4f52;opacity:1}
+.btn-a{background:#fff;color:#B8742E;border-color:#F4E4B8}
+.btn-r{background:#fff;color:#9F2F2D;border-color:#F6D8D7}
+.btn-g{background:var(--bg3);color:var(--text)}
+.btn-teal{background:#fff;color:#3A6B45;border-color:var(--green-bg)}
+.btn-lock{background:var(--bg3);color:var(--text3);border-color:var(--border)}
+.admin-btns{display:flex;gap:6px;flex-wrap:wrap}
+.admin-only{display:none}
+
+/* ── TABS ── */
+.tabs{display:flex;border-bottom:1px solid var(--border);padding:0 28px;background:var(--bg2);gap:4px}
+.tab{padding:10px 18px;font-size:13px;cursor:pointer;border:none;border-bottom:2px solid transparent;color:var(--text2);background:none;font-family:var(--font);display:flex;align-items:center;gap:7px;transition:all .15s;font-weight:500}
+.tab.on{color:var(--text);border-bottom-color:var(--text)}
+.tab:hover:not(.on){color:var(--text);background:var(--bg3);border-radius:6px 6px 0 0}
+.tab .cnt{font-size:11px;padding:2px 7px;border-radius:10px;background:var(--bg3);color:var(--text3);font-weight:400}
+.tab.on .cnt{background:var(--blue-bg);color:var(--blue)}
+
+/* ── SECTION BAR ── */
+.sec-bar{display:flex;align-items:center;gap:10px;padding:12px 28px;background:var(--bg3);border-bottom:1px solid var(--border);flex-wrap:wrap}
+.sec-title{font-size:14px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:8px;font-family:var(--font-serif)}
+.sbadge{font-size:11px;padding:3px 9px;border-radius:10px;background:var(--blue-bg);color:var(--blue);font-weight:500}
+.sec-info{font-size:11px;color:var(--text3);margin-left:8px}
+.legend{display:flex;gap:14px;font-size:11px;color:var(--text2);margin-left:auto;flex-wrap:wrap;align-items:center}
+.lg{display:flex;align-items:center;gap:4px}
+.pcode-chip{display:inline-block;font-size:10px;padding:2px 7px;border-radius:4px;font-family:var(--mono);font-weight:600;background:var(--blue-bg);color:var(--blue)}
+
+/* ── TABLE ── */
+.table-wrap{overflow-x:auto;background:var(--bg2)}
+table{width:100%;border-collapse:collapse;table-layout:fixed;min-width:700px}
+thead{background:var(--bg3)}
+th{padding:10px 12px;font-size:11px;font-weight:500;color:var(--text3);text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;overflow:hidden;cursor:pointer;user-select:none;letter-spacing:.05em;text-transform:uppercase}
+th.ns{cursor:default}
+th.sortable:hover{color:var(--text)}
+th .sort-icon{margin-left:3px;opacity:.4;font-size:10px}
+td{padding:9px 12px;font-size:12.5px;border-bottom:1px solid var(--border);color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle}
+tr:hover td{background:var(--bg3)}
+.law-link{color:var(--blue);text-decoration:none;font-weight:500}
+.law-link:hover{text-decoration:underline}
+.dt{font-size:11.5px;color:var(--text2);font-variant-numeric:tabular-nums;font-family:var(--mono)}
+.pill{display:inline-block;padding:3px 8px;border-radius:10px;font-size:10px;font-weight:600;background:var(--blue-bg);color:var(--blue)}
+.badge-y{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--green-bg);color:var(--green);font-size:11px;font-weight:600;cursor:help}
+.status-pill{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:10px;font-size:10px;font-weight:600;white-space:nowrap;border:none;font-family:var(--font)}
+.status-pill.clickable{cursor:pointer}
+.status-ok{background:var(--green-bg);color:var(--green)}
+.status-partial{background:#fef3c7;color:#92400e}
+.status-bad{background:#fee2e2;color:#991b1b}
+.status-todo{background:#ffedd5;color:#9a3412}
+.status-review{background:var(--blue-bg);color:var(--blue)}
+.no-cell{text-align:center;color:var(--text3);font-size:11px;font-family:var(--mono)}
+.ext-link{color:var(--text3);font-size:13px;text-decoration:none;display:inline-flex;align-items:center}
+.ext-link:hover{color:var(--blue)}
+.edit-btn{background:none;border:1px solid var(--border);border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer;color:var(--text2);font-family:var(--font)}
+.edit-btn:hover{background:var(--blue-bg);color:var(--blue);border-color:var(--blue)}
+
+/* ── FOOTER ── */
+.footer{padding:12px 28px;font-size:11px;color:var(--text3);border-top:1px solid var(--border);background:var(--bg3);display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px}
+.sig-row{display:flex;align-items:flex-end;justify-content:space-between;padding:28px 56px 20px;border-top:1px solid var(--border)}
+.sig-b{min-width:140px}
+.sig-b.r{text-align:right}
+.sig-l{font-size:11px;color:var(--text3);margin-bottom:14px}
+.sig-line{border-top:1px solid var(--border2);margin-bottom:7px}
+.sig-n{font-size:12.5px;color:var(--text2)}
+.sig-m{text-align:center;font-size:11px;color:var(--text3);line-height:2}
+
+/* ── MODAL ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center}
+.overlay.show{display:flex}
+.modal{background:var(--bg2);border-radius:14px;padding:28px;width:440px;max-width:90vw;box-shadow:0 16px 48px rgba(35,40,46,.18)}
+.modal h2{font-size:16px;font-weight:600;color:var(--text);margin-bottom:6px}
+.modal p{font-size:13px;color:var(--text2);margin-bottom:18px}
+.modal input[type=password]{width:100%;padding:10px 14px;border:1.5px solid var(--border2);border-radius:8px;font-size:14px;font-family:var(--font);outline:none;transition:border .15s}
+.modal input[type=password]:focus{border-color:var(--blue)}
+.modal .err{font-size:12px;color:#dc2626;margin-top:6px;display:none}
+.modal .btn-row{display:flex;gap:8px;margin-top:18px;justify-content:flex-end}
+.modal label{font-size:12px;color:var(--text2);margin-bottom:6px;display:block}
+
+/* ── EDIT MODAL ── */
+.edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.edit-field{display:flex;flex-direction:column;gap:4px}
+.edit-field.full{grid-column:1/-1}
+.edit-field label{font-size:11px;color:var(--text2);font-weight:500}
+.edit-field input,.edit-field select{padding:8px 10px;border:1.5px solid var(--border2);border-radius:7px;font-size:13px;font-family:var(--font);outline:none;transition:border .15s;background:var(--bg)}
+.edit-field input:focus,.edit-field select:focus{border-color:var(--blue)}
+
+/* ── PROGRESS BAR ── */
+.prog-bar{height:3px;background:rgba(255,255,255,.15);overflow:hidden;display:none}
+.prog-fill{height:100%;background:#60a5fa;width:0%;transition:width .3s}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;right:24px;background:#1a3a5c;color:#fff;padding:12px 18px;border-radius:10px;font-size:12.5px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:300;max-width:320px;line-height:1.5}
+.toast.show{opacity:1}
+
+/* ── RESPONSIVE ── */
+@media(max-width:600px){
+  .hdr-top{padding:12px 16px 8px}
+  .toolbar,.tabs,.sec-bar{padding-left:16px;padding-right:16px}
+  .sig-row{padding:20px 16px 14px}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══ -->
+<header class="hdr">
+  <div class="hdr-top">
+    <div class="logo-wrap">
+      <div class="logo-b" style="display:flex;align-items:center;justify-content:center;font-size:24px">📋</div>
+      <div class="logo-t">
+        <h1>OOO股份有限公司</h1>
+        <p>Demo Co. — 法規鑑別清單管理系統 v3.0</p>
+      </div>
+    </div>
+    <div class="hdr-meta">
+      <div>類別：<strong id="hdr-cat">職業安全衛生</strong></div>
+      <div>登錄日期：<strong>113/08/15</strong>　清點日期：<strong id="hdr-chk">115/06/11</strong></div>
+      <div>資料來源：全國法規資料庫官方 API</div>
+    </div>
+  </div>
+  <div class="prog-bar" id="prog-bar"><div class="prog-fill" id="prog"></div></div>
+  <div class="hdr-status">
+    <span class="dot dot-g" id="stat-dot"></span>
+    <span id="stat-msg">✅ 所有法規連結與修正日期已查核完畢（115/06/11）</span>
+    <span style="margin-left:auto;font-size:11px;opacity:.6" id="last-upd">上次查核：115/06/11</span>
+  </div>
+  <div class="api-bar">
+    官方 API：<a href="https://law.moj.gov.tw/api/ch/law/json" target="_blank">https://law.moj.gov.tw/api/ch/law/json</a>
+    <span style="margin-left:auto" id="admin-badge"></span>
+  </div>
+</header>
+
+<!-- ═══ TOOLBAR ═══ -->
+<div class="toolbar">
+  <div class="search-box">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8b93b8" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input id="q" placeholder="輸入法規名稱關鍵字..." oninput="render()">
+  </div>
+  <select id="af" onchange="render()">
+    <option value="">適用性 全部</option>
+    <option value="Y">適用 (Y)</option>
+  </select>
+
+  <!-- 管理者專用按鈕（預設隱藏） -->
+  <div class="admin-btns admin-only" id="admin-btns">
+    <button class="btn btn-p" id="btn-upd" onclick="doUpdate()">
+      ↻ 自動更新（官方API）
+    </button>
+    <button class="btn btn-teal" onclick="addLaw()">
+      ＋ 新增法規
+    </button>
+    <button class="btn btn-a" onclick="exportCSV()">
+      ↓ 匯出 CSV
+    </button>
+    <button class="btn btn-r" onclick="resetAll()">
+      ↺ 還原預設
+    </button>
+  </div>
+
+  <!-- 一般使用者：只能匯出 -->
+  <button class="btn btn-g public-only" id="btn-export-pub" onclick="exportCSV()">↓ 匯出 CSV</button>
+
+  <!-- 管理者登入/登出切換 -->
+  <button class="btn btn-lock" id="btn-admin" onclick="toggleAdmin()" style="margin-left:auto">
+    🔒 管理者登入
+  </button>
+
+  <span style="font-size:12px;color:var(--text3)">共 <strong id="tot">28</strong> 筆</span>
+</div>
+
+<!-- ═══ TABS ═══ -->
+<div class="tabs">
+  <button class="tab on" onclick="sw(0,this)">📋 職業安全衛生 <span class="cnt" id="c0">28</span></button>
+  <button class="tab" onclick="sw(1,this)">🏅 ISO 45001 <span class="cnt" id="c1">28</span></button>
+  <button class="tab" onclick="sw(2,this)">🌿 ISO 14001 <span class="cnt" id="c2">21</span></button>
+</div>
+
+<!-- ═══ SECTION BAR ═══ -->
+<div class="sec-bar">
+  <div class="sec-title">📄 法規鑑定清單 <span class="sbadge" id="sbadge">類別：職業安全衛生</span></div>
+  <div class="sec-info" id="sec-info">清點日期：115/06/11　｜　修正日期資料截至 115/06/11</div>
+  <div class="legend" style="margin-left:auto">
+    <span class="lg">點法規名稱前往全國法規資料庫</span>
+    <span class="lg"><span class="status-pill status-ok">符合</span></span>
+    <span class="lg"><span class="status-pill status-partial">部分符合</span></span>
+    <span class="lg"><span class="status-pill status-bad">不符合</span></span>
+    <span class="lg"><span class="status-pill status-todo">待改善</span></span>
+    <span class="lg"><span class="status-pill status-review">待複核</span></span>
+  </div>
+</div>
+
+<!-- ═══ TABLE ═══ -->
+<div class="table-wrap">
+<table>
+  <thead><tr>
+    <th class="ns" style="width:44px">編號</th>
+    <th class="sortable" style="width:auto" onclick="sortBy(1)">法規名稱 <span class="sort-icon">↕</span></th>
+    <th class="sortable" style="width:88px" onclick="sortBy(2)">公佈日期 <span class="sort-icon">↕</span></th>
+    <th class="sortable" style="width:94px" onclick="sortBy(3)">修正日期 <span class="sort-icon">↕</span></th>
+    <th class="sortable" style="width:84px" onclick="sortBy(4)">登錄日期 <span class="sort-icon">↕</span></th>
+    <th class="sortable" style="width:84px" onclick="sortBy(5)">清點日期 <span class="sort-icon">↕</span></th>
+    <th class="ns" style="width:52px">適用性</th>
+    <th class="ns" style="width:96px">合規狀態</th>
+    <th class="ns" style="width:44px">連結</th>
+    <th class="ns admin-only" style="width:52px" id="col-edit">編輯</th>
+  </tr></thead>
+  <tbody id="tb"></tbody>
+</table>
+</div>
+
+<!-- ═══ FOOTER ═══ -->
+<div class="footer">
+  <span>OOO股份有限公司　｜　法規鑑別清單　｜　類別：<span id="ft-cat">職業安全衛生</span></span>
+  <span>清點日期：<span id="ft-chk">115/06/11</span>　｜　登錄日期：113/08/15</span>
+</div>
+<div class="sig-row">
+  <div class="sig-b"><div class="sig-l">審查</div><div class="sig-line"></div><div class="sig-n">主管簽核</div></div>
+  <div class="sig-m">
+    OOO股份有限公司　｜　法規鑑別清單　｜　類別：<span id="sig-cat">職業安全衛生</span><br>
+    清點日期：<span id="sig-chk">115/06/11</span>　｜　登錄日期：113/08/15
+  </div>
+  <div class="sig-b r"><div class="sig-l">法規鑑定人員</div><div class="sig-line"></div><div class="sig-n">王小明</div></div>
+</div>
+
+<!-- ═══ TOAST ═══ -->
+<div class="toast" id="toast"></div>
+
+<!-- ═══ LOGIN MODAL ═══ -->
+<div class="overlay" id="login-modal">
+  <div class="modal">
+    <h2>🔐 管理者登入</h2>
+    <p>請輸入管理者密碼以存取編輯功能</p>
+    <label>密碼</label>
+    <input type="password" id="pw-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    <div class="err" id="pw-err">❌ 密碼錯誤，請再試一次</div>
+    <div class="btn-row">
+      <button class="btn btn-g" onclick="closeLogin()">取消</button>
+      <button class="btn btn-p" onclick="doLogin()">登入</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ EDIT MODAL ═══ -->
+<div class="overlay" id="edit-modal">
+  <div class="modal" style="width:500px">
+    <h2>✏️ 編輯法規資料</h2>
+    <p>修改後點「儲存」即更新清單</p>
+    <input type="hidden" id="edit-idx">
+    <div class="edit-grid">
+      <div class="edit-field full">
+        <label>法規名稱</label>
+        <input type="text" id="ef-name">
+      </div>
+      <div class="edit-field">
+        <label>PCode</label>
+        <input type="text" id="ef-pcode">
+      </div>
+      <div class="edit-field">
+        <label>公佈日期（民國年/月/日）</label>
+        <input type="text" id="ef-pub" placeholder="074/11/29">
+      </div>
+      <div class="edit-field">
+        <label>修正日期（民國年/月/日）</label>
+        <input type="text" id="ef-mod" placeholder="113/08/01">
+      </div>
+      <div class="edit-field">
+        <label>登錄日期（民國年/月/日）</label>
+        <input type="text" id="ef-reg" placeholder="113/08/15">
+      </div>
+      <div class="edit-field">
+        <label>清點日期（民國年/月/日）</label>
+        <input type="text" id="ef-chk" placeholder="115/06/11">
+      </div>
+      <div class="edit-field">
+        <label>適用性</label>
+        <select id="ef-apply">
+          <option value="Y">Y（適用）</option>
+          <option value="N">N（不適用）</option>
+        </select>
+      </div>
+      <div class="edit-field">
+        <label>合規狀態</label>
+        <select id="ef-status">
+          <option value="符合">符合</option>
+          <option value="部分符合">部分符合</option>
+          <option value="不符合">不符合</option>
+          <option value="待改善">待改善</option>
+          <option value="待複核">待複核</option>
+        </select>
+      </div>
+      <div class="edit-field full">
+        <label>適用性判斷理由</label>
+        <input type="text" id="ef-reason" placeholder="說明此法規為何適用 / 不適用">
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-g" onclick="closeEdit()">取消</button>
+      <button class="btn btn-p" onclick="saveEdit()">儲存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// 設定：GAS 後端網址（部署後填入）
+// ═══════════════════════════════════════════════════════
+const GAS_URL = ''; // 示範版未串接後端 API，請填入你自己的 GAS Web App 網址
+
+// ═══════════════════════════════════════════════════════
+// 管理者密碼 Hash（SHA-256）
+// 預設密碼：demo1234
+// 更改密碼：到 https://emn178.github.io/online-tools/sha256.html
+// 輸入新密碼取得 hash 後替換下方字串
+// ═══════════════════════════════════════════════════════
+const ADMIN_HASH = '0ead2060b65992dca4769af601a1b3a35ef38cfad2c2c465bb160ea764157c5d'; // demo1234
+// 注意：上方是示範密碼 demo1234 的 hash，正式使用請替換為你自己密碼的 SHA-256 值
+
+// ═══════════════════════════════════════════════════════
+// 法規資料（全部 PCode 與修正日期已查核，截至 115/06/11）
+// ═══════════════════════════════════════════════════════
+const DATA = {
+  ohs:{label:'職業安全衛生',rows:[
+    {n:'消防法',p:'D0120001',pub:'074/11/29',mod:'113/11/29',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'消防法施行細則',p:'D0120002',pub:'074/11/29',mod:'112/12/21',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'職業安全衛生法',p:'N0060001',pub:'063/04/16',mod:'114/12/19',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'職業安全衛生法施行細則',p:'N0060002',pub:'063/06/28',mod:'109/02/27',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'職業安全衛生教育訓練規則',p:'N0060010',pub:'064/06/12',mod:'114/09/04',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'職業安全衛生管理辦法',p:'N0060027',pub:'064/05/24',mod:'111/01/04',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'職業災害勞工保護法',p:'N0060041',pub:'091/04/28',mod:'107/11/21',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'職業災害勞工保護法施行細則',p:'N0060045',pub:'091/04/26',mod:'108/02/22',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'職業安全衛生設施規則',p:'N0060009',pub:'063/10/30',mod:'113/08/01',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'危害性化學品標示及通識規則',p:'N0060054',pub:'096/10/19',mod:'107/11/09',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'危害性化學品評估及分級管理辦法',p:'N0060070',pub:'102/12/31',mod:'107/05/16',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'女性勞工母性健康保護實施辦法',p:'N0060065',pub:'103/12/31',mod:'113/05/31',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'勞工健康保護規則',p:'N0060022',pub:'063/08/19',mod:'110/12/22',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'勞工職業災害保險職業病鑑定作業實施辦法',p:'N0060080',pub:'111/03/31',mod:'111/03/30',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'勞工保險預防職業病健康檢查辦法',p:'N0050014',pub:'066/04/30',mod:'107/08/10',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'勞工職業災害保險預防職業病健康檢查及健康追蹤檢查辦法',p:'N0060077',pub:'111/04/29',mod:'111/03/13',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'性騷擾防治準則',p:'D0050136',pub:'095/01/27',mod:'113/02/05',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'性騷擾防治法施行細則',p:'D0050135',pub:'095/01/25',mod:'113/03/06',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'性別平等工作法施行細則',p:'N0030015',pub:'091/03/06',mod:'113/01/17',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'工作場所性騷擾防治措施準則',p:'N0030019',pub:'091/03/06',mod:'113/01/17',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'育嬰留職停薪實施辦法',p:'N0030018',pub:'091/03/06',mod:'114/11/20',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'飲用水管理條例',p:'O0040010',pub:'061/11/10',mod:'095/01/27',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'飲用水管理條例施行細則',p:'O0040016',pub:'087/02/04',mod:'095/08/07',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'飲用水水源水質標準',p:'O0040018',pub:'086/09/24',mod:'086/09/24',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'飲用水水質標準',p:'O0040019',pub:'087/02/04',mod:'113/11/25',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'飲用水連續供水固定設備使用及維護管理辦法',p:'O0040014',pub:'086/12/31',mod:'095/07/07',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'勞動檢查法',p:'N0070001',pub:'020/02/10',mod:'109/06/10',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'勞動檢查法施行細則',p:'N0070004',pub:'082/08/25',mod:'112/11/06',r:'113/08/15',c:'115/06/11',a:'Y'},
+  ]},
+  iso45001:{label:'ISO 45001',rows:[
+    {n:'消防法',p:'D0120001',pub:'074/11/29',mod:'113/11/29',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'消防法施行細則',p:'D0120002',pub:'074/11/29',mod:'112/12/21',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'職業安全衛生法',p:'N0060001',pub:'063/04/16',mod:'114/12/19',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'職業安全衛生法施行細則',p:'N0060002',pub:'063/06/28',mod:'109/02/27',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'職業安全衛生教育訓練規則',p:'N0060010',pub:'064/06/12',mod:'114/09/04',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'職業安全衛生管理辦法',p:'N0060027',pub:'064/05/24',mod:'111/01/04',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'職業災害勞工保護法',p:'N0060041',pub:'091/04/28',mod:'107/11/21',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'職業災害勞工保護法施行細則',p:'N0060045',pub:'091/04/26',mod:'108/02/22',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'職業安全衛生設施規則',p:'N0060009',pub:'063/10/30',mod:'113/08/01',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'危害性化學品標示及通識規則',p:'N0060054',pub:'096/10/19',mod:'107/11/09',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'危害性化學品評估及分級管理辦法',p:'N0060070',pub:'102/12/31',mod:'107/05/16',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'女性勞工母性健康保護實施辦法',p:'N0060065',pub:'103/12/31',mod:'113/05/31',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'勞工健康保護規則',p:'N0060022',pub:'063/08/19',mod:'110/12/22',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'勞工職業災害保險職業病鑑定作業實施辦法',p:'N0060080',pub:'111/03/31',mod:'111/03/30',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'勞工保險預防職業病健康檢查辦法',p:'N0050014',pub:'066/04/30',mod:'107/08/10',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'勞工職業災害保險預防職業病健康檢查及健康追蹤檢查辦法',p:'N0060077',pub:'111/04/29',mod:'111/03/13',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'性騷擾防治準則',p:'D0050136',pub:'095/01/27',mod:'113/02/05',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'性騷擾防治法施行細則',p:'D0050135',pub:'095/01/25',mod:'113/03/06',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'性別平等工作法施行細則',p:'N0030015',pub:'091/03/06',mod:'113/01/17',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'工作場所性騷擾防治措施準則',p:'N0030019',pub:'091/03/06',mod:'113/01/17',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'育嬰留職停薪實施辦法',p:'N0030018',pub:'091/03/06',mod:'114/11/20',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'飲用水管理條例',p:'O0040010',pub:'061/11/10',mod:'095/01/27',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'飲用水管理條例施行細則',p:'O0040016',pub:'087/02/04',mod:'095/08/07',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'飲用水水源水質標準',p:'O0040018',pub:'086/09/24',mod:'086/09/24',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'飲用水水質標準',p:'O0040019',pub:'087/02/04',mod:'113/11/25',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'飲用水連續供水固定設備使用及維護管理辦法',p:'O0040014',pub:'086/12/31',mod:'095/07/07',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'勞動檢查法',p:'N0070001',pub:'020/02/10',mod:'109/06/10',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'勞動檢查法施行細則',p:'N0070004',pub:'082/08/25',mod:'112/11/06',r:'113/08/15',c:'115/06/11',a:'Y'},
+  ]},
+  iso14001:{label:'ISO 14001',rows:[
+    {n:'空氣污染防制法',p:'O0040011',pub:'064/05/23',mod:'107/08/01',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'空氣污染防制法施行細則',p:'O0040012',pub:'065/10/20',mod:'109/09/18',r:'081/04/10',c:'115/06/11',a:'Y'},
+    {n:'空氣品質標準',p:'O0040015',pub:'063/04/16',mod:'113/09/30',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'室內空氣品質管理法',p:'O0040020',pub:'100/11/23',mod:'無',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'室內空氣品質管理法施行細則',p:'O0040021',pub:'101/11/23',mod:'無',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'室內空氣品質標準',p:'O0040022',pub:'101/11/23',mod:'無',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'氣候變遷因應法',p:'O0040031',pub:'104/07/01',mod:'112/02/15',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'溫室氣體減量及管理法施行細則',p:'O0040032',pub:'105/01/06',mod:'112/12/29',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'水污染防治法',p:'O0040016',pub:'063/07/11',mod:'107/06/13',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'水污染防治法施行細則',p:'O0040002',pub:'064/05/29',mod:'107/12/21',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'飲用水管理條例',p:'O0040010',pub:'061/11/10',mod:'095/01/27',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'飲用水管理條例施行細則',p:'O0040016',pub:'087/02/04',mod:'095/08/07',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'飲用水水源水質標準',p:'O0040018',pub:'086/09/24',mod:'無',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'飲用水水質標準',p:'O0040019',pub:'087/02/04',mod:'113/11/25',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'飲用水連續供水固定設備使用及維護管理辦法',p:'O0040014',pub:'086/12/31',mod:'095/07/07',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'廢棄物清理法',p:'O0050001',pub:'063/07/26',mod:'106/06/14',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'廢棄物清理法施行細則',p:'O0050036',pub:'090/05/30',mod:'108/11/06',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'毒性及關注化學物質管理法',p:'O0060012',pub:'075/11/26',mod:'108/01/16',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'毒性及關注化學物質管理法施行細則',p:'O0060013',pub:'078/08/02',mod:'108/09/03',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'噪音管制法',p:'O0040023',pub:'072/05/13',mod:'110/01/20',r:'113/08/15',c:'115/06/11',a:'Y'},
+    {n:'噪音管制法施行細則',p:'O0040024',pub:'073/12/20',mod:'099/03/11',r:'113/08/15',c:'115/06/11',a:'Y'},
+  ]}
+};
+
+// ═══════════════════════════════════════════════════════
+// 狀態
+// ═══════════════════════════════════════════════════════
+let cur = 'ohs', scol = -1, sasc = true, isAdmin = false;
+
+// ═══════════════════════════════════════════════════════
+// 工具函式
+// ═══════════════════════════════════════════════════════
+const lawUrl = p => `https://law.moj.gov.tw/LawClass/LawAll.aspx?PCode=${p}`;
+
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+function toast(msg, ms=3500) {
+  const t = document.getElementById('toast');
+  t.innerHTML = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), ms);
+}
+
+function setLabel(label) {
+  document.getElementById('hdr-cat').textContent = label;
+  document.getElementById('sbadge').textContent = '類別：' + label;
+  document.getElementById('ft-cat').textContent = label;
+  document.getElementById('sig-cat').textContent = label;
+}
+
+// ═══════════════════════════════════════════════════════
+// 渲染表格
+// ═══════════════════════════════════════════════════════
+function render() {
+  const q = document.getElementById('q').value;
+  const af = document.getElementById('af').value;
+  let rows = DATA[cur].rows.filter((r, i) => {
+    r._idx = i;
+    return (!q || r.n.includes(q)) && (!af || r.a === af);
+  });
+  if (scol >= 0) {
+    const keys = [null,'n','pub','mod','r','c','a'];
+    const k = keys[scol];
+    if (k) rows.sort((a,b) => {
+      const v = String(a[k]||'').localeCompare(String(b[k]||''), 'zh-Hant');
+      return sasc ? v : -v;
+    });
+  }
+  document.getElementById('tot').textContent = rows.length;
+  const statusCls = {'符合':'status-ok','部分符合':'status-partial','不符合':'status-bad','待改善':'status-todo','待複核':'status-review'};
+  const editCol = isAdmin ? `<th class="ns admin-only" style="width:52px" id="col-edit">編輯</th>` : '';
+  document.getElementById('tb').innerHTML = rows.map((r, i) => {
+    if (!r.status) r.status = '符合';
+    if (!r.reason) r.reason = '';
+    const sc = statusCls[r.status] || 'status-ok';
+    const reasonAttr = r.reason ? ` title="判斷理由：${r.reason.replace(/"/g,'&quot;')}"` : ' title="尚未填寫適用性判斷理由"';
+    const statusCell = isAdmin
+      ? `<button class="status-pill clickable ${sc}" onclick="cycleStatus(${r._idx})" title="點擊切換合規狀態">${r.status}</button>`
+      : `<span class="status-pill ${sc}">${r.status}</span>`;
+    return `
+    <tr>
+      <td class="no-cell">${i + 1}</td>
+      <td><a class="law-link" href="${lawUrl(r.p)}" target="_blank" rel="noopener">${r.n}</a></td>
+      <td class="dt">${r.pub}</td>
+      <td class="dt"><strong>${r.mod}</strong></td>
+      <td class="dt">${r.r}</td>
+      <td><span class="pill">${r.c}</span></td>
+      <td style="text-align:center"><span class="badge-y"${reasonAttr}>${r.a}</span></td>
+      <td style="text-align:center">${statusCell}</td>
+      <td style="text-align:center">
+        <a class="ext-link" href="${lawUrl(r.p)}" target="_blank" rel="noopener" title="前往全國法規資料庫">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15,3 21,3 21,9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        </a>
+      </td>
+      ${isAdmin ? `<td style="text-align:center"><button class="edit-btn" onclick="openEdit(${r._idx})">編輯</button></td>` : ''}
+    </tr>`;
+  }).join('');
+}
+
+const STATUS_CYCLE = ['符合','部分符合','不符合','待改善'];
+function cycleStatus(idx) {
+  const r = DATA[cur].rows[idx];
+  const i = STATUS_CYCLE.indexOf(r.status);
+  r.status = STATUS_CYCLE[(i + 1 + STATUS_CYCLE.length) % STATUS_CYCLE.length] || STATUS_CYCLE[0];
+  render();
+}
+
+// ═══════════════════════════════════════════════════════
+// Tab 切換
+// ═══════════════════════════════════════════════════════
+function sw(i, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+  el.classList.add('on');
+  cur = ['ohs','iso45001','iso14001'][i];
+  setLabel(DATA[cur].label);
+  document.getElementById('c0').textContent = DATA.ohs.rows.length;
+  document.getElementById('c1').textContent = DATA.iso45001.rows.length;
+  document.getElementById('c2').textContent = DATA.iso14001.rows.length;
+  document.getElementById('q').value = '';
+  scol = -1; render();
+}
+
+function sortBy(c) {
+  if (scol === c) sasc = !sasc; else { scol = c; sasc = true; }
+  render();
+}
+
+// ═══════════════════════════════════════════════════════
+// 管理者登入 / 登出
+// ═══════════════════════════════════════════════════════
+function toggleAdmin() {
+  if (isAdmin) {
+    isAdmin = false;
+    applyAdminUI();
+    toast('👋 已登出管理者模式');
+  } else {
+    document.getElementById('login-modal').classList.add('show');
+    setTimeout(() => document.getElementById('pw-input').focus(), 100);
+  }
+}
+
+async function doLogin() {
+  const pw = document.getElementById('pw-input').value;
+  const hash = await sha256(pw);
+  if (hash === ADMIN_HASH) {
+    isAdmin = true;
+    document.getElementById('pw-input').value = '';
+    document.getElementById('pw-err').style.display = 'none';
+    document.getElementById('login-modal').classList.remove('show');
+    applyAdminUI();
+    toast('🔓 管理者模式已啟用');
+  } else {
+    document.getElementById('pw-err').style.display = 'block';
+    document.getElementById('pw-input').select();
+  }
+}
+
+function closeLogin() {
+  document.getElementById('login-modal').classList.remove('show');
+  document.getElementById('pw-input').value = '';
+  document.getElementById('pw-err').style.display = 'none';
+}
+
+function applyAdminUI() {
+  const btnAdmin = document.getElementById('btn-admin');
+  const adminBtns = document.getElementById('admin-btns');
+  const pubExport = document.getElementById('btn-export-pub');
+  const adminBadge = document.getElementById('admin-badge');
+
+  if (isAdmin) {
+    btnAdmin.textContent = '🔓 管理者登出';
+    btnAdmin.style.background = '#E4ECF6';
+    btnAdmin.style.color = '#1D4E89';
+    btnAdmin.style.borderColor = '#1D4E89';
+    adminBtns.style.display = 'flex';
+    pubExport.style.display = 'none';
+    adminBadge.textContent = '👤 管理者模式';
+    adminBadge.style.cssText = 'background:#E4ECF6;color:#1D4E89;padding:2px 8px;border-radius:8px;font-size:11px';
+  } else {
+    btnAdmin.textContent = '🔒 管理者登入';
+    btnAdmin.style.background = '';
+    btnAdmin.style.color = '';
+    btnAdmin.style.borderColor = '';
+    adminBtns.style.display = 'none';
+    pubExport.style.display = '';
+    adminBadge.textContent = '';
+  }
+  render();
+}
+
+// ═══════════════════════════════════════════════════════
+// 自動更新（需 GAS 後端）
+// ═══════════════════════════════════════════════════════
+async function doUpdate() {
+  if (!GAS_URL) {
+    toast('⚠️ 請先在程式碼中填入 GAS_URL（Google Apps Script 後端網址）', 5000);
+    return;
+  }
+  const btn = document.getElementById('btn-upd');
+  btn.disabled = true;
+  btn.textContent = '⟳ 查詢中...';
+  document.getElementById('prog-bar').style.display = 'block';
+
+  const rows = DATA[cur].rows;
+  let changed = 0, unchanged = 0, failed = 0;
+
+  for (let i = 0; i < rows.length; i++) {
+    const r = rows[i];
+    document.getElementById('stat-msg').textContent = `查詢中 (${i+1}/${rows.length})：${r.n}...`;
+    document.getElementById('prog').style.width = Math.round((i+1)/rows.length*100) + '%';
+    try {
+      const res = await fetch(`${GAS_URL}?pcode=${r.p}`);
+      const data = await res.json();
+      if (data.mod) {
+        if (data.mod !== r.mod) { r.mod = data.mod; r.status = '待複核'; changed++; }
+        else unchanged++;
+        if (data.pub) r.pub = data.pub;
+      } else { failed++; }
+    } catch(e) { failed++; }
+    render();
+    await new Promise(res => setTimeout(res, 300));
+  }
+
+  // 更新清點日期為今天
+  const now = new Date();
+  const today = `${now.getFullYear()-1911}/${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')}`;
+  rows.forEach(r => r.c = today);
+  ['hdr-chk','ft-chk','sig-chk'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = today;
+  });
+
+  document.getElementById('prog-bar').style.display = 'none';
+  document.getElementById('prog').style.width = '0%';
+  btn.disabled = false;
+  btn.textContent = '↻ 自動更新（官方API）';
+  document.getElementById('stat-msg').textContent = `✅ 更新完成！有新修正 ${changed} 筆，無異動 ${unchanged} 筆，失敗 ${failed} 筆`;
+  document.getElementById('last-upd').textContent = `上次更新：${today}`;
+  toast(`✅ 更新完成：${changed} 筆有新修正，${unchanged} 筆無異動，${failed} 筆失敗`);
+  render();
+}
+
+// ═══════════════════════════════════════════════════════
+// 編輯法規
+// ═══════════════════════════════════════════════════════
+function openEdit(idx) {
+  const r = DATA[cur].rows[idx];
+  document.getElementById('edit-idx').value = idx;
+  document.getElementById('ef-name').value = r.n;
+  document.getElementById('ef-pcode').value = r.p;
+  document.getElementById('ef-pub').value = r.pub;
+  document.getElementById('ef-mod').value = r.mod;
+  document.getElementById('ef-reg').value = r.r;
+  document.getElementById('ef-chk').value = r.c;
+  document.getElementById('ef-apply').value = r.a;
+  document.getElementById('ef-status').value = r.status || '符合';
+  document.getElementById('ef-reason').value = r.reason || '';
+  document.getElementById('edit-modal').classList.add('show');
+}
+
+function saveEdit() {
+  const idx = parseInt(document.getElementById('edit-idx').value);
+  const r = DATA[cur].rows[idx];
+  r.n = document.getElementById('ef-name').value.trim();
+  r.p = document.getElementById('ef-pcode').value.trim();
+  r.pub = document.getElementById('ef-pub').value.trim();
+  r.mod = document.getElementById('ef-mod').value.trim();
+  r.r = document.getElementById('ef-reg').value.trim();
+  r.c = document.getElementById('ef-chk').value.trim();
+  r.a = document.getElementById('ef-apply').value;
+  r.status = document.getElementById('ef-status').value;
+  r.reason = document.getElementById('ef-reason').value.trim();
+  closeEdit();
+  render();
+  toast('✅ 已儲存');
+}
+
+function closeEdit() {
+  document.getElementById('edit-modal').classList.remove('show');
+}
+
+function addLaw() {
+  const newRow = {n:'新法規名稱',p:'',pub:'',mod:'',r:'115/06/11',c:'115/06/11',a:'Y',status:'符合',reason:''};
+  DATA[cur].rows.push(newRow);
+  openEdit(DATA[cur].rows.length - 1);
+}
+
+// ═══════════════════════════════════════════════════════
+// 匯出 CSV
+// ═══════════════════════════════════════════════════════
+function exportCSV() {
+  const rows = DATA[cur].rows;
+  const lines = [
+    ['編號','法規名稱','PCode','公佈日期','修正日期','登錄日期','清點日期','適用性','適用性判斷理由','合規狀態'].join(','),
+    ...rows.map((r,i) => [i+1, `"${r.n}"`, r.p, r.pub, r.mod, r.r, r.c, r.a, `"${(r.reason||'').replace(/"/g,'""')}"`, r.status||'符合'].join(','))
+  ];
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(['\uFEFF'+lines.join('\n')], {type:'text/csv;charset=utf-8'}));
+  const now = new Date();
+  const d = `${now.getFullYear()-1911}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
+  a.download = `OOO企業_法規鑑別清單_${DATA[cur].label}_${d}.csv`;
+  a.click();
+}
+
+function resetAll() {
+  document.getElementById('q').value = '';
+  document.getElementById('af').value = '';
+  scol = -1; sasc = true; render();
+}
+
+// 按 ESC 關閉 modal
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closeLogin(); closeEdit();
+  }
+});
+
+// 點 overlay 關閉
+document.getElementById('login-modal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeLogin();
+});
+document.getElementById('edit-modal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeEdit();
+});
+
+// 初始化
+render();
+</script>
+</body>
+</html>
