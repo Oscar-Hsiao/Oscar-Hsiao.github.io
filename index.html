@@ -117,6 +117,43 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
 .article-detail .body .step-title{font-weight:700;display:flex;align-items:center;gap:8px;margin-bottom:4px}
 .article-detail .body .step-num{background:var(--blue);color:#fff;font-size:.7rem;font-weight:700;padding:3px 9px;border-radius:9999px;letter-spacing:.05em;white-space:nowrap}
 .article-detail .body .step-done{background:var(--green-bg);color:var(--green);border-radius:8px;padding:8px 12px;font-size:.85rem;margin-top:6px;font-weight:600}
+
+/* ── Notion (NotionNext) 匯出風格 — 僅套用在標記為 .notion-style 的單篇文章 ── */
+.article-detail .body.notion-style{
+  --notion-max-width:720px;
+  max-width:var(--notion-max-width);
+  margin:0 auto;
+  font-family:'PingFang TC','Microsoft JhengHei','Noto Sans TC',-apple-system,BlinkMacSystemFont,'Noto Sans CJK TC',sans-serif;
+  font-size:16px;
+  line-height:1.5;
+}
+@media (max-width:760px){
+  .article-detail .body.notion-style{max-width:calc(min(1920px,98vw))}
+}
+.article-detail .body.notion-style p{line-height:2rem;margin-top:.75rem;margin-bottom:.75rem}
+.article-detail .body.notion-style h1{font-size:1.875em}
+.article-detail .body.notion-style h2{font-size:1.5em;margin-top:1.1em}
+.article-detail .body.notion-style h3,
+.article-detail .body.notion-style h4{font-size:1.25em;margin-top:1em}
+.article-detail .body.notion-style table{border-collapse:collapse}
+.article-detail .body.notion-style th,
+.article-detail .body.notion-style td{border:1px solid var(--border)}
+.article-detail .body.notion-style .notion-asset-wrapper-image{max-width:100%}
+.article-detail .body.notion-style .notion-asset-wrapper-image > div{height:auto!important}
+.article-detail .body.notion-style img{max-width:100%}
+.article-detail .body.notion-style .notion-asset-caption{font-size:14px;line-height:1.4;text-align:center;padding:6px 0 6px 2px;color:var(--text2)}
+.article-detail .body.notion-style .notion-callout{border-radius:3px;display:flex;gap:8px;align-items:flex-start;padding:12px 14px;margin:14px 0}
+.article-detail .body.notion-style .notion-callout.notion-gray_background_co{background:var(--bg3)}
+.article-detail .body.notion-style .notion-page-icon{width:24px;height:24px;flex-shrink:0;font-size:18px;line-height:24px;text-align:center}
+.article-detail .body.notion-style .notion-callout-text,
+.article-detail .body.notion-style .notion-callout-text .notion-text{padding:0;margin:0;line-height:normal}
+.article-detail .body.notion-style .notion-table-of-contents{background-color:rgb(249,250,251);padding:.5rem;border-radius:6px}
+.article-detail .body.notion-style .notion-table-of-contents-item{font-size:15px;line-height:1.2}
+@media (prefers-color-scheme:dark){
+  .article-detail .body.notion-style .notion-table-of-contents{background-color:rgb(17,24,39)}
+}
+/* tip-box 沿用 callout 的圓角/留白邏輯，讓既有內容不用重寫也能對齊風格 */
+.article-detail .body.notion-style .tip-box{border-radius:3px}
 .article-detail h1{font-family:var(--font-serif);font-size:1.8rem;font-weight:600;margin-bottom:8px}
 
 /* ── About ── */
@@ -507,7 +544,7 @@ function renderMain(){
           <div class="article-meta">${a.date}　${a.tags.map(t=>'#'+t).join(' ')}</div>
           <div class="read-stats"><span>📝 字數 ${rs.words}</span><span>⏱ 閱讀時間~${rs.minutes} 分鐘</span></div>
           <h1>${a.title}</h1>
-          <div class="body" style="margin-top:18px">${a.body}</div>
+          <div class="body${a.id==='a4'?' notion-style':''}" style="margin-top:18px">${a.body}</div>
         </div>`;
       setupReadingProgress();
       return;
