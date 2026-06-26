@@ -16,6 +16,9 @@
   --blue:#1F6C9F;--blue-bg:#E1F3FE;
   --green:#346538;--green-bg:#EDF3EC;
   --yellow:#956400;--yellow-bg:#FBF3DB;
+  --red:#AF4040;--red-bg:#FCEAEA;
+  --purple:#6B4FA0;--purple-bg:#EFEAF7;
+  --gold:#C9A24B;--sidebar:#4E565C;
   --font:'Noto Sans TC',-apple-system,BlinkMacSystemFont,'Segoe UI','Microsoft JhengHei',sans-serif;
   --font-serif:'Noto Serif TC',-apple-system,serif;
   --mono:'JetBrains Mono','Courier New',monospace;
@@ -99,6 +102,15 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
 .article-detail .body .summary-box li{margin-bottom:4px}
 .article-detail .body ul,.article-detail .body ol{margin:8px 0 14px 20px}
 .article-detail .body li{margin-bottom:6px}
+.article-detail .body a{color:var(--blue);text-decoration:underline}
+.article-detail .body .tip-box{border-radius:10px;padding:14px 16px;margin:16px 0;font-size:.9rem;line-height:1.7}
+.article-detail .body .tip-goal{background:var(--blue-bg);color:var(--text)}
+.article-detail .body .tip-info{background:var(--yellow-bg);color:var(--text)}
+.article-detail .body .tip-warn{background:var(--red-bg);color:var(--text)}
+.article-detail .body .step-block{margin:14px 0;padding-left:4px}
+.article-detail .body .step-title{font-weight:700;display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.article-detail .body .step-num{background:var(--blue);color:#fff;font-size:.7rem;font-weight:700;padding:3px 9px;border-radius:9999px;letter-spacing:.05em;white-space:nowrap}
+.article-detail .body .step-done{background:var(--green-bg);color:var(--green);border-radius:8px;padding:8px 12px;font-size:.85rem;margin-top:6px;font-weight:600}
 .article-detail h1{font-family:var(--font-serif);font-size:1.8rem;font-weight:600;margin-bottom:8px}
 
 /* ── About ── */
@@ -172,6 +184,97 @@ const TOOLS=[
 ];
 
 const ARTICLES=[
+  {id:'a4',date:'2026-06-21',tags:['職安衛','法規','不法侵害'],title:'不法侵害怎麼認定？7月1日職安法霸凌防治專章上路，企業該怎麼準備',
+   excerpt:'從4個真實判決拆解「管理」與「霸凌」的法律界線，並解析7月1日起《職業安全衛生法》新增霸凌防治專章對企業申訴、調查機制的新要求，附法規連結與企業端SOP。',
+   body:`<div class="tip-box tip-goal">🎯 這篇文章帶你搞懂：法院怎麼判斷「管理權行使」與「職場霸凌」的界線、7月1日起職安法新增的霸凌防治專章對企業有什麼新義務，以及企業端可以照走的標準處理流程。</div>
+
+   <p>不法侵害這件事，像是一條畫在地上、但肉眼看不見的界線——管理權跟霸凌站在同一條路上，差別只在於有沒有越線。問題是，企業往往要等到員工申訴、甚至上了法院，才發現自己已經踩過去了。</p>
+   <p>員工申訴霸凌，不代表行為就一定違法；但企業也不能因此就什麼都不處理。這條界線該怎麼劃，連法院判決彼此之間都各有側重的角度。</p>
+   <p>本文從 4 個真實判決拆解法院認定的核心邏輯，並解析 2026 年 7 月 1 日起上路的職安法霸凌防治專章，企業的申訴、調查機制該怎麼準備。</p>
+
+   <hr style="border:none;border-top:1px solid var(--border);margin:24px 0">
+
+   <h4>一、不法侵害的法律定義</h4>
+   <p>依《<a href="https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060001" target="_blank" rel="noopener">職業安全衛生法</a>》第 6 條第 2 項規定，雇主對於執行職務因他人行為遭受身體或精神不法侵害，應採取必要的預防措施。白話來說：<b>不是員工「覺得」被霸凌就成立</b>，而是行為要符合特定構成要件，這也是為什麼同樣是主管要求加班、調職，有些被法院認定是合理管理，有些卻被認定是霸凌。</p>
+
+   <h4>二、法院怎麼判斷「管理」跟「霸凌」的界線？四個核心要件</h4>
+   <p>整理近期判決可以發現，法院認定不法侵害通常會檢視以下四個要件：</p>
+   <table>
+     <tr><th>要件</th><th>檢視重點</th></tr>
+     <tr><td><b>是否有敵意或惡意</b></td><td>主管是否基於敵視、討厭、歧視等目的</td></tr>
+     <tr><td><b>是否持續反覆</b></td><td>單次衝突或單次嚴厲管理，通常不容易構成霸凌</td></tr>
+     <tr><td><b>是否逾越社會通念</b></td><td>行為是否超過一般職場可接受的程度</td></tr>
+     <tr><td><b>是否與管理目的有關</b></td><td>若基於工作需求、稽核、績效、紀律調整，較可能被認定為管理權行使</td></tr>
+   </table>
+
+   <div class="tip-box tip-info">💡 案例整理：以下案例參考自林裕老師（性騷擾調查/職場霸凌調查專業人才）公開彙整的判決重點，案號已附上方便自行查閱原始判決，正式法律行動仍建議委請專業律師核對判決全文。</div>
+
+   <table>
+     <tr><th>案件</th><th>案件性質</th><th>判決結果</th><th>法院重點</th></tr>
+     <tr><td>能元科技案<br><span style="color:var(--text3);font-size:.8rem">臺南高等行政法院 114重勞上1號</span></td><td>確認僱傭關係存在，雇主依勞基法第12條第1項第4款解僱</td><td>勞方敗訴，解僱合法</td><td>勞工持續拒絕 PIP 與合理調動，已破壞勞資信任；即使部分懲處有瑕疵，核心違規事實「情節重大」仍成立</td></tr>
+     <tr><td>信義房屋案<br><span style="color:var(--text3);font-size:.8rem">臺北地方法院 114勞小1號</span></td><td>職場霸凌損害賠償</td><td>勞方敗訴，資方及主管免賠</td><td>搬運年鑑、催促簽呈等屬一般公務指派，未逾越合理範圍，不構成霸凌</td></tr>
+     <tr><td>南亞科技案<br><span style="color:var(--text3);font-size:.8rem">新北地方法院 113訴232號</span></td><td>確認僱傭關係存在，雇主依勞基法第11條第5款資遣</td><td>勞方敗訴，資遣合法</td><td>不能勝任不只看能力不足，也包含「能做卻不做」的消極不作為；資方已多次輔導與調整，符合最後手段性</td></tr>
+     <tr><td>公審決字案<br><span style="color:var(--text3);font-size:.8rem">115公審決字第000356號</span></td><td>公務員懲處爭議</td><td>復審駁回，申誡一次合法</td><td>霸凌不成立，不代表行為就合法；高聲咆嘯、摔公文、厲聲斥責、黃色笑話，仍屬言行失檢，可予懲處</td></tr>
+   </table>
+
+   <h4>三、不一定構成霸凌的管理權行使 vs 高風險行為</h4>
+   <table>
+     <tr><th>不一定構成霸凌（多屬管理權）</th><th>可能構成霸凌（高風險）</th></tr>
+     <tr><td>✅ 要求員工提交報告</td><td>❌ 針對特定人長期羞辱</td></tr>
+     <tr><td>✅ 催促簽呈或預算資料</td><td>❌ 公開貶低人格</td></tr>
+     <tr><td>✅ 要求交出稽核資料</td><td>❌ 故意孤立、排擠</td></tr>
+     <tr><td>✅ 要求配合 PIP</td><td>❌ 不合理加重工作</td></tr>
+     <tr><td>✅ 調動部門或工作內容</td><td>❌ 用歧視、敵意語言對待</td></tr>
+     <tr><td>✅ 對違規行為約談、懲處</td><td>❌ 申訴後報復懲處</td></tr>
+   </table>
+
+   <h4>四、7 月 1 日起，職安法「霸凌防治專章」上路了什麼？</h4>
+   <p>過去不法侵害預防主要依附在《職業安全衛生法》第 6 條的概括規定，具體預防措施則寫在《<a href="https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009" target="_blank" rel="noopener">職業安全衛生設施規則</a>》第 324-3 條這個行政層級的規則裡，並沒有明確規定企業的申訴、調查程序。2026 年 7 月 1 日起，職安法新增「霸凌防治專章」，把不法侵害預防正式拉到法律層級，並依企業規模課予分級義務：</p>
+   <table>
+     <tr><th>企業規模</th><th>新增義務</th></tr>
+     <tr><td>10 人以上</td><td>應建立申訴管道</td></tr>
+     <tr><td>30 人以上</td><td>應訂定預防措施（書面計畫）</td></tr>
+     <tr><td>100 人以上</td><td>應設置調查委員會</td></tr>
+   </table>
+   <div class="tip-box tip-warn">⚠️ 新制上路後罰鍰金額大幅提高，企業若未依規定建立申訴、調查機制，最高罰鍰可達 450 萬元。具體條文編號待行政院公告施行版本確定後可能調整，建議上路前直接查閱《<a href="https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060001" target="_blank" rel="noopener">職業安全衛生法</a>》最新版本確認條號。</div>
+
+   <h4>五、企業端標準處理流程（SOP）</h4>
+   <div class="step-block">
+     <div class="step-title"><span class="step-num">STEP 1</span> 釐清事件</div>
+     <p>分清管理衝突、績效問題、職場不法侵害或溝通不良，這一步決定後面要走哪一套程序。</p>
+   </div>
+   <div class="step-block">
+     <div class="step-title"><span class="step-num">STEP 2</span> 蒐集事實</div>
+     <p>保留對話紀錄、信件、工作分派、面談、出勤等紀錄，事後補做永遠比不上事中即時留存。</p>
+   </div>
+   <div class="step-block">
+     <div class="step-title"><span class="step-num">STEP 3</span> 啟動調查</div>
+     <p>涉及霸凌或不法侵害申訴，應及成立調查程序，不要因為「看起來不嚴重」就略過正式流程。</p>
+   </div>
+   <div class="step-block">
+     <div class="step-title"><span class="step-num">STEP 4</span> 避免報復疑慮</div>
+     <p>申訴後任何懲處都要謹慎，避免被認定為秋後算帳，這是法院審查的重點之一。</p>
+   </div>
+   <div class="step-block">
+     <div class="step-title"><span class="step-num">STEP 5</span> 管理行為留痕</div>
+     <p>PIP、面談、調職、輔導、警告都要有書面紀錄，這是證明管理正當性與程序合法性最重要的關鍵。</p>
+   </div>
+   <div class="step-block">
+     <div class="step-title"><span class="step-num">STEP 6</span> 檢查比例原則</div>
+     <p>懲處要與行為嚴重性相當，不能過度懲戒，否則反而會弱化雇主立場。</p>
+   </div>
+   <div class="step-block">
+     <div class="step-title"><span class="step-num">STEP 7</span> 檢查最後手段性</div>
+     <p>解僱或資遣前，確認是否已沒有其他較輕手段，這是前述能元科技案、南亞科技案兩個判決共同強調的重點。</p>
+     <div class="step-done">✅ 完成這 7 步，企業端的管理行為才站得住法律審查</div>
+   </div>
+
+   <hr style="border:none;border-top:1px solid var(--border);margin:24px 0">
+
+   <p>從這幾個判決可以看出一句貫穿全部案例的邏輯：<b>職場霸凌不是員工覺得委屈就成立，而是主管行為必須逾越合理管理界線</b>；但反過來，霸凌不成立也不代表行為就毫無問題，公審決字案就是最好的例子。</p>
+   <p>7 月 1 日的修法把這條界線的責任更明確地交到企業手上——不是不能管理員工，而是管理行為要有合理理由、正當程序與完整紀錄。</p>
+   <p>學會合法管理、理性管理、留痕管理，才能降低企業端的爭訟風險，同時也保護真正受到不法侵害的員工。</p>
+   <div class="tip-box tip-info">📌 延伸閱讀：第一類、第二類事業單位的安全衛生人員配置怎麼算？</div>`},
   {id:'a1',date:'2026-06-15',tags:['職安衛','法規'],title:'第一類與第二類事業單位的安全衛生人員配置怎麼算？',
    excerpt:'每次人數一變動就要重新查表算一次配置門檻，乾脆把規則整個拆開來看，順手做成系統，下次不用再重算。',
    body:`<p>每隔一段時間，HR 那邊就會丟一句「我們這個月又新增了幾個人，職安衛人員夠不夠？」過來。一開始我都是翻法規、查表、用 Excel 手動對照人數區間，算完才發現——上次算的版本早就過期了。後來乾脆把整套規則拆開來看一次，順手寫成系統，這篇就是拆解過程的筆記。</p>
