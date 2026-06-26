@@ -10,13 +10,12 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#FAF9F7;--bg2:#fff;--bg3:#F3F1ED;
-  --border:#E6E3DD;--border2:#D8D4CC;
-  --text:#23282E;--text2:#6B7280;--text3:#A3ABB5;
-  --blue:#1D4E89;--blue-bg:#E4ECF6;
-  --green:#3A6B45;--green-bg:#E9F1E9;
-  --yellow:#B8742E;--yellow-bg:#F7ECDD;
-  --sidebar:#2E3440;--sidebar-active:#3D4452;
+  --bg:#FBFBFA;--bg2:#fff;--bg3:#F7F6F3;
+  --border:#EAEAEA;--border2:#DDDBD6;
+  --text:#2F3437;--text2:#787774;--text3:#A8A29E;
+  --blue:#1F6C9F;--blue-bg:#E1F3FE;
+  --green:#346538;--green-bg:#EDF3EC;
+  --yellow:#956400;--yellow-bg:#FBF3DB;
   --font:'Noto Sans TC',-apple-system,BlinkMacSystemFont,'Segoe UI','Microsoft JhengHei',sans-serif;
   --font-serif:'Noto Serif TC',-apple-system,serif;
   --mono:'JetBrains Mono','Courier New',monospace;
@@ -24,16 +23,16 @@
 body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex;min-height:100vh;line-height:1.6;-webkit-font-smoothing:antialiased}
 
 /* ── Sidebar ── */
-#sidebar{width:250px;min-height:100vh;background:var(--sidebar);position:fixed;top:0;left:0;padding:0;z-index:100;display:flex;flex-direction:column}
+#sidebar{width:250px;min-height:100vh;background:#4E565C;position:fixed;top:0;left:0;padding:0;z-index:100;display:flex;flex-direction:column}
 .sb-logo{padding:28px 22px 18px;border-bottom:1px solid rgba(255,255,255,.1)}
-.sb-brand{font-family:var(--font-serif);font-size:18px;font-weight:600;color:#fff}
-.sb-tag{font-size:11px;color:var(--yellow);letter-spacing:.12em;margin-top:6px;font-weight:600}
+.sb-brand{font-family:var(--font-serif);font-size:21px;font-weight:600;color:#fff}
+.sb-tag{font-size:14px;color:#C9A24B;letter-spacing:.12em;margin-top:6px;font-weight:600}
 .sb-nav{padding:14px 10px;display:flex;flex-direction:column;gap:2px;flex:1;overflow-y:auto}
-.sb-group{margin-top:14px;margin-bottom:2px;padding:0 12px;font-size:13px;color:rgba(255,255,255,.35);letter-spacing:.1em;text-transform:uppercase;font-weight:700}
-.sb-btn{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:6px;border:none;background:transparent;color:var(--text3);font-size:17px;cursor:pointer;text-align:left;width:100%;transition:background .15s,color .15s;font-family:inherit;text-decoration:none}
-.sb-btn:hover{background:rgba(255,255,255,.06);color:#fff}
-.sb-btn.active{background:var(--sidebar-active);color:var(--bg);font-weight:600;box-shadow:inset 2px 0 0 var(--blue)}
-.sb-foot{padding:16px 22px;border-top:1px solid rgba(255,255,255,.1);font-size:11px;color:rgba(255,255,255,.35)}
+.sb-group{margin-top:14px;margin-bottom:2px;padding:0 12px;font-size:14px;color:rgba(255,255,255,.35);letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+.sb-btn{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:8px;border:none;background:transparent;color:rgba(255,255,255,.65);font-size:16px;cursor:pointer;text-align:left;width:100%;transition:all .15s;font-family:inherit;text-decoration:none}
+.sb-btn:hover{background:rgba(255,255,255,.08);color:#fff}
+.sb-btn.active{background:rgba(255,255,255,.15);color:#fff;font-weight:600}
+.sb-foot{padding:16px 22px;border-top:1px solid rgba(255,255,255,.1);font-size:14px;color:rgba(255,255,255,.35)}
 
 /* ── Main ── */
 #main{margin-left:250px;flex:1;padding:40px 48px 60px;max-width:calc(100vw - 250px)}
@@ -46,19 +45,21 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
 .hero h1{font-family:var(--font-serif);font-size:clamp(1.8rem,4vw,2.6rem);font-weight:600;margin-bottom:.75rem}
 .hero p{color:var(--text2);font-size:.95rem;max-width:620px}
 
-/* ── Overview summary ── */
-.summary-line{font-size:.95rem;color:var(--text2);line-height:1.9;margin-bottom:32px;max-width:680px}
-.summary-line .num{font-family:var(--mono);font-weight:600;color:var(--blue)}
+/* ── Metric / overview ── */
+.metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:32px}
+.metric-card{background:var(--bg2);border-radius:10px;border:1px solid var(--border);padding:18px 20px}
+.metric-label{font-size:12px;color:var(--text2);margin-bottom:6px}
+.metric-value{font-size:28px;font-weight:700;font-family:var(--font-serif);color:var(--blue)}
+.metric-unit{font-size:12px;color:var(--text2);margin-top:2px}
 
 /* ── Section title ── */
-.section-title{font-size:20px;font-weight:700;color:var(--text2);letter-spacing:.06em;text-transform:uppercase;margin:36px 0 16px}
+.section-title{font-size:12px;font-weight:700;color:var(--text2);letter-spacing:.06em;text-transform:uppercase;margin:36px 0 16px}
 .section-title:first-of-type{margin-top:0}
 
 /* ── Card grid ── */
 .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
-.card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:12px;text-decoration:none;color:inherit;box-shadow:0 1px 2px rgba(35,40,46,.04);transition:box-shadow .2s cubic-bezier(.4,0,.2,1),transform .2s cubic-bezier(.4,0,.2,1)}
-.card:hover{box-shadow:0 8px 24px rgba(35,40,46,.08);transform:translateY(-2px)}
-.card:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px;display:flex;flex-direction:column;gap:12px;text-decoration:none;color:inherit;transition:box-shadow .2s ease,transform .2s ease}
+.card:hover{box-shadow:0 2px 8px rgba(0,0,0,.05);transform:translateY(-2px)}
 .card.featured{grid-column:1/-1}
 .card .tags{display:flex;gap:8px;flex-wrap:wrap}
 .card .tags span{font-size:.7rem;letter-spacing:.05em;text-transform:uppercase;border-radius:9999px;padding:.25rem .7rem;font-weight:600}
@@ -74,6 +75,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
 
 /* ── Articles ── */
 .article-list{display:flex;flex-direction:column;gap:14px}
+.empty{color:var(--text2);font-size:.9rem;padding:24px 0;text-align:center;border:1px dashed var(--border);border-radius:12px}
 .article-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px 24px;cursor:pointer;transition:box-shadow .2s ease}
 .article-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.05)}
 .article-meta{font-size:12px;color:var(--text3);margin-bottom:6px;display:flex;gap:10px;align-items:center}
@@ -85,6 +87,12 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
 .article-detail .body{font-size:.95rem;line-height:1.9;color:var(--text)}
 .article-detail .body p{margin-bottom:14px}
 .article-detail .body h4{font-family:var(--font-serif);font-size:1.1rem;margin:20px 0 10px}
+.article-detail .body .step{display:flex;gap:14px;align-items:flex-start;margin:18px 0}
+.article-detail .body .step .num{flex-shrink:0;width:40px;height:40px;border-radius:10px;background:var(--blue-bg);color:var(--blue);font-family:var(--font-serif);font-size:1.1rem;font-weight:700;display:flex;align-items:center;justify-content:center}
+.article-detail .body .tip{background:var(--yellow-bg);border-radius:10px;padding:12px 16px;font-size:.88rem;color:var(--text);margin:10px 0}
+.article-detail .body table{width:100%;border-collapse:collapse;font-size:.88rem;margin:10px 0}
+.article-detail .body th{text-align:left;padding:8px 10px;background:var(--bg3);color:var(--text2);font-weight:600;border-bottom:1px solid var(--border)}
+.article-detail .body td{padding:8px 10px;border-bottom:1px solid var(--border)}
 .article-detail h1{font-family:var(--font-serif);font-size:1.8rem;font-weight:600;margin-bottom:8px}
 
 /* ── About ── */
@@ -96,6 +104,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
 @media (max-width:900px){
   #sidebar{display:none}
   #main{margin-left:0;max-width:100vw;padding:24px}
+  .metric-grid{grid-template-columns:repeat(2,1fr)}
   .grid{grid-template-columns:1fr}
 }
 </style>
@@ -103,7 +112,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
 <body>
 
 <div id="sidebar">
-  <div class="sb-logo">
+  <div class="sb-logo" style="cursor:pointer" onclick="goHome()">
     <div class="sb-brand">Oscar Hsiao</div>
     <div class="sb-tag">職安 × AI × 永續</div>
   </div>
@@ -119,8 +128,12 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
 // ═══════════════════════════════════════════════
 const NAV=[
   {group:'',items:[
-    {id:'overview',label:'首頁'},
-    {id:'articles',label:'全部文章'}
+    {id:'overview',label:'首頁'}
+  ]},
+  {group:'文章專欄',items:[
+    {id:'articles-職安衛',label:'職安衛',tag:'職安衛'},
+    {id:'articles-ESG',label:'ESG／永續',tag:'ESG'},
+    {id:'articles-AI',label:'AI',tag:'AI'}
   ]},
   {group:'職業安全衛生',items:[
     {id:'osh',label:'工具總覽'},
@@ -161,11 +174,42 @@ const ARTICLES=[
    <h4>第二類與第三類事業</h4>
    <p>風險相對較低，配置門檻人數較高，但仍須視規模設置丙級或乙級業務主管。</p>
    <p>本系統的「教育訓練與證照管理」工具已將上述規則內建，輸入事業類別與人數即可自動推算所需證照與回訓週期。</p>`},
-  {id:'a2',date:'2026-06-10',tags:['ESG','溫室氣體'],title:'中小企業做溫室氣體盤查，第一步該從哪裡開始？',
-   excerpt:'許多中小企業面對 ESG 浪潮感到無從下手，其實從範疇一、二的基本盤查開始，就能逐步建立起完整的碳排放資料庫。',
-   body:`<p>溫室氣體盤查的第一步，通常是界定「組織邊界」與「營運邊界」，確認哪些排放源屬於範疇一（直接排放）、範疇二（外購電力）。</p>
-   <p>建議中小企業可先從範疇一、二著手，蒐集每月用電量、燃料使用量等基本數據，再透過排放係數換算為 CO2e。</p>
-   <p>本系統的「溫室氣體盤查系統」提供範疇一～三的資料登錄與彙整介面，協助企業逐步建立可追蹤的碳排放資料庫。</p>`},
+  {id:'a2',date:'2026-06-10',tags:['ESG','溫室氣體'],title:'中小企業做溫室氣體盤查，第一步該從哪裡開始？範疇一、二、三全解析',
+   excerpt:'完全沒接觸過溫盤的新手也能看懂：用「邊、源、算、報、查」五個字，帶你走一遍溫室氣體盤查的完整流程。',
+   body:`<p>很多人聽到「溫室氣體盤查」「範疇一、二、三」就覺得很難，其實整個流程可以濃縮成 5 個字：<strong>邊、源、算、報、查</strong>。把這 5 個字記住，照順序做一遍，就是一次完整的溫盤。</p>
+
+   <div class="step"><div class="num">邊</div><div><h4 style="margin-top:0">畫邊界 — 先決定「算誰的」</h4>
+   <p>第一步不是去算數字，而是先決定「這次盤查要算哪些範圍」，叫做<strong>組織邊界</strong>（公司有哪些廠區、辦公室都算進來）與<strong>營運邊界</strong>（要算到範疇一、二，還是連範疇三都算）。</p>
+   <div class="tip">💡 新手常見誤解：以為要把「全世界跟公司有關的碳排放」都算進來。其實第一次盤查通常只先抓組織邊界內、自己能直接掌握數據的部分（範疇一、二），範疇三可以之後再逐步擴大。</div></div></div>
+
+   <div class="step"><div class="num">源</div><div><h4 style="margin-top:0">找排放源 — 公司哪裡會排碳？</h4>
+   <p>畫完邊界後，要逐一列出邊界內有哪些「會排放溫室氣體的活動」，並依照國際通用的「範疇」分類：</p>
+   <table>
+     <thead><tr><th>範疇</th><th>定義</th><th>生活化比喻</th><th>常見例子</th></tr></thead>
+     <tbody>
+       <tr><td><strong>範疇一</strong></td><td>公司自己直接排放</td><td>自己的車自己加的油</td><td>公司自有車輛燃油、鍋爐燃燒、滅火器逸散</td></tr>
+       <tr><td><strong>範疇二</strong></td><td>外購能源間接排放</td><td>家裡每月的電費單</td><td>外購電力、外購蒸氣／冷氣</td></tr>
+       <tr><td><strong>範疇三</strong></td><td>價值鏈其他間接排放</td><td>買東西時，背後藏的碳足跡</td><td>員工通勤、商務出差、原物料採購、廢棄物處理</td></tr>
+     </tbody>
+   </table>
+   <div class="tip">💡 新手小提醒：範疇一、二是「公司自己能控制」的部分，建議第一次盤查先把這兩塊做好做滿；範疇三項目多又難蒐集，可以排在進階階段再補。</div></div></div>
+
+   <div class="step"><div class="num">算</div><div><h4 style="margin-top:0">算排放量 — 一個公式套到底</h4>
+   <p>找到排放源後，計算方式幾乎都是同一個公式：</p>
+   <p style="text-align:center;font-family:var(--mono);font-size:1.05rem;background:var(--bg3);padding:14px;border-radius:10px">活動量 × 排放係數 = 溫室氣體排放量（CO2e）</p>
+   <p>用加油站比喻最好懂：「加了多少升油（活動量）」乘上「每升油會排多少碳（排放係數，環保署有公告固定數值）」，就等於這次加油實際排放的碳量。電費單也是同樣道理：用了多少度電，乘上台電的「電力排放係數」，就是這個月用電產生的碳排放。</p>
+   <div class="tip">💡 排放係數不用自己估算，環境部「溫室氣體排放係數管理表」每年都會公告最新版本，直接查表代入公式即可。</div></div></div>
+
+   <div class="step"><div class="num">報</div><div><h4 style="margin-top:0">報告登錄 — 讓數字正式生效</h4>
+   <p>算出各排放源的數值後，要彙整成正式的「溫室氣體排放清冊報告」，並依規定登錄到主管機關指定的平台（如環境部溫室氣體排放量資訊平台），逾規定門檻的事業單位需依法申報。</p>
+   <div class="tip">💡 即使公司目前還沒被強制要求申報，先建立內部報告格式與資料庫，未來法規擴大適用範圍或客戶要求 ESG 數據時就不會手忙腳亂。</div></div></div>
+
+   <div class="step"><div class="num">查</div><div><h4 style="margin-top:0">第三方查驗 — 讓數字被外部相信</h4>
+   <p>最後一步是請第三方驗證機構（如 SGS、BSI 等）依照 ISO 14064-1 等標準，對盤查結果進行查證，確認數據的計算邏輯與來源證據都經得起檢驗。</p>
+   <p>查證後取得的「查驗聲明書」，是企業對外（客戶、投資人、主管機關）證明碳排放數據可信度的關鍵文件，也是申請碳權、迴應供應鏈查核時的必備材料。</p>
+   <div class="tip">💡 第一次盤查不一定要馬上做外部查證，可以先完成內部盤查、累積 1～2 年數據後再尋求查證，逐步走完整套流程。</div></div></div>
+
+   <p style="margin-top:24px">把「邊、源、算、報、查」這 5 個步驟走完一輪，就是一次完整的溫室氣體盤查。本系統的「溫室氣體盤查系統」工具，已將範疇一～三的資料登錄與彙整介面準備好，協助企業從零開始逐步建立可追蹤的碳排放資料庫。</p>`},
   {id:'a3',date:'2026-06-01',tags:['AI','職安衛'],title:'用 AI 協助職安衛文件管理：從手動到自動化的轉變',
    excerpt:'透過將 localStorage 與簡單的規則引擎結合，職安衛日常的法規比對、回訓提醒、會議追蹤都能逐步自動化。',
    body:`<p>過去職安衛人員常需手動比對法規異動、追蹤證照到期日、整理會議紀錄，耗時且容易遺漏。</p>
@@ -178,6 +222,8 @@ const ARTICLES=[
 // ═══════════════════════════════════════════════
 let currentSection='overview';
 let currentArticle=null;
+
+function goHome(){currentSection='overview';currentArticle=null;renderNav();renderMain();window.scrollTo(0,0);}
 
 function renderNav(){
   const el=document.getElementById('nav');
@@ -208,7 +254,7 @@ function renderNav(){
 }
 
 function toolCard(t){
-  return`<a class="card${t.featured?' featured':''}" href="${t.href}">
+  return`<a class="card" href="${t.href}">
     <div class="tags">${t.tags.map(([label,cls])=>`<span class="${cls}">${label}</span>`).join('')}</div>
     <h3>${t.title}</h3>
     <p class="desc">${t.desc}</p>
@@ -229,13 +275,18 @@ function renderMain(){
         <h1>職安 × AI × 永續</h1>
         <p>整理目前完成的職業安全衛生與永續管理工具，結合資料自動化與法規規則引擎，協助企業以更有效率的方式管理日常職安衛與 ESG 事務。</p>
       </div>
-      <p class="summary-line">目前已上線 <span class="num">${TOOLS.length}</span> 項工具，涵蓋職業安全衛生 <span class="num">${TOOLS.filter(t=>t.category==='osh').length}</span> 項、ESG／永續 <span class="num">${TOOLS.filter(t=>t.category==='esg').length}</span> 項，並累積 <span class="num">${ARTICLES.length}</span> 篇文章，持續記錄法規、ESG 與 AI 應用的實務心得。</p>
-      <div class="section-title">最新文章</div>
-      <div class="article-list">${ARTICLES.slice(0,2).map(articleCard).join('')}</div>
+      <div class="metric-grid">
+        <div class="metric-card"><div class="metric-label">已上線工具</div><div class="metric-value">${TOOLS.length}</div><div class="metric-unit">項</div></div>
+        <div class="metric-card"><div class="metric-label">職安衛工具</div><div class="metric-value">${TOOLS.filter(t=>t.category==='osh').length}</div><div class="metric-unit">項</div></div>
+        <div class="metric-card"><div class="metric-label">ESG / 永續工具</div><div class="metric-value">${TOOLS.filter(t=>t.category==='esg').length}</div><div class="metric-unit">項</div></div>
+        <div class="metric-card"><div class="metric-label">文章篇數</div><div class="metric-value">${ARTICLES.length}</div><div class="metric-unit">篇</div></div>
+      </div>
       <div class="section-title">職業安全衛生工具</div>
       <div class="grid">${TOOLS.filter(t=>t.category==='osh').map(toolCard).join('')}</div>
       <div class="section-title">永續 ／ ESG 工具</div>
-      <div class="grid">${TOOLS.filter(t=>t.category==='esg').map(toolCard).join('')}</div>`;
+      <div class="grid">${TOOLS.filter(t=>t.category==='esg').map(toolCard).join('')}</div>
+      <div class="section-title">最新文章</div>
+      <div class="article-list">${ARTICLES.slice(0,2).map(articleCard).join('')}</div>`;
     bindArticleClicks();
     return;
   }
@@ -262,12 +313,15 @@ function renderMain(){
     return;
   }
 
-  if(currentSection==='articles'){
+  if(currentSection.startsWith('articles-')){
+    const tag=currentSection.replace('articles-','');
+    const navItem=NAV.flatMap(g=>g.items).find(i=>i.id===currentSection);
+    const filtered=ARTICLES.filter(a=>a.tags.includes(tag));
     if(currentArticle){
       const a=ARTICLES.find(x=>x.id===currentArticle);
       main.innerHTML=`
         <div class="article-detail active">
-          <a class="back" onclick="backToArticles()">← 返回文章列表</a>
+          <a class="back" onclick="backToArticles()">← 返回「${navItem?navItem.label:tag}」文章列表</a>
           <div class="article-meta">${a.date}　${a.tags.map(t=>'#'+t).join(' ')}</div>
           <h1>${a.title}</h1>
           <div class="body" style="margin-top:18px">${a.body}</div>
@@ -277,10 +331,10 @@ function renderMain(){
     main.innerHTML=`
       <div class="hero">
         <span class="tag tag-yellow">文章專欄</span>
-        <h1>文章專欄</h1>
+        <h1>${navItem?navItem.label:tag}</h1>
         <p>分享職安衛法規解讀、ESG 實務心得與 AI 應用於行政流程自動化的相關內容。</p>
       </div>
-      <div class="article-list">${ARTICLES.map(articleCard).join('')}</div>`;
+      ${filtered.length?`<div class="article-list">${filtered.map(articleCard).join('')}</div>`:'<div class="empty">此分類目前還沒有文章</div>'}`;
     bindArticleClicks();
     return;
   }
@@ -316,7 +370,16 @@ function articleCard(a){
 }
 function bindArticleClicks(){
   document.querySelectorAll('.article-card').forEach(el=>{
-    el.onclick=()=>{currentSection='articles';currentArticle=el.getAttribute('data-id');renderNav();renderMain();window.scrollTo(0,0);};
+    el.onclick=()=>{
+      const id=el.getAttribute('data-id');
+      const a=ARTICLES.find(x=>x.id===id);
+      if(!currentSection.startsWith('articles-')){
+        const matchedTag=a.tags.find(t=>NAV.flatMap(g=>g.items).some(i=>i.id==='articles-'+t));
+        currentSection='articles-'+(matchedTag||a.tags[0]);
+      }
+      currentArticle=id;
+      renderNav();renderMain();window.scrollTo(0,0);
+    };
   });
 }
 function backToArticles(){currentArticle=null;renderMain();window.scrollTo(0,0);}

@@ -3,19 +3,19 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>教育訓練與證照管理系統 — OOO企業</title>
+<title>教育訓練與證照管理系統 — 示範企業</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;600&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#FAF9F7;--bg2:#fff;--bg3:#F3F1ED;
-  --border:#E6E3DD;--border2:#D8D4CC;
-  --text:#23282E;--text2:#6B7280;--text3:#A3ABB5;
-  --blue:#1D4E89;--blue-bg:#E4ECF6;
-  --green:#3A6B45;--green-bg:#E9F1E9;
-  --yellow:#B8742E;--yellow-bg:#F7ECDD;
+  --bg:#FBFBFA;--bg2:#fff;--bg3:#F7F6F3;
+  --border:#EAEAEA;--border2:#DDDBD6;
+  --text:#2F3437;--text2:#787774;--text3:#A8A29E;
+  --blue:#1F6C9F;--blue-bg:#E1F3FE;
+  --green:#346538;--green-bg:#EDF3EC;
+  --yellow:#956400;--yellow-bg:#FBF3DB;
   --red:#AF4040;--red-bg:#FCEAEA;
   --purple:#6B4FA0;--purple-bg:#EFEAF7;
-  --gold:#B8742E;
+  --gold:#C9A24B;--sidebar:#4E565C;
   --font:'Noto Sans TC',-apple-system,BlinkMacSystemFont,'Segoe UI','Microsoft JhengHei',sans-serif;
   --font-serif:'Noto Serif TC',-apple-system,serif;
   --mono:'JetBrains Mono','Courier New',monospace;
@@ -23,7 +23,7 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex;min-height:100vh}
 /* Sidebar */
-#sidebar{width:220px;min-height:100vh;background:#2E3440;position:fixed;top:0;left:0;padding:0;z-index:100;display:flex;flex-direction:column}
+#sidebar{width:220px;min-height:100vh;background:var(--sidebar);position:fixed;top:0;left:0;padding:0;z-index:100;display:flex;flex-direction:column}
 .sb-logo{padding:24px 20px 18px;border-bottom:1px solid rgba(255,255,255,.1);display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
 .sb-logo img{height:40px;width:auto;display:block}
 .sb-titlebox{display:flex;flex-direction:column;align-items:center;gap:2px}
@@ -32,7 +32,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
 .sb-nav{padding:14px 10px;display:flex;flex-direction:column;gap:3px;flex:1}
 .sb-btn{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:8px;border:none;background:transparent;color:rgba(255,255,255,.6);font-size:13px;cursor:pointer;text-align:left;width:100%;transition:all .15s;font-family:inherit}
 .sb-btn:hover{background:rgba(255,255,255,.1);color:#fff}
-.sb-btn.active{background:#3D4452;color:#FAF9F7;font-weight:600;box-shadow:inset 2px 0 0 #1D4E89}
+.sb-btn.active{background:rgba(255,255,255,.15);color:#fff;font-weight:600}
 /* Admin bar */
 #adminBar{position:fixed;top:0;left:220px;right:0;height:60px;background:#fff;display:flex;align-items:center;justify-content:flex-end;padding:0 24px;gap:12px;z-index:90;font-size:13px;overflow:hidden;box-sizing:border-box}
 #adminBar .ab-label{color:var(--text);margin-right:auto;font-weight:700;font-size:20px;line-height:1;font-family:var(--font-serif)}
@@ -44,7 +44,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
 #loginModal.hidden,#signModal.hidden{display:none}
 .sign-row{display:flex;gap:6px;align-items:center;margin-bottom:6px}
 .sign-row label{font-size:12px;color:var(--text2);width:96px;flex-shrink:0}
-.lm-box{background:#fff;border-radius:14px;padding:24px;width:280px;display:flex;flex-direction:column;gap:10px;box-shadow:0 8px 32px rgba(0,0,0,.15)}
+.lm-box{background:#fff;border-radius:12px;padding:24px;width:280px;display:flex;flex-direction:column;gap:10px;box-shadow:0 8px 32px rgba(0,0,0,.15)}
 .lm-title{font-size:16px;font-weight:700;font-family:var(--font-serif)}
 .lm-input{border:1px solid var(--border2);border-radius:8px;padding:8px 12px;font-size:14px;font-family:inherit}
 .lm-btn{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:8px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:600}
@@ -54,7 +54,7 @@ body.readonly .admin-only{display:none!important}
 /* Main */
 #main{margin-left:220px;flex:1;padding:110px 32px 28px;max-width:calc(100vw - 220px)}
 /* Cards */
-.card{background:var(--bg2);border-radius:14px;border:1px solid var(--border);padding:20px 24px;margin-bottom:16px;box-shadow:0 1px 2px rgba(35,40,46,.04)}
+.card{background:var(--bg2);border-radius:12px;border:1px solid var(--border);padding:20px 24px;margin-bottom:16px}
 .metric-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
 .metric-card{background:var(--bg2);border-radius:10px;border:1px solid var(--border);padding:16px 20px}
 .metric-label{font-size:12px;color:var(--text2);margin-bottom:6px}
@@ -189,7 +189,7 @@ input:focus,select:focus{outline:2px solid var(--blue);border-color:transparent}
 <div id="sidebar">
   <div class="sb-logo">
     <div class="sb-titlebox">
-      <div class="sb-company">OOO企業</div>
+      <div class="sb-company">示範企業</div>
       <div class="sb-title">職業安全衛生管理</div>
     </div>
   </div>
@@ -205,7 +205,7 @@ input:focus,select:focus{outline:2px solid var(--blue);border-color:transparent}
 const STAFF_KEY='train_staff', RECORD_KEY='train_records', CERTREQ_KEY='train_certreq', META_KEY='train_meta';
 
 // 法定 / 常見需回訓證照
-// OOO企業為「第一類事業單位（非營造業）」，勞工人數180人，落於100~300人區間：
+// 示範企業為「第一類事業單位（非營造業）」，勞工人數180人，落於100~300人區間：
 // 依「事業單位安全衛生人員配置」規定 → 乙級業務主管x1、甲級業務主管x1（不須專職），
 // 並設置直接隸屬雇主之一級管理單位（勞工人數100人以上即須設置）。
 // 因 < 200人，尚未達須建立 OSHMS（職業安全衛生管理系統）之門檻（第一類≥200人）。
@@ -423,7 +423,7 @@ function pageDashboard(){
 
   document.getElementById('main').innerHTML=`
     <div class="page-header">
-      <div><div class="page-sub">OOO股份有限公司　職業安全衛生教育訓練／證照總覽</div></div>
+      <div><div class="page-sub">示範股份有限公司　職業安全衛生教育訓練／證照總覽</div></div>
       <div style="text-align:right">
         <div class="page-sub">資料最後更新：${META.lastUpdated?new Date(META.lastUpdated).toLocaleString('zh-TW',{hour12:false}):'尚無紀錄'}</div>
         <div class="page-sub">網站存活自動檢查：每日上午約 9:09</div>
@@ -970,7 +970,7 @@ function pageLegal(){
 
   document.getElementById('main').innerHTML=`
     <div class="page-header"><div><div class="page-title">法規依據</div>
-      <div class="page-sub">OOO企業目前設定為「${esc(CATEGORY_LABELS[META.category]||CATEGORY_LABELS[1])}」，勞工人數 ${META.totalEmployees} 人，依職業安全衛生法相關規定彙整如下</div></div></div>
+      <div class="page-sub">示範企業目前設定為「${esc(CATEGORY_LABELS[META.category]||CATEGORY_LABELS[1])}」，勞工人數 ${META.totalEmployees} 人，依職業安全衛生法相關規定彙整如下</div></div></div>
 
     <div class="card">
       <div class="section-title" style="display:flex;justify-content:space-between;align-items:center">
@@ -1042,7 +1042,7 @@ function pageLegal(){
         - 《職業安全衛生教育訓練規則》— 各類人員初訓與回訓時數規定<br>
         - 《勞工健康保護規則》— 護理人員臨場服務頻率<br>
         - 《各類場所消防安全設備設置標準》— 防火管理人設置<br><br>
-        ⚠️ 以上為依OOO企業目前申報之勞工人數（${META.totalEmployees}人）與「第一類事業單位（非營造業）」分類所做的通用彙整，
+        ⚠️ 以上為依示範企業目前申報之勞工人數（${META.totalEmployees}人）與「第一類事業單位（非營造業）」分類所做的通用彙整，
         實際適用條款仍應以勞動檢查機構核定之事業單位分類、行業性質與最新法規公告為準。
         若公司規模或分類有變動，請至「總覽儀表板」更新「公司總人數」，本頁與「法定證照需求設定」之缺口分析將自動連動。
       </div>

@@ -3,18 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>OOO股份有限公司 — 法規鑑別清單管理系統</title>
+<title>示範股份有限公司 — 法規鑑別清單管理系統</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;600&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#FAF9F7;--bg2:#fff;--bg3:#F3F1ED;
-  --border:#E6E3DD;--border2:#D8D4CC;
-  --text:#23282E;--text2:#6B7280;--text3:#A3ABB5;
-  --blue:#1D4E89;--blue-bg:#E4ECF6;--blue-dark:#23282E;
-  --green-bg:#E9F1E9;--green:#3A6B45;
+  --bg:#FBFBFA;--bg2:#fff;--bg3:#F7F6F3;
+  --border:#EAEAEA;--border2:#DDDBD6;
+  --text:#2F3437;--text2:#787774;--text3:#A8A29E;
+  --blue:#1F6C9F;--blue-bg:#E1F3FE;
+  --green:#346538;--green-bg:#EDF3EC;
+  --yellow:#956400;--yellow-bg:#FBF3DB;
+  --red:#AF4040;--red-bg:#FCEAEA;
+  --purple:#6B4FA0;--purple-bg:#EFEAF7;
+  --gold:#C9A24B;--sidebar:#4E565C;
   --font:'Noto Sans TC',-apple-system,BlinkMacSystemFont,'Segoe UI','Microsoft JhengHei',sans-serif;
   --font-serif:'Noto Serif TC',-apple-system,serif;
   --mono:'JetBrains Mono','Courier New',monospace;
@@ -50,10 +54,10 @@ select{font-size:12px;padding:6px 10px;border:1px solid var(--border2);border-ra
 .btn:disabled{opacity:.4;cursor:not-allowed}
 .btn-p{background:var(--text);color:#fff;border-color:var(--text)}
 .btn-p:hover{background:#4a4f52;opacity:1}
-.btn-a{background:#fff;color:#B8742E;border-color:#F4E4B8}
+.btn-a{background:#fff;color:#956400;border-color:#F4E4B8}
 .btn-r{background:#fff;color:#9F2F2D;border-color:#F6D8D7}
 .btn-g{background:var(--bg3);color:var(--text)}
-.btn-teal{background:#fff;color:#3A6B45;border-color:var(--green-bg)}
+.btn-teal{background:#fff;color:#346538;border-color:var(--green-bg)}
 .btn-lock{background:var(--bg3);color:var(--text3);border-color:var(--border)}
 .admin-btns{display:flex;gap:6px;flex-wrap:wrap}
 .admin-only{display:none}
@@ -116,7 +120,7 @@ tr:hover td{background:var(--bg3)}
 /* ── MODAL ── */
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center}
 .overlay.show{display:flex}
-.modal{background:var(--bg2);border-radius:14px;padding:28px;width:440px;max-width:90vw;box-shadow:0 16px 48px rgba(35,40,46,.18)}
+.modal{background:var(--bg2);border-radius:12px;padding:28px;width:440px;max-width:90vw;box-shadow:0 20px 60px rgba(0,0,0,.2)}
 .modal h2{font-size:16px;font-weight:600;color:var(--text);margin-bottom:6px}
 .modal p{font-size:13px;color:var(--text2);margin-bottom:18px}
 .modal input[type=password]{width:100%;padding:10px 14px;border:1.5px solid var(--border2);border-radius:8px;font-size:14px;font-family:var(--font);outline:none;transition:border .15s}
@@ -157,7 +161,7 @@ tr:hover td{background:var(--bg3)}
     <div class="logo-wrap">
       <div class="logo-b" style="display:flex;align-items:center;justify-content:center;font-size:24px">📋</div>
       <div class="logo-t">
-        <h1>OOO股份有限公司</h1>
+        <h1>示範股份有限公司</h1>
         <p>Demo Co. — 法規鑑別清單管理系統 v3.0</p>
       </div>
     </div>
@@ -259,16 +263,16 @@ tr:hover td{background:var(--bg3)}
 
 <!-- ═══ FOOTER ═══ -->
 <div class="footer">
-  <span>OOO股份有限公司　｜　法規鑑別清單　｜　類別：<span id="ft-cat">職業安全衛生</span></span>
+  <span>示範股份有限公司　｜　法規鑑別清單　｜　類別：<span id="ft-cat">職業安全衛生</span></span>
   <span>清點日期：<span id="ft-chk">115/06/11</span>　｜　登錄日期：113/08/15</span>
 </div>
 <div class="sig-row">
   <div class="sig-b"><div class="sig-l">審查</div><div class="sig-line"></div><div class="sig-n">主管簽核</div></div>
   <div class="sig-m">
-    OOO股份有限公司　｜　法規鑑別清單　｜　類別：<span id="sig-cat">職業安全衛生</span><br>
+    示範股份有限公司　｜　法規鑑別清單　｜　類別：<span id="sig-cat">職業安全衛生</span><br>
     清點日期：<span id="sig-chk">115/06/11</span>　｜　登錄日期：113/08/15
   </div>
-  <div class="sig-b r"><div class="sig-l">法規鑑定人員</div><div class="sig-line"></div><div class="sig-n">王小明</div></div>
+  <div class="sig-b r"><div class="sig-l">法規鑑定人員</div><div class="sig-line"></div><div class="sig-n">蕭印廷 (Oscar)</div></div>
 </div>
 
 <!-- ═══ TOAST ═══ -->
@@ -602,13 +606,13 @@ function applyAdminUI() {
 
   if (isAdmin) {
     btnAdmin.textContent = '🔓 管理者登出';
-    btnAdmin.style.background = '#E4ECF6';
-    btnAdmin.style.color = '#1D4E89';
-    btnAdmin.style.borderColor = '#1D4E89';
+    btnAdmin.style.background = '#E1F3FE';
+    btnAdmin.style.color = '#1F6C9F';
+    btnAdmin.style.borderColor = '#1F6C9F';
     adminBtns.style.display = 'flex';
     pubExport.style.display = 'none';
     adminBadge.textContent = '👤 管理者模式';
-    adminBadge.style.cssText = 'background:#E4ECF6;color:#1D4E89;padding:2px 8px;border-radius:8px;font-size:11px';
+    adminBadge.style.cssText = 'background:#E1F3FE;color:#1F6C9F;padding:2px 8px;border-radius:8px;font-size:11px';
   } else {
     btnAdmin.textContent = '🔒 管理者登入';
     btnAdmin.style.background = '';
@@ -731,7 +735,7 @@ function exportCSV() {
   a.href = URL.createObjectURL(new Blob(['\uFEFF'+lines.join('\n')], {type:'text/csv;charset=utf-8'}));
   const now = new Date();
   const d = `${now.getFullYear()-1911}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
-  a.download = `OOO企業_法規鑑別清單_${DATA[cur].label}_${d}.csv`;
+  a.download = `示範企業_法規鑑別清單_${DATA[cur].label}_${d}.csv`;
   a.click();
 }
 
