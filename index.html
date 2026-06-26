@@ -1,498 +1,328 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Oscar 的專案管理</title>
+<title>Oscar Hsiao — 職安 × AI × 永續</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;600&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0f1117;
-    --surface: #1a1d2e;
-    --surface2: #252840;
-    --accent: #6c63ff;
-    --accent2: #ff6584;
-    --text: #e2e8f0;
-    --text2: #94a3b8;
-    --green: #10b981;
-    --yellow: #f59e0b;
-    --blue: #3b82f6;
-    --border: rgba(255,255,255,0.07);
-    --radius: 14px;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#FAF9F7;--bg2:#fff;--bg3:#F3F1ED;
+  --border:#E6E3DD;--border2:#D8D4CC;
+  --text:#23282E;--text2:#6B7280;--text3:#A3ABB5;
+  --blue:#1D4E89;--blue-bg:#E4ECF6;
+  --green:#3A6B45;--green-bg:#E9F1E9;
+  --yellow:#B8742E;--yellow-bg:#F7ECDD;
+  --sidebar:#2E3440;--sidebar-active:#3D4452;
+  --font:'Noto Sans TC',-apple-system,BlinkMacSystemFont,'Segoe UI','Microsoft JhengHei',sans-serif;
+  --font-serif:'Noto Serif TC',-apple-system,serif;
+  --mono:'JetBrains Mono','Courier New',monospace;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex;min-height:100vh;line-height:1.6;-webkit-font-smoothing:antialiased}
 
-  /* HEADER */
-  header {
-    background: linear-gradient(135deg, #1a1d2e 0%, #252840 100%);
-    border-bottom: 1px solid var(--border);
-    padding: 28px 40px;
-    display: flex; align-items: center; justify-content: space-between;
-    position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px);
-  }
-  .header-left h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.5px; }
-  .header-left h1 span { color: var(--accent); }
-  .header-left p { color: var(--text2); font-size: 0.85rem; margin-top: 2px; }
-  .header-right { display: flex; gap: 10px; align-items: center; }
-  .btn { padding: 8px 18px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: all 0.2s; }
-  .btn-ghost { background: transparent; color: var(--text2); border: 1px solid var(--border); }
-  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
-  .btn-primary { background: var(--accent); color: #fff; }
-  .btn-primary:hover { background: #7c73ff; transform: translateY(-1px); }
-  .btn-danger { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
-  .btn-danger:hover { background: rgba(239,68,68,0.25); }
+/* ── Sidebar ── */
+#sidebar{width:250px;min-height:100vh;background:var(--sidebar);position:fixed;top:0;left:0;padding:0;z-index:100;display:flex;flex-direction:column}
+.sb-logo{padding:28px 22px 18px;border-bottom:1px solid rgba(255,255,255,.1)}
+.sb-brand{font-family:var(--font-serif);font-size:18px;font-weight:600;color:#fff}
+.sb-tag{font-size:11px;color:var(--yellow);letter-spacing:.12em;margin-top:6px;font-weight:600}
+.sb-nav{padding:14px 10px;display:flex;flex-direction:column;gap:2px;flex:1;overflow-y:auto}
+.sb-group{margin-top:14px;margin-bottom:2px;padding:0 12px;font-size:13px;color:rgba(255,255,255,.35);letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+.sb-btn{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:6px;border:none;background:transparent;color:var(--text3);font-size:17px;cursor:pointer;text-align:left;width:100%;transition:background .15s,color .15s;font-family:inherit;text-decoration:none}
+.sb-btn:hover{background:rgba(255,255,255,.06);color:#fff}
+.sb-btn.active{background:var(--sidebar-active);color:var(--bg);font-weight:600;box-shadow:inset 2px 0 0 var(--blue)}
+.sb-foot{padding:16px 22px;border-top:1px solid rgba(255,255,255,.1);font-size:11px;color:rgba(255,255,255,.35)}
 
-  /* STATS */
-  .stats-bar {
-    display: flex; gap: 24px; padding: 20px 40px;
-    border-bottom: 1px solid var(--border);
-    background: rgba(26,29,46,0.5);
-  }
-  .stat { text-align: center; }
-  .stat-num { font-size: 1.6rem; font-weight: 700; color: var(--accent); }
-  .stat-label { font-size: 0.75rem; color: var(--text2); margin-top: 2px; }
+/* ── Main ── */
+#main{margin-left:250px;flex:1;padding:40px 48px 60px;max-width:calc(100vw - 250px)}
+.section{display:none}
+.section.active{display:block}
 
-  /* FILTERS */
-  .filters { display: flex; gap: 10px; padding: 20px 40px; flex-wrap: wrap; align-items: center; }
-  .filter-input {
-    background: var(--surface); border: 1px solid var(--border); color: var(--text);
-    padding: 8px 14px; border-radius: 8px; font-size: 0.85rem; width: 240px;
-    outline: none; transition: border 0.2s;
-  }
-  .filter-input:focus { border-color: var(--accent); }
-  .filter-btn { padding: 7px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text2); cursor: pointer; font-size: 0.82rem; transition: all 0.2s; }
-  .filter-btn.active, .filter-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+/* ── Hero ── */
+.hero{margin-bottom:40px}
+.hero .tag{display:inline-block;font-size:0.75rem;letter-spacing:0.08em;text-transform:uppercase;background:var(--blue-bg);color:var(--blue);padding:0.3rem 0.8rem;border-radius:9999px;margin-bottom:1rem;font-weight:600}
+.hero h1{font-family:var(--font-serif);font-size:clamp(1.8rem,4vw,2.6rem);font-weight:600;margin-bottom:.75rem}
+.hero p{color:var(--text2);font-size:.95rem;max-width:620px}
 
-  /* GRID */
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 20px; padding: 20px 40px 60px; }
+/* ── Overview summary ── */
+.summary-line{font-size:.95rem;color:var(--text2);line-height:1.9;margin-bottom:32px;max-width:680px}
+.summary-line .num{font-family:var(--mono);font-weight:600;color:var(--blue)}
 
-  /* CARD */
-  .card {
-    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
-    padding: 24px; transition: all 0.25s; position: relative; overflow: hidden;
-  }
-  .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent2)); opacity: 0; transition: opacity 0.25s; }
-  .card:hover { transform: translateY(-4px); border-color: rgba(108,99,255,0.3); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
-  .card:hover::before { opacity: 1; }
+/* ── Section title ── */
+.section-title{font-size:20px;font-weight:700;color:var(--text2);letter-spacing:.06em;text-transform:uppercase;margin:36px 0 16px}
+.section-title:first-of-type{margin-top:0}
 
-  .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
-  .card-title { font-size: 1rem; font-weight: 700; line-height: 1.4; flex: 1; }
-  .status-badge {
-    font-size: 0.72rem; font-weight: 600; padding: 3px 10px; border-radius: 20px; white-space: nowrap; margin-left: 10px;
-  }
-  .status-completed { background: rgba(16,185,129,0.15); color: var(--green); }
-  .status-in_progress { background: rgba(245,158,11,0.15); color: var(--yellow); }
-  .status-planning { background: rgba(59,130,246,0.15); color: var(--blue); }
+/* ── Card grid ── */
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:12px;text-decoration:none;color:inherit;box-shadow:0 1px 2px rgba(35,40,46,.04);transition:box-shadow .2s cubic-bezier(.4,0,.2,1),transform .2s cubic-bezier(.4,0,.2,1)}
+.card:hover{box-shadow:0 8px 24px rgba(35,40,46,.08);transform:translateY(-2px)}
+.card:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.card.featured{grid-column:1/-1}
+.card .tags{display:flex;gap:8px;flex-wrap:wrap}
+.card .tags span{font-size:.7rem;letter-spacing:.05em;text-transform:uppercase;border-radius:9999px;padding:.25rem .7rem;font-weight:600}
+.tag-blue{background:var(--blue-bg);color:var(--blue)}
+.tag-green{background:var(--green-bg);color:var(--green)}
+.tag-yellow{background:var(--yellow-bg);color:var(--yellow)}
+.card h3{font-family:var(--font-serif);font-size:1.3rem;font-weight:600}
+.card p.desc{color:var(--text2);font-size:.9rem;flex-grow:1}
+.card .footer-row{display:flex;justify-content:space-between;align-items:center;padding-top:.75rem;border-top:1px solid var(--border);font-size:.8rem}
+.card .footer-row .link{font-weight:600;display:flex;align-items:center;gap:.3rem;color:var(--blue)}
+.card .footer-row .status{color:var(--green);font-size:.75rem;display:flex;align-items:center;gap:.4rem}
+.card .footer-row .status .dot{width:6px;height:6px;border-radius:50%;background:#5DA862}
 
-  .card-date { font-size: 0.78rem; color: var(--text2); margin-bottom: 10px; }
-  .card-desc { font-size: 0.85rem; color: var(--text2); line-height: 1.6; margin-bottom: 14px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+/* ── Articles ── */
+.article-list{display:flex;flex-direction:column;gap:14px}
+.article-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px 24px;cursor:pointer;transition:box-shadow .2s ease}
+.article-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.article-meta{font-size:12px;color:var(--text3);margin-bottom:6px;display:flex;gap:10px;align-items:center}
+.article-card h3{font-family:var(--font-serif);font-size:1.15rem;font-weight:600;margin-bottom:6px}
+.article-card p{font-size:.88rem;color:var(--text2)}
+.article-detail{display:none}
+.article-detail.active{display:block}
+.article-detail .back{display:inline-flex;align-items:center;gap:6px;font-size:.85rem;color:var(--blue);cursor:pointer;margin-bottom:20px;text-decoration:none}
+.article-detail .body{font-size:.95rem;line-height:1.9;color:var(--text)}
+.article-detail .body p{margin-bottom:14px}
+.article-detail .body h4{font-family:var(--font-serif);font-size:1.1rem;margin:20px 0 10px}
+.article-detail h1{font-family:var(--font-serif);font-size:1.8rem;font-weight:600;margin-bottom:8px}
 
-  .card-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
-  .tag { font-size: 0.72rem; padding: 3px 10px; border-radius: 20px; background: var(--surface2); color: var(--text2); }
-  .tool-tag { background: rgba(108,99,255,0.15); color: #a5a0ff; }
+/* ── About ── */
+.about-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:28px;max-width:680px}
+.about-card h3{font-family:var(--font-serif);font-size:1.3rem;margin-bottom:10px}
+.about-card p{color:var(--text2);font-size:.92rem;margin-bottom:12px}
+.about-list{font-size:.9rem;color:var(--text2);line-height:2}
 
-  .card-links { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
-  .link-btn {
-    font-size: 0.78rem; padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border);
-    background: transparent; color: var(--text2); text-decoration: none; display: inline-flex; align-items: center; gap: 4px;
-    transition: all 0.2s; cursor: pointer;
-  }
-  .link-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .link-btn.live { border-color: rgba(16,185,129,0.4); color: var(--green); }
-  .link-btn.live:hover { background: rgba(16,185,129,0.1); }
-
-  .card-admin-actions { display: none; gap: 8px; padding-top: 14px; border-top: 1px solid var(--border); }
-  .admin-mode .card-admin-actions { display: flex; }
-
-  .card-notes {
-    display: none; font-size: 0.78rem; color: var(--text2); background: var(--surface2);
-    border-radius: 8px; padding: 10px 12px; margin-bottom: 14px; white-space: pre-wrap; line-height: 1.6;
-  }
-  .admin-mode .card-notes { display: block; }
-
-  /* MODAL */
-  .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
-  .overlay.open { display: flex; }
-  .modal {
-    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
-    padding: 32px; width: 560px; max-width: 95vw; max-height: 90vh; overflow-y: auto;
-  }
-  .modal h2 { font-size: 1.1rem; margin-bottom: 24px; }
-  .form-group { margin-bottom: 16px; }
-  .form-group label { display: block; font-size: 0.82rem; color: var(--text2); margin-bottom: 6px; }
-  .form-group input, .form-group textarea, .form-group select {
-    width: 100%; background: var(--surface2); border: 1px solid var(--border); color: var(--text);
-    padding: 9px 12px; border-radius: 8px; font-size: 0.85rem; outline: none; transition: border 0.2s;
-    font-family: inherit;
-  }
-  .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--accent); }
-  .form-group textarea { min-height: 80px; resize: vertical; }
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border); }
-
-  /* LOGIN MODAL */
-  .login-modal { max-width: 360px; text-align: center; }
-  .login-modal h2 { margin-bottom: 8px; }
-  .login-modal p { color: var(--text2); font-size: 0.85rem; margin-bottom: 24px; }
-  .login-modal input { text-align: center; letter-spacing: 2px; }
-
-  /* ADMIN BAR */
-  .admin-bar {
-    display: none; background: linear-gradient(135deg, rgba(108,99,255,0.15), rgba(108,99,255,0.05));
-    border-bottom: 1px solid rgba(108,99,255,0.3); padding: 10px 40px;
-    align-items: center; justify-content: space-between;
-  }
-  .admin-mode .admin-bar { display: flex; }
-  .admin-bar-label { font-size: 0.82rem; color: var(--accent); font-weight: 600; display: flex; align-items: center; gap: 6px; }
-
-  /* EMPTY */
-  .empty-state { grid-column: 1/-1; text-align: center; padding: 60px 20px; color: var(--text2); }
-  .empty-state div { font-size: 3rem; margin-bottom: 12px; }
-
-  /* LOG MODAL */
-  .log-content { white-space: pre-wrap; font-size: 0.78rem; color: var(--text2); line-height: 1.7; max-height: 60vh; overflow-y: auto; background: var(--surface2); padding: 16px; border-radius: 8px; }
-
-  @media (max-width: 600px) {
-    header, .stats-bar, .filters, .grid { padding-left: 16px; padding-right: 16px; }
-    .grid { grid-template-columns: 1fr; }
-    .form-row { grid-template-columns: 1fr; }
-    .admin-bar { padding-left: 16px; padding-right: 16px; }
-  }
+@media (max-width:900px){
+  #sidebar{display:none}
+  #main{margin-left:0;max-width:100vw;padding:24px}
+  .grid{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
 
-<header>
-  <div class="header-left">
-    <h1>Oscar 的<span>專案庫</span></h1>
-    <p>記錄每一個做過的東西</p>
+<div id="sidebar">
+  <div class="sb-logo">
+    <div class="sb-brand">Oscar Hsiao</div>
+    <div class="sb-tag">職安 × AI × 永續</div>
   </div>
-  <div class="header-right">
-    <button class="btn btn-ghost" id="loginBtn" onclick="openLogin()">🔐 管理者登入</button>
-    <button class="btn btn-danger" id="logoutBtn" onclick="logout()" style="display:none">登出</button>
-  </div>
-</header>
-
-<div class="admin-bar">
-  <div class="admin-bar-label">🛠️ 管理模式啟用中 — 可新增、編輯、刪除專案</div>
-  <button class="btn btn-primary" onclick="openAddModal()">＋ 新增專案</button>
+  <div class="sb-nav" id="nav"></div>
+  <div class="sb-foot">© 2026 Oscar Hsiao</div>
 </div>
 
-<div class="stats-bar" id="statsBar"></div>
-
-<div class="filters">
-  <input class="filter-input" type="text" id="searchInput" placeholder="搜尋專案名稱或標籤…" oninput="renderProjects()">
-  <button class="filter-btn active" data-filter="all" onclick="setFilter(this,'all')">全部</button>
-  <button class="filter-btn" data-filter="completed" onclick="setFilter(this,'completed')">已完成</button>
-  <button class="filter-btn" data-filter="in_progress" onclick="setFilter(this,'in_progress')">進行中</button>
-  <button class="filter-btn" data-filter="planning" onclick="setFilter(this,'planning')">規劃中</button>
-</div>
-
-<div class="grid" id="projectGrid"></div>
-
-<!-- LOGIN -->
-<div class="overlay" id="loginOverlay">
-  <div class="modal login-modal">
-    <h2>🔐 管理者登入</h2>
-    <p>輸入密碼以進入管理模式</p>
-    <div class="form-group">
-      <input type="password" id="pwInput" placeholder="密碼" onkeydown="if(event.key==='Enter')doLogin()">
-    </div>
-    <div id="loginError" style="color:#ef4444;font-size:0.82rem;margin-bottom:12px;display:none">密碼錯誤</div>
-    <div style="display:flex;gap:10px;justify-content:flex-end">
-      <button class="btn btn-ghost" onclick="closeOverlay('loginOverlay')">取消</button>
-      <button class="btn btn-primary" onclick="doLogin()">登入</button>
-    </div>
-  </div>
-</div>
-
-<!-- ADD/EDIT PROJECT -->
-<div class="overlay" id="projectModal">
-  <div class="modal">
-    <h2 id="modalTitle">新增專案</h2>
-    <input type="hidden" id="editId">
-    <div class="form-row">
-      <div class="form-group">
-        <label>專案名稱 *</label>
-        <input type="text" id="fName" placeholder="例：法規鑑別清單系統">
-      </div>
-      <div class="form-group">
-        <label>日期 *</label>
-        <input type="date" id="fDate">
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>狀態</label>
-        <select id="fStatus">
-          <option value="completed">✅ 已完成</option>
-          <option value="in_progress">🔄 進行中</option>
-          <option value="planning">📋 規劃中</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>對話記錄檔案名稱</label>
-        <input type="text" id="fLog" placeholder="例：法規鑑別清單系統_對話記錄.md">
-      </div>
-    </div>
-    <div class="form-group">
-      <label>專案描述</label>
-      <textarea id="fDesc" placeholder="這個專案做了什麼？解決了什麼問題？"></textarea>
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>網站連結</label>
-        <input type="url" id="fLive" placeholder="https://...">
-      </div>
-      <div class="form-group">
-        <label>GitHub Repo</label>
-        <input type="url" id="fGithub" placeholder="https://github.com/...">
-      </div>
-    </div>
-    <div class="form-group">
-      <label>使用工具（逗號分隔）</label>
-      <input type="text" id="fTools" placeholder="HTML, JavaScript, GitHub Pages">
-    </div>
-    <div class="form-group">
-      <label>標籤（逗號分隔）</label>
-      <input type="text" id="fTags" placeholder="職安衛, 法規管理, 公信電子">
-    </div>
-    <div class="form-group">
-      <label>備註（只有管理者可見）</label>
-      <textarea id="fNotes" placeholder="密碼、待辦事項、補充說明…"></textarea>
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="closeOverlay('projectModal')">取消</button>
-      <button class="btn btn-primary" onclick="saveProject()">儲存</button>
-    </div>
-  </div>
-</div>
-
-<!-- CONFIRM DELETE -->
-<div class="overlay" id="confirmModal">
-  <div class="modal" style="max-width:360px;text-align:center">
-    <div style="font-size:2.5rem;margin-bottom:12px">🗑️</div>
-    <h2 style="margin-bottom:8px">確認刪除？</h2>
-    <p style="color:var(--text2);font-size:0.85rem;margin-bottom:24px">此操作無法復原</p>
-    <div style="display:flex;gap:10px;justify-content:center">
-      <button class="btn btn-ghost" onclick="closeOverlay('confirmModal')">取消</button>
-      <button class="btn btn-danger" onclick="confirmDelete()">確認刪除</button>
-    </div>
-  </div>
-</div>
-
-<!-- LOG VIEWER -->
-<div class="overlay" id="logModal">
-  <div class="modal" style="max-width:700px">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-      <h2 id="logModalTitle">對話記錄</h2>
-      <button class="btn btn-ghost" onclick="closeOverlay('logModal')">✕</button>
-    </div>
-    <div class="log-content" id="logContent">載入中…</div>
-  </div>
-</div>
+<main id="main"></main>
 
 <script>
-// ─── DATA ───────────────────────────────────────────────────────────────────
-const ADMIN_HASH = '2afb5c2cbd67ce59a9a89b0adc501754a23333a2b08c2eecf94e7d62ba4bc8d1';
-
-const DEFAULT_PROJECTS = [
-  {
-    id: 1,
-    name: "公信電子法規鑑別清單管理系統",
-    date: "2026-06-11",
-    description: "基於115公信電子法規鑑別清單.xls，建立線上法規鑑別清單管理系統。三個分頁（職業安全衛生、ISO 45001、ISO 14001），共77筆法規，每條連結至全國法規資料庫，設有管理者登入機制。",
-    status: "completed",
-    liveUrl: "https://oscar-hsiao.github.io/law-registry/",
-    githubUrl: "https://github.com/Oscar-Hsiao/law-registry",
-    tools: ["HTML", "JavaScript", "GitHub Pages", "全國法規資料庫 API"],
-    tags: ["職安衛", "ISO 45001", "ISO 14001", "公信電子", "法規管理"],
-    logFile: "法規鑑別清單系統_對話記錄.md",
-    notes: "管理者密碼：ji394su3\nGAS 後端自動更新待設定（GAS_URL 需填入後才能自動查修正日期）\n全部 PCode 已逐一驗證"
-  }
+// ═══════════════════════════════════════════════
+// 導覽分類
+// ═══════════════════════════════════════════════
+const NAV=[
+  {group:'',items:[
+    {id:'overview',label:'首頁'},
+    {id:'articles',label:'全部文章'}
+  ]},
+  {group:'職業安全衛生',items:[
+    {id:'osh',label:'工具總覽'},
+    {id:'tool-law',label:'　法規登記系統',href:'法規登記系統.html'},
+    {id:'tool-meeting',label:'　會議追蹤工具',href:'會議追蹤工具.html'},
+    {id:'tool-training',label:'　教育訓練與證照管理',href:'教育訓練與證照管理系統.html'}
+  ]},
+  {group:'永續 ／ ESG',items:[
+    {id:'esg',label:'工具總覽'},
+    {id:'tool-ghg',label:'　溫室氣體盤查系統',href:'溫室氣體盤查系統.html'}
+  ]},
+  {group:'關於',items:[
+    {id:'about',label:'關於我'}
+  ]}
 ];
 
-let projects = JSON.parse(localStorage.getItem('oscar_projects') || 'null') || DEFAULT_PROJECTS;
-let isAdmin = false;
-let currentFilter = 'all';
-let deleteTargetId = null;
+const TOOLS=[
+  {id:'tool-law',title:'法規登記系統',tags:[['法規管理','tag-blue'],['資料庫','tag-green']],
+    desc:'集中管理適用法規清單，追蹤法規修訂與生效日期，建立可隨時查詢的法令資料庫，協助掌握法規異動狀況。',
+    href:'法規登記系統.html',category:'osh'},
+  {id:'tool-meeting',title:'會議追蹤工具',tags:[['會議管理','tag-yellow']],
+    desc:'記錄會議內容、待辦事項與結案狀態，協助持續追蹤決議事項的執行進度。',
+    href:'會議追蹤工具.html',category:'osh'},
+  {id:'tool-training',title:'教育訓練與證照管理',tags:[['職安衛','tag-blue'],['教育訓練','tag-yellow']],
+    desc:'管理人員教育訓練與法定證照紀錄，自動計算回訓到期日，並依事業單位類別與人數自動推算所需證照、時數與回訓週期。',
+    href:'教育訓練與證照管理系統.html',category:'osh'},
+  {id:'tool-ghg',title:'溫室氣體盤查系統',tags:[['ESG','tag-green']],
+    desc:'彙整各範疇排放數據，協助 ESG 報告與碳盤查流程的資料整理與計算。',
+    href:'溫室氣體盤查系統.html',category:'esg'}
+];
 
-function save() { localStorage.setItem('oscar_projects', JSON.stringify(projects)); }
+const ARTICLES=[
+  {id:'a1',date:'2026-06-15',tags:['職安衛','法規'],title:'第一類與第二類事業單位的安全衛生人員配置怎麼算？',
+   excerpt:'從職業安全衛生管理辦法的人員配置規定出發，整理不同事業類別與員工人數下，應設置的業務主管與管理人員。',
+   body:`<p>依《職業安全衛生管理辦法》規定，事業單位應依其規模與行業風險分類（第一類、第二類、第三類事業），配置相對應的職業安全衛生業務主管或管理人員。</p>
+   <h4>第一類事業（高風險，如製造業）</h4>
+   <p>勞工人數在 100～300 人之間者，應置乙級職業安全衛生業務主管 1 人、甲級業務主管 1 人（不須專職），並設置直接隸屬雇主的一級管理單位。</p>
+   <h4>第二類與第三類事業</h4>
+   <p>風險相對較低，配置門檻人數較高，但仍須視規模設置丙級或乙級業務主管。</p>
+   <p>本系統的「教育訓練與證照管理」工具已將上述規則內建，輸入事業類別與人數即可自動推算所需證照與回訓週期。</p>`},
+  {id:'a2',date:'2026-06-10',tags:['ESG','溫室氣體'],title:'中小企業做溫室氣體盤查，第一步該從哪裡開始？',
+   excerpt:'許多中小企業面對 ESG 浪潮感到無從下手，其實從範疇一、二的基本盤查開始，就能逐步建立起完整的碳排放資料庫。',
+   body:`<p>溫室氣體盤查的第一步，通常是界定「組織邊界」與「營運邊界」，確認哪些排放源屬於範疇一（直接排放）、範疇二（外購電力）。</p>
+   <p>建議中小企業可先從範疇一、二著手，蒐集每月用電量、燃料使用量等基本數據，再透過排放係數換算為 CO2e。</p>
+   <p>本系統的「溫室氣體盤查系統」提供範疇一～三的資料登錄與彙整介面，協助企業逐步建立可追蹤的碳排放資料庫。</p>`},
+  {id:'a3',date:'2026-06-01',tags:['AI','職安衛'],title:'用 AI 協助職安衛文件管理：從手動到自動化的轉變',
+   excerpt:'透過將 localStorage 與簡單的規則引擎結合，職安衛日常的法規比對、回訓提醒、會議追蹤都能逐步自動化。',
+   body:`<p>過去職安衛人員常需手動比對法規異動、追蹤證照到期日、整理會議紀錄，耗時且容易遺漏。</p>
+   <p>透過將法規規則數位化（例如人員配置門檻、回訓週期、訓練時數），系統可以在輸入基本資料後自動產生建議與提醒，大幅減少人工比對的時間。</p>
+   <p>這也是本作品集所有工具的共同設計理念：把「規則」寫進系統，把「重複的計算與比對」交給工具。</p>`}
+];
 
-// ─── AUTH ────────────────────────────────────────────────────────────────────
-function openLogin() { document.getElementById('loginOverlay').classList.add('open'); setTimeout(() => document.getElementById('pwInput').focus(), 100); }
-async function doLogin() {
-  const pw = document.getElementById('pwInput').value;
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pw));
-  const hash = Array.from(new Uint8Array(buf)).map(x => x.toString(16).padStart(2,'0')).join('');
-  if (hash === ADMIN_HASH) {
-    isAdmin = true;
-    document.body.classList.add('admin-mode');
-    document.getElementById('loginBtn').style.display = 'none';
-    document.getElementById('logoutBtn').style.display = '';
-    closeOverlay('loginOverlay');
-    document.getElementById('pwInput').value = '';
-    document.getElementById('loginError').style.display = 'none';
-    renderProjects();
-  } else {
-    document.getElementById('loginError').style.display = 'block';
-  }
-}
-function logout() {
-  isAdmin = false;
-  document.body.classList.remove('admin-mode');
-  document.getElementById('loginBtn').style.display = '';
-  document.getElementById('logoutBtn').style.display = 'none';
-  renderProjects();
-}
+// ═══════════════════════════════════════════════
+// Render
+// ═══════════════════════════════════════════════
+let currentSection='overview';
+let currentArticle=null;
 
-// ─── FILTER ──────────────────────────────────────────────────────────────────
-function setFilter(btn, f) {
-  currentFilter = f;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderProjects();
-}
-
-// ─── RENDER ──────────────────────────────────────────────────────────────────
-const STATUS_LABEL = { completed: '已完成', in_progress: '進行中', planning: '規劃中' };
-
-function renderStats() {
-  const total = projects.length;
-  const completed = projects.filter(p => p.status === 'completed').length;
-  const inProgress = projects.filter(p => p.status === 'in_progress').length;
-  document.getElementById('statsBar').innerHTML = `
-    <div class="stat"><div class="stat-num">${total}</div><div class="stat-label">全部專案</div></div>
-    <div class="stat"><div class="stat-num" style="color:var(--green)">${completed}</div><div class="stat-label">已完成</div></div>
-    <div class="stat"><div class="stat-num" style="color:var(--yellow)">${inProgress}</div><div class="stat-label">進行中</div></div>
-    <div class="stat"><div class="stat-num" style="color:var(--blue)">${projects.filter(p=>p.status==='planning').length}</div><div class="stat-label">規劃中</div></div>
-  `;
-}
-
-function renderProjects() {
-  renderStats();
-  const q = document.getElementById('searchInput').value.toLowerCase();
-  let list = projects.filter(p => {
-    const matchFilter = currentFilter === 'all' || p.status === currentFilter;
-    const matchSearch = !q || p.name.toLowerCase().includes(q) ||
-      (p.tags || []).some(t => t.toLowerCase().includes(q)) ||
-      (p.tools || []).some(t => t.toLowerCase().includes(q)) ||
-      (p.description || '').toLowerCase().includes(q);
-    return matchFilter && matchSearch;
+function renderNav(){
+  const el=document.getElementById('nav');
+  el.innerHTML='';
+  NAV.forEach(g=>{
+    if(g.group){
+      const gd=document.createElement('div');
+      gd.className='sb-group';
+      gd.textContent=g.group;
+      el.appendChild(gd);
+    }
+    g.items.forEach(item=>{
+      if(item.href){
+        const a=document.createElement('a');
+        a.className='sb-btn';
+        a.href=item.href;
+        a.textContent=item.label;
+        el.appendChild(a);
+      }else{
+        const btn=document.createElement('button');
+        btn.className='sb-btn'+(currentSection===item.id?' active':'');
+        btn.textContent=item.label;
+        btn.onclick=()=>{currentSection=item.id;currentArticle=null;renderNav();renderMain();};
+        el.appendChild(btn);
+      }
+    });
   });
+}
 
-  const grid = document.getElementById('projectGrid');
-  if (!list.length) {
-    grid.innerHTML = '<div class="empty-state"><div>📭</div>沒有符合條件的專案</div>';
+function toolCard(t){
+  return`<a class="card${t.featured?' featured':''}" href="${t.href}">
+    <div class="tags">${t.tags.map(([label,cls])=>`<span class="${cls}">${label}</span>`).join('')}</div>
+    <h3>${t.title}</h3>
+    <p class="desc">${t.desc}</p>
+    <div class="footer-row">
+      <span class="status"><span class="dot"></span> 已上線</span>
+      <span class="link">前往使用 →</span>
+    </div>
+  </a>`;
+}
+
+function renderMain(){
+  const main=document.getElementById('main');
+
+  if(currentSection==='overview'){
+    main.innerHTML=`
+      <div class="hero">
+        <span class="tag">作品集總覽</span>
+        <h1>職安 × AI × 永續</h1>
+        <p>整理目前完成的職業安全衛生與永續管理工具，結合資料自動化與法規規則引擎，協助企業以更有效率的方式管理日常職安衛與 ESG 事務。</p>
+      </div>
+      <p class="summary-line">目前已上線 <span class="num">${TOOLS.length}</span> 項工具，涵蓋職業安全衛生 <span class="num">${TOOLS.filter(t=>t.category==='osh').length}</span> 項、ESG／永續 <span class="num">${TOOLS.filter(t=>t.category==='esg').length}</span> 項，並累積 <span class="num">${ARTICLES.length}</span> 篇文章，持續記錄法規、ESG 與 AI 應用的實務心得。</p>
+      <div class="section-title">最新文章</div>
+      <div class="article-list">${ARTICLES.slice(0,2).map(articleCard).join('')}</div>
+      <div class="section-title">職業安全衛生工具</div>
+      <div class="grid">${TOOLS.filter(t=>t.category==='osh').map(toolCard).join('')}</div>
+      <div class="section-title">永續 ／ ESG 工具</div>
+      <div class="grid">${TOOLS.filter(t=>t.category==='esg').map(toolCard).join('')}</div>`;
+    bindArticleClicks();
     return;
   }
 
-  grid.innerHTML = list.map(p => `
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">${p.name}</div>
-        <span class="status-badge status-${p.status}">${STATUS_LABEL[p.status]}</span>
+  if(currentSection==='osh'){
+    main.innerHTML=`
+      <div class="hero">
+        <span class="tag tag-blue">職業安全衛生</span>
+        <h1>職業安全衛生工具</h1>
+        <p>涵蓋法規管理、會議追蹤與教育訓練／證照管理，協助企業掌握法規異動、追蹤會議決議並自動規劃證照回訓。</p>
       </div>
-      <div class="card-date">📅 ${p.date}</div>
-      <div class="card-desc">${p.description || ''}</div>
-      ${p.notes ? `<div class="card-notes">📝 備註\n${p.notes}</div>` : ''}
-      <div class="card-tags">
-        ${(p.tools||[]).map(t=>`<span class="tag tool-tag">⚙️ ${t}</span>`).join('')}
-        ${(p.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('')}
-      </div>
-      <div class="card-links">
-        ${p.liveUrl ? `<a class="link-btn live" href="${p.liveUrl}" target="_blank">🌐 網站</a>` : ''}
-        ${p.githubUrl ? `<a class="link-btn" href="${p.githubUrl}" target="_blank">📦 GitHub</a>` : ''}
-        ${p.logFile ? `<button class="link-btn" onclick="viewLog(${p.id})">📄 對話記錄</button>` : ''}
-      </div>
-      <div class="card-admin-actions">
-        <button class="btn btn-ghost" style="font-size:0.8rem;padding:6px 14px" onclick="openEditModal(${p.id})">✏️ 編輯</button>
-        <button class="btn btn-danger" style="font-size:0.8rem;padding:6px 14px" onclick="deleteProject(${p.id})">🗑️ 刪除</button>
-      </div>
-    </div>
-  `).join('');
-}
-
-// ─── MODAL ───────────────────────────────────────────────────────────────────
-function closeOverlay(id) { document.getElementById(id).classList.remove('open'); }
-
-function openAddModal() {
-  document.getElementById('modalTitle').textContent = '新增專案';
-  document.getElementById('editId').value = '';
-  ['fName','fDesc','fLive','fGithub','fTools','fTags','fNotes','fLog'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('fDate').value = new Date().toISOString().split('T')[0];
-  document.getElementById('fStatus').value = 'in_progress';
-  document.getElementById('projectModal').classList.add('open');
-}
-
-function openEditModal(id) {
-  const p = projects.find(x => x.id === id);
-  if (!p) return;
-  document.getElementById('modalTitle').textContent = '編輯專案';
-  document.getElementById('editId').value = id;
-  document.getElementById('fName').value = p.name || '';
-  document.getElementById('fDate').value = p.date || '';
-  document.getElementById('fStatus').value = p.status || 'in_progress';
-  document.getElementById('fDesc').value = p.description || '';
-  document.getElementById('fLive').value = p.liveUrl || '';
-  document.getElementById('fGithub').value = p.githubUrl || '';
-  document.getElementById('fTools').value = (p.tools || []).join(', ');
-  document.getElementById('fTags').value = (p.tags || []).join(', ');
-  document.getElementById('fNotes').value = p.notes || '';
-  document.getElementById('fLog').value = p.logFile || '';
-  document.getElementById('projectModal').classList.add('open');
-}
-
-function saveProject() {
-  const name = document.getElementById('fName').value.trim();
-  if (!name) { alert('請填寫專案名稱'); return; }
-  const data = {
-    name,
-    date: document.getElementById('fDate').value,
-    status: document.getElementById('fStatus').value,
-    description: document.getElementById('fDesc').value.trim(),
-    liveUrl: document.getElementById('fLive').value.trim(),
-    githubUrl: document.getElementById('fGithub').value.trim(),
-    tools: document.getElementById('fTools').value.split(',').map(s=>s.trim()).filter(Boolean),
-    tags: document.getElementById('fTags').value.split(',').map(s=>s.trim()).filter(Boolean),
-    notes: document.getElementById('fNotes').value.trim(),
-    logFile: document.getElementById('fLog').value.trim(),
-  };
-  const editId = document.getElementById('editId').value;
-  if (editId) {
-    const idx = projects.findIndex(p => p.id == editId);
-    if (idx >= 0) projects[idx] = { ...projects[idx], ...data };
-  } else {
-    data.id = Date.now();
-    projects.unshift(data);
+      <div class="grid">${TOOLS.filter(t=>t.category==='osh').map(toolCard).join('')}</div>`;
+    return;
   }
-  save();
-  closeOverlay('projectModal');
-  renderProjects();
+
+  if(currentSection==='esg'){
+    main.innerHTML=`
+      <div class="hero">
+        <span class="tag tag-green">永續 ／ ESG</span>
+        <h1>永續 ／ ESG 工具</h1>
+        <p>協助企業彙整溫室氣體排放數據，建立可追蹤的碳盤查資料庫，作為 ESG 報告與淨零規劃的基礎。</p>
+      </div>
+      <div class="grid">${TOOLS.filter(t=>t.category==='esg').map(toolCard).join('')}</div>`;
+    return;
+  }
+
+  if(currentSection==='articles'){
+    if(currentArticle){
+      const a=ARTICLES.find(x=>x.id===currentArticle);
+      main.innerHTML=`
+        <div class="article-detail active">
+          <a class="back" onclick="backToArticles()">← 返回文章列表</a>
+          <div class="article-meta">${a.date}　${a.tags.map(t=>'#'+t).join(' ')}</div>
+          <h1>${a.title}</h1>
+          <div class="body" style="margin-top:18px">${a.body}</div>
+        </div>`;
+      return;
+    }
+    main.innerHTML=`
+      <div class="hero">
+        <span class="tag tag-yellow">文章專欄</span>
+        <h1>文章專欄</h1>
+        <p>分享職安衛法規解讀、ESG 實務心得與 AI 應用於行政流程自動化的相關內容。</p>
+      </div>
+      <div class="article-list">${ARTICLES.map(articleCard).join('')}</div>`;
+    bindArticleClicks();
+    return;
+  }
+
+  if(currentSection==='about'){
+    main.innerHTML=`
+      <div class="hero">
+        <span class="tag">關於</span>
+        <h1>關於我</h1>
+        <p>Oscar Hsiao — 致力於將職業安全衛生管理流程數位化、自動化，並結合永續 ESG 議題打造實用工具。</p>
+      </div>
+      <div class="about-card">
+        <h3>專長領域</h3>
+        <div class="about-list">
+          職業安全衛生法規管理與證照訓練規劃<br>
+          溫室氣體盤查與 ESG 報告資料整理<br>
+          以 AI 與規則引擎打造行政流程自動化工具<br>
+          前端網頁開發（HTML / CSS / JavaScript）
+        </div>
+        <h3 style="margin-top:20px">聯絡方式</h3>
+        <p>如對本作品集的工具有興趣，或想討論客製化部署，歡迎透過 GitHub / Email 與我聯繫。</p>
+      </div>`;
+    return;
+  }
 }
 
-function deleteProject(id) { deleteTargetId = id; document.getElementById('confirmModal').classList.add('open'); }
-function confirmDelete() {
-  projects = projects.filter(p => p.id !== deleteTargetId);
-  save(); closeOverlay('confirmModal'); renderProjects();
+function articleCard(a){
+  return`<div class="article-card" data-id="${a.id}">
+    <div class="article-meta">${a.date}　${a.tags.map(t=>'#'+t).join(' ')}</div>
+    <h3>${a.title}</h3>
+    <p>${a.excerpt}</p>
+  </div>`;
 }
-
-// ─── LOG VIEWER ──────────────────────────────────────────────────────────────
-function viewLog(id) {
-  const p = projects.find(x => x.id === id);
-  if (!p || !p.logFile) return;
-  document.getElementById('logModalTitle').textContent = p.logFile;
-  document.getElementById('logModal').classList.add('open');
-  document.getElementById('logContent').textContent = '（對話記錄儲存在本機，請用文字編輯器開啟檔案：' + p.logFile + '）\n\n此檢視器顯示說明。實際記錄可在 Claude Cowork 的輸出資料夾中找到。';
+function bindArticleClicks(){
+  document.querySelectorAll('.article-card').forEach(el=>{
+    el.onclick=()=>{currentSection='articles';currentArticle=el.getAttribute('data-id');renderNav();renderMain();window.scrollTo(0,0);};
+  });
 }
+function backToArticles(){currentArticle=null;renderMain();window.scrollTo(0,0);}
 
-// ─── CLOSE ON BACKDROP ───────────────────────────────────────────────────────
-document.querySelectorAll('.overlay').forEach(el => {
-  el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
-});
-
-// ─── INIT ────────────────────────────────────────────────────────────────────
-renderProjects();
+renderNav();
+renderMain();
 </script>
 </body>
 </html>
