@@ -103,6 +103,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
 .article-detail .body ul,.article-detail .body ol{margin:8px 0 14px 20px}
 .article-detail .body li{margin-bottom:6px}
 .article-detail .body a{color:var(--blue);text-decoration:underline}
+.article-detail .body img{max-width:100%;border-radius:12px;display:block;margin:18px 0}
 .article-detail .body .tip-box{border-radius:10px;padding:14px 16px;margin:16px 0;font-size:.9rem;line-height:1.7}
 .article-detail .body .tip-goal{background:var(--blue-bg);color:var(--text)}
 .article-detail .body .tip-info{background:var(--yellow-bg);color:var(--text)}
@@ -186,7 +187,8 @@ const TOOLS=[
 const ARTICLES=[
   {id:'a4',date:'2026-06-21',tags:['職安衛','法規','不法侵害'],title:'不法侵害怎麼認定？7月1日職安法霸凌防治專章上路，企業該怎麼準備',
    excerpt:'從4個真實判決拆解「管理」與「霸凌」的法律界線，並解析7月1日起《職業安全衛生法》新增霸凌防治專章對企業申訴、調查機制的新要求，附法規連結與企業端SOP。',
-   body:`<div class="tip-box tip-goal">🎯 這篇文章帶你搞懂：法院怎麼判斷「管理權行使」與「職場霸凌」的界線、7月1日起職安法新增的霸凌防治專章對企業有什麼新義務，以及企業端可以照走的標準處理流程。</div>
+   body:`<img src="images/a4-mgmt-vs-bullying.png" alt="合理管理 vs 職場霸凌">
+   <div class="tip-box tip-goal">🎯 這篇文章帶你搞懂：法院怎麼判斷「管理權行使」與「職場霸凌」的界線、7月1日起職安法新增的霸凌防治專章對企業有什麼新義務，以及企業端可以照走的標準處理流程。</div>
 
    <p>不法侵害這件事，像是一條畫在地上、但肉眼看不見的界線——管理權跟霸凌站在同一條路上，差別只在於有沒有越線。問題是，企業往往要等到員工申訴、甚至上了法院，才發現自己已經踩過去了。</p>
    <p>員工申訴霸凌，不代表行為就一定違法；但企業也不能因此就什麼都不處理。這條界線該怎麼劃，連法院判決彼此之間都各有側重的角度。</p>
