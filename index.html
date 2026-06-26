@@ -92,68 +92,56 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
 .article-detail{display:none}
 .article-detail.active{display:block}
 .article-detail .back{display:inline-flex;align-items:center;gap:6px;font-size:.85rem;color:var(--blue);cursor:pointer;margin-bottom:20px;text-decoration:none}
-.article-detail .body{font-size:.95rem;line-height:1.9;color:var(--text)}
-.article-detail .body p{margin-bottom:14px}
-.article-detail .body h4{font-family:var(--font-serif);font-size:1.1rem;margin:20px 0 10px}
-.article-detail .body .step{display:flex;gap:14px;align-items:flex-start;margin:18px 0}
-.article-detail .body .step .num{flex-shrink:0;width:40px;height:40px;border-radius:10px;background:var(--blue-bg);color:var(--blue);font-family:var(--font-serif);font-size:1.1rem;font-weight:700;display:flex;align-items:center;justify-content:center}
-.article-detail .body .tip{background:var(--yellow-bg);border-radius:10px;padding:12px 16px;font-size:.88rem;color:var(--text);margin:10px 0}
-.article-detail .body table{width:100%;border-collapse:collapse;font-size:.88rem;margin:10px 0}
-.article-detail .body th{text-align:left;padding:8px 10px;background:var(--bg3);color:var(--text2);font-weight:600;border-bottom:1px solid var(--border)}
-.article-detail .body td{padding:8px 10px;border-bottom:1px solid var(--border)}
-.article-detail .body .summary-box{background:var(--blue-bg);border-radius:10px;padding:16px 18px;margin:14px 0 24px}
-.article-detail .body .summary-box .summary-title{font-weight:700;color:var(--blue);margin-bottom:8px;display:flex;align-items:center;gap:6px}
-.article-detail .body .summary-box ul{margin:0;padding-left:18px}
-.article-detail .body .summary-box li{margin-bottom:4px}
-.article-detail .body ul,.article-detail .body ol{margin:8px 0 14px 20px}
-.article-detail .body li{margin-bottom:6px}
-.article-detail .body a{color:var(--blue);text-decoration:underline}
-.article-detail .body img{max-width:100%;border-radius:12px;display:block;margin:18px 0}
-.article-detail .body .tip-box{border-radius:10px;padding:14px 16px;margin:16px 0;font-size:.9rem;line-height:1.7}
-.article-detail .body .tip-goal{background:var(--blue-bg);color:var(--text)}
-.article-detail .body .tip-info{background:var(--yellow-bg);color:var(--text)}
-.article-detail .body .tip-warn{background:var(--red-bg);color:var(--text)}
-.article-detail .body .step-block{margin:14px 0;padding-left:4px}
-.article-detail .body .step-title{font-weight:700;display:flex;align-items:center;gap:8px;margin-bottom:4px}
-.article-detail .body .step-num{background:var(--blue);color:#fff;font-size:.7rem;font-weight:700;padding:3px 9px;border-radius:9999px;letter-spacing:.05em;white-space:nowrap}
-.article-detail .body .step-done{background:var(--green-bg);color:var(--green);border-radius:8px;padding:8px 12px;font-size:.85rem;margin-top:6px;font-weight:600}
-
-/* ── Notion (NotionNext) 匯出風格 — 僅套用在標記為 .notion-style 的單篇文章 ── */
-.article-detail .body.notion-style{
+/* ── Notion (NotionNext) 匯出風格 — 全站文章預設套用 ── */
+.article-detail .body{
   --notion-max-width:720px;
   max-width:var(--notion-max-width);
   margin:0 auto;
   font-family:'PingFang TC','Microsoft JhengHei','Noto Sans TC',-apple-system,BlinkMacSystemFont,'Noto Sans CJK TC',sans-serif;
   font-size:16px;
   line-height:1.5;
+  color:var(--text);
 }
 @media (max-width:760px){
-  .article-detail .body.notion-style{max-width:calc(min(1920px,98vw))}
+  .article-detail .body{max-width:calc(min(1920px,98vw))}
 }
-.article-detail .body.notion-style p{line-height:2rem;margin-top:.75rem;margin-bottom:.75rem}
-.article-detail .body.notion-style h1{font-size:1.875em}
-.article-detail .body.notion-style h2{font-size:1.5em;margin-top:1.1em}
-.article-detail .body.notion-style h3,
-.article-detail .body.notion-style h4{font-size:1.25em;margin-top:1em}
-.article-detail .body.notion-style table{border-collapse:collapse}
-.article-detail .body.notion-style th,
-.article-detail .body.notion-style td{border:1px solid var(--border)}
-.article-detail .body.notion-style .notion-asset-wrapper-image{max-width:100%}
-.article-detail .body.notion-style .notion-asset-wrapper-image > div{height:auto!important}
-.article-detail .body.notion-style img{max-width:100%}
-.article-detail .body.notion-style .notion-asset-caption{font-size:14px;line-height:1.4;text-align:center;padding:6px 0 6px 2px;color:var(--text2)}
-.article-detail .body.notion-style .notion-callout{border-radius:3px;display:flex;gap:8px;align-items:flex-start;padding:12px 14px;margin:14px 0}
-.article-detail .body.notion-style .notion-callout.notion-gray_background_co{background:var(--bg3)}
-.article-detail .body.notion-style .notion-page-icon{width:24px;height:24px;flex-shrink:0;font-size:18px;line-height:24px;text-align:center}
-.article-detail .body.notion-style .notion-callout-text,
-.article-detail .body.notion-style .notion-callout-text .notion-text{padding:0;margin:0;line-height:normal}
-.article-detail .body.notion-style .notion-table-of-contents{background-color:rgb(249,250,251);padding:.5rem;border-radius:6px}
-.article-detail .body.notion-style .notion-table-of-contents-item{font-size:15px;line-height:1.2}
+.article-detail .body p{line-height:2rem;margin-top:.75rem;margin-bottom:.75rem}
+.article-detail .body h1{font-size:1.875em}
+.article-detail .body h2{font-size:1.5em;margin-top:1.1em}
+.article-detail .body h3,
+.article-detail .body h4{font-size:1.25em;margin-top:1em}
+.article-detail .body .step{display:flex;gap:14px;align-items:flex-start;margin:18px 0}
+.article-detail .body .step .num{flex-shrink:0;width:40px;height:40px;border-radius:10px;background:var(--blue-bg);color:var(--blue);font-family:var(--font-serif);font-size:1.1rem;font-weight:700;display:flex;align-items:center;justify-content:center}
+.article-detail .body .tip{background:var(--yellow-bg);border-radius:3px;padding:12px 16px;font-size:.88rem;color:var(--text);margin:10px 0}
+.article-detail .body table{width:100%;border-collapse:collapse;margin:10px 0}
+.article-detail .body th{text-align:left;padding:8px 10px;background:var(--bg3);color:var(--text2);font-weight:600;border:1px solid var(--border)}
+.article-detail .body td{padding:8px 10px;border:1px solid var(--border)}
+.article-detail .body .summary-box{background:var(--blue-bg);border-radius:3px;padding:16px 18px;margin:14px 0 24px}
+.article-detail .body .summary-box .summary-title{font-weight:700;color:var(--blue);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.article-detail .body .summary-box ul{margin:0;padding-left:18px}
+.article-detail .body .summary-box li{margin-bottom:4px}
+.article-detail .body ul,.article-detail .body ol{margin:8px 0 14px 20px}
+.article-detail .body li{margin-bottom:6px}
+.article-detail .body a{color:var(--blue);text-decoration:underline}
+.article-detail .body img{max-width:100%;display:block;margin:18px auto}
+.article-detail .body .notion-asset-wrapper-image{max-width:100%}
+.article-detail .body .notion-asset-wrapper-image>div{height:auto!important}
+.article-detail .body .notion-asset-caption{font-size:14px;line-height:1.4;text-align:center;padding:6px 0 6px 2px;color:var(--text2)}
+.article-detail .body .tip-box{border-radius:3px;padding:14px 16px;margin:16px 0;font-size:.9rem;line-height:1.7;display:flex;gap:8px;align-items:flex-start}
+.article-detail .body .tip-goal{background:var(--blue-bg);color:var(--text)}
+.article-detail .body .tip-info{background:var(--yellow-bg);color:var(--text)}
+.article-detail .body .tip-warn{background:var(--red-bg);color:var(--text)}
+.article-detail .body .tip-box.notion-gray_background_co{background:var(--bg3)}
+.article-detail .body .notion-page-icon{width:24px;height:24px;flex-shrink:0;font-size:18px;line-height:24px;text-align:center}
+.article-detail .body .step-block{margin:14px 0;padding-left:4px}
+.article-detail .body .step-title{font-weight:700;display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.article-detail .body .step-num{background:var(--blue);color:#fff;font-size:.7rem;font-weight:700;padding:3px 9px;border-radius:9999px;letter-spacing:.05em;white-space:nowrap}
+.article-detail .body .step-done{background:var(--green-bg);color:var(--green);border-radius:8px;padding:8px 12px;font-size:.85rem;margin-top:6px;font-weight:600}
+.article-detail .body .notion-table-of-contents{background-color:rgb(249,250,251);padding:.5rem;border-radius:6px}
+.article-detail .body .notion-table-of-contents-item{font-size:15px;line-height:1.2}
 @media (prefers-color-scheme:dark){
-  .article-detail .body.notion-style .notion-table-of-contents{background-color:rgb(17,24,39)}
+  .article-detail .body .notion-table-of-contents{background-color:rgb(17,24,39)}
 }
-/* tip-box 沿用 callout 的圓角/留白邏輯，讓既有內容不用重寫也能對齊風格 */
-.article-detail .body.notion-style .tip-box{border-radius:3px}
 .article-detail h1{font-family:var(--font-serif);font-size:1.8rem;font-weight:600;margin-bottom:8px}
 
 /* ── About ── */
@@ -553,7 +541,7 @@ function renderMain(){
           <div class="article-meta">${a.date}　${a.tags.map(t=>'#'+t).join(' ')}</div>
           <div class="read-stats"><span>📝 字數 ${rs.words}</span><span>⏱ 閱讀時間~${rs.minutes} 分鐘</span></div>
           <h1>${a.title}</h1>
-          <div class="body${a.id==='a4'?' notion-style':''}" style="margin-top:18px">${a.body}</div>
+          <div class="body" style="margin-top:18px">${a.body}</div>
         </div>`;
       setupReadingProgress();
       return;
