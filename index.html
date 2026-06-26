@@ -81,7 +81,12 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
 .empty{color:var(--text2);font-size:.9rem;padding:24px 0;text-align:center;border:1px dashed var(--border);border-radius:12px}
 .article-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px 24px;cursor:pointer;transition:box-shadow .2s ease}
 .article-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.05)}
-.article-meta{font-size:12px;color:var(--text3);margin-bottom:6px;display:flex;gap:10px;align-items:center}
+.article-meta{font-size:12px;color:var(--text3);margin-bottom:6px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.read-stats{display:flex;gap:14px;align-items:center;font-size:12px;color:var(--text3)}
+.read-stats span{display:inline-flex;align-items:center;gap:4px}
+#readingProgress{position:fixed;top:0;left:250px;right:0;height:4px;background:var(--border);z-index:200}
+#readingProgress .fill{height:100%;width:0%;background:var(--blue);transition:width .1s linear}
+@media (max-width:900px){#readingProgress{left:0}}
 .article-card h3{font-family:var(--font-serif);font-size:1.15rem;font-weight:600;margin-bottom:6px}
 .article-card p{font-size:.88rem;color:var(--text2)}
 .article-detail{display:none}
@@ -139,6 +144,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
   <div class="sb-foot">© 2026 Oscar Hsiao</div>
 </div>
 
+<div id="readingProgress" style="display:none"><div class="fill"></div></div>
 <main id="main"></main>
 
 <script>
@@ -241,35 +247,7 @@ const ARTICLES=[
    <div class="tip-box tip-warn">⚠️ 新制上路後罰鍰金額大幅提高，企業若未依規定建立申訴、調查機制，最高罰鍰可達 450 萬元。具體條文編號待行政院公告施行版本確定後可能調整，建議上路前直接查閱《<a href="https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060001" target="_blank" rel="noopener">職業安全衛生法</a>》最新版本確認條號。</div>
 
    <h4>五、企業端標準處理流程（SOP）</h4>
-   <div class="step-block">
-     <div class="step-title"><span class="step-num">STEP 1</span> 釐清事件</div>
-     <p>分清管理衝突、績效問題、職場不法侵害或溝通不良，這一步決定後面要走哪一套程序。</p>
-   </div>
-   <div class="step-block">
-     <div class="step-title"><span class="step-num">STEP 2</span> 蒐集事實</div>
-     <p>保留對話紀錄、信件、工作分派、面談、出勤等紀錄，事後補做永遠比不上事中即時留存。</p>
-   </div>
-   <div class="step-block">
-     <div class="step-title"><span class="step-num">STEP 3</span> 啟動調查</div>
-     <p>涉及霸凌或不法侵害申訴，應及成立調查程序，不要因為「看起來不嚴重」就略過正式流程。</p>
-   </div>
-   <div class="step-block">
-     <div class="step-title"><span class="step-num">STEP 4</span> 避免報復疑慮</div>
-     <p>申訴後任何懲處都要謹慎，避免被認定為秋後算帳，這是法院審查的重點之一。</p>
-   </div>
-   <div class="step-block">
-     <div class="step-title"><span class="step-num">STEP 5</span> 管理行為留痕</div>
-     <p>PIP、面談、調職、輔導、警告都要有書面紀錄，這是證明管理正當性與程序合法性最重要的關鍵。</p>
-   </div>
-   <div class="step-block">
-     <div class="step-title"><span class="step-num">STEP 6</span> 檢查比例原則</div>
-     <p>懲處要與行為嚴重性相當，不能過度懲戒，否則反而會弱化雇主立場。</p>
-   </div>
-   <div class="step-block">
-     <div class="step-title"><span class="step-num">STEP 7</span> 檢查最後手段性</div>
-     <p>解僱或資遣前，確認是否已沒有其他較輕手段，這是前述能元科技案、南亞科技案兩個判決共同強調的重點。</p>
-     <div class="step-done">✅ 完成這 7 步，企業端的管理行為才站得住法律審查</div>
-   </div>
+   <img src="images/a4-sop-7steps.png" alt="企業端標準處理流程 SOP 7步驟">
 
    <hr style="border:none;border-top:1px solid var(--border);margin:24px 0">
 
@@ -438,8 +416,38 @@ function toolCard(t){
   </a>`;
 }
 
+function readStats(a){
+  const text=a.body.replace(/<[^>]*>/g,'');
+  const words=text.replace(/\s+/g,'').length;
+  const minutes=Math.max(1,Math.round(words/300));
+  return{words,minutes};
+}
+function setupReadingProgress(){
+  const bar=document.getElementById('readingProgress');
+  bar.style.display='block';
+  const fill=bar.querySelector('.fill');
+  function update(){
+    const max=document.documentElement.scrollHeight-window.innerHeight;
+    const pct=max>0?Math.min(100,Math.max(0,(window.scrollY/max)*100)):0;
+    fill.style.width=pct+'%';
+  }
+  window.removeEventListener('scroll',window._readingProgressHandler||(()=>{}));
+  window._readingProgressHandler=update;
+  window.addEventListener('scroll',update);
+  update();
+}
+function hideReadingProgress(){
+  const bar=document.getElementById('readingProgress');
+  bar.style.display='none';
+  window.removeEventListener('scroll',window._readingProgressHandler||(()=>{}));
+}
+
 function renderMain(){
   const main=document.getElementById('main');
+
+  if(!(currentSection.startsWith('articles-')&&currentArticle)){
+    hideReadingProgress();
+  }
 
   if(currentSection==='overview'){
     main.innerHTML=`
@@ -492,13 +500,16 @@ function renderMain(){
     const filtered=ARTICLES.filter(a=>a.tags.includes(tag));
     if(currentArticle){
       const a=ARTICLES.find(x=>x.id===currentArticle);
+      const rs=readStats(a);
       main.innerHTML=`
         <div class="article-detail active">
           <a class="back" onclick="backToArticles()">← 返回「${navItem?navItem.label:tag}」文章列表</a>
           <div class="article-meta">${a.date}　${a.tags.map(t=>'#'+t).join(' ')}</div>
+          <div class="read-stats"><span>📝 字數 ${rs.words}</span><span>⏱ 閱讀時間~${rs.minutes} 分鐘</span></div>
           <h1>${a.title}</h1>
           <div class="body" style="margin-top:18px">${a.body}</div>
         </div>`;
+      setupReadingProgress();
       return;
     }
     main.innerHTML=`
