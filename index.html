@@ -1,656 +1,498 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Oscar Hsiao — 職安 × AI × 永續</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;600&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<title>Oscar 的專案管理</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#FAF9F7;--bg2:#fff;--bg3:#F3F1ED;
-  --border:#E6E3DD;--border2:#D8D4CC;
-  --text:#23282E;--text2:#6B7280;--text3:#A3ABB5;
-  --blue:#1D4E89;--blue-bg:#E4ECF6;
-  --green:#3A6B45;--green-bg:#E9F1E9;
-  --yellow:#B8742E;--yellow-bg:#F7ECDD;
-  --sidebar:#2E3440;--sidebar-active:#3D4452;
-  --font:'Noto Sans TC',-apple-system,BlinkMacSystemFont,'Segoe UI','Microsoft JhengHei',sans-serif;
-  --font-serif:'Noto Serif TC',-apple-system,serif;
-  --mono:'JetBrains Mono','Courier New',monospace;
-}
-body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex;min-height:100vh;line-height:1.6;-webkit-font-smoothing:antialiased}
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d2e;
+    --surface2: #252840;
+    --accent: #6c63ff;
+    --accent2: #ff6584;
+    --text: #e2e8f0;
+    --text2: #94a3b8;
+    --green: #10b981;
+    --yellow: #f59e0b;
+    --blue: #3b82f6;
+    --border: rgba(255,255,255,0.07);
+    --radius: 14px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
 
-/* ── Sidebar ── */
-#sidebar{width:250px;min-height:100vh;background:var(--sidebar);position:fixed;top:0;left:0;padding:0;z-index:100;display:flex;flex-direction:column}
-.sb-logo{padding:28px 22px 18px;border-bottom:1px solid rgba(255,255,255,.1)}
-.sb-brand{font-family:var(--font-serif);font-size:18px;font-weight:600;color:#fff}
-.sb-tag{font-size:11px;color:var(--yellow);letter-spacing:.12em;margin-top:6px;font-weight:600}
-.sb-nav{padding:14px 10px;display:flex;flex-direction:column;gap:2px;flex:1;overflow-y:auto}
-.sb-group{margin-top:14px;margin-bottom:2px;padding:0 12px;font-size:13px;color:rgba(255,255,255,.35);letter-spacing:.1em;text-transform:uppercase;font-weight:700}
-.sb-btn{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:6px;border:none;background:transparent;color:var(--text3);font-size:17px;cursor:pointer;text-align:left;width:100%;transition:background .15s,color .15s;font-family:inherit;text-decoration:none}
-.sb-btn:hover{background:rgba(255,255,255,.06);color:#fff}
-.sb-btn.active{background:var(--sidebar-active);color:var(--bg);font-weight:600;box-shadow:inset 2px 0 0 var(--blue)}
-.sb-foot{padding:16px 22px;border-top:1px solid rgba(255,255,255,.1);font-size:11px;color:rgba(255,255,255,.35)}
+  /* HEADER */
+  header {
+    background: linear-gradient(135deg, #1a1d2e 0%, #252840 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 28px 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px);
+  }
+  .header-left h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.5px; }
+  .header-left h1 span { color: var(--accent); }
+  .header-left p { color: var(--text2); font-size: 0.85rem; margin-top: 2px; }
+  .header-right { display: flex; gap: 10px; align-items: center; }
+  .btn { padding: 8px 18px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: all 0.2s; }
+  .btn-ghost { background: transparent; color: var(--text2); border: 1px solid var(--border); }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: #7c73ff; transform: translateY(-1px); }
+  .btn-danger { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+  .btn-danger:hover { background: rgba(239,68,68,0.25); }
 
-/* ── Main ── */
-#main{margin-left:250px;flex:1;padding:40px 48px 60px;max-width:calc(100vw - 250px)}
-.section{display:none}
-.section.active{display:block}
+  /* STATS */
+  .stats-bar {
+    display: flex; gap: 24px; padding: 20px 40px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(26,29,46,0.5);
+  }
+  .stat { text-align: center; }
+  .stat-num { font-size: 1.6rem; font-weight: 700; color: var(--accent); }
+  .stat-label { font-size: 0.75rem; color: var(--text2); margin-top: 2px; }
 
-/* ── Hero ── */
-.hero{margin-bottom:40px}
-.hero .tag{display:inline-block;font-size:0.75rem;letter-spacing:0.08em;text-transform:uppercase;background:var(--blue-bg);color:var(--blue);padding:0.3rem 0.8rem;border-radius:9999px;margin-bottom:1rem;font-weight:600}
-.hero h1{font-family:var(--font-serif);font-size:clamp(1.8rem,4vw,2.6rem);font-weight:600;margin-bottom:.75rem}
-.hero p{color:var(--text2);font-size:.95rem;max-width:620px}
+  /* FILTERS */
+  .filters { display: flex; gap: 10px; padding: 20px 40px; flex-wrap: wrap; align-items: center; }
+  .filter-input {
+    background: var(--surface); border: 1px solid var(--border); color: var(--text);
+    padding: 8px 14px; border-radius: 8px; font-size: 0.85rem; width: 240px;
+    outline: none; transition: border 0.2s;
+  }
+  .filter-input:focus { border-color: var(--accent); }
+  .filter-btn { padding: 7px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text2); cursor: pointer; font-size: 0.82rem; transition: all 0.2s; }
+  .filter-btn.active, .filter-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
 
-/* ── Overview summary ── */
-.summary-line{font-size:.95rem;color:var(--text2);line-height:1.9;margin-bottom:32px;max-width:680px}
-.summary-line .num{font-family:var(--mono);font-weight:600;color:var(--blue)}
+  /* GRID */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 20px; padding: 20px 40px 60px; }
 
-/* ── Section title ── */
-.section-title{font-size:20px;font-weight:700;color:var(--text2);letter-spacing:.06em;text-transform:uppercase;margin:36px 0 16px}
-.section-title:first-of-type{margin-top:0}
+  /* CARD */
+  .card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 24px; transition: all 0.25s; position: relative; overflow: hidden;
+  }
+  .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent2)); opacity: 0; transition: opacity 0.25s; }
+  .card:hover { transform: translateY(-4px); border-color: rgba(108,99,255,0.3); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+  .card:hover::before { opacity: 1; }
 
-/* ── Card grid ── */
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
-.card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:12px;text-decoration:none;color:inherit;box-shadow:0 1px 2px rgba(35,40,46,.04);transition:box-shadow .2s cubic-bezier(.4,0,.2,1),transform .2s cubic-bezier(.4,0,.2,1)}
-.card:hover{box-shadow:0 8px 24px rgba(35,40,46,.08);transform:translateY(-2px)}
-.card:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
-.card.featured{grid-column:1/-1}
-.card .tags{display:flex;gap:8px;flex-wrap:wrap}
-.card .tags span{font-size:.7rem;letter-spacing:.05em;text-transform:uppercase;border-radius:9999px;padding:.25rem .7rem;font-weight:600}
-.tag-blue{background:var(--blue-bg);color:var(--blue)}
-.tag-green{background:var(--green-bg);color:var(--green)}
-.tag-yellow{background:var(--yellow-bg);color:var(--yellow)}
-.card h3{font-family:var(--font-serif);font-size:1.3rem;font-weight:600}
-.card p.desc{color:var(--text2);font-size:.9rem;flex-grow:1}
-.card .footer-row{display:flex;justify-content:space-between;align-items:center;padding-top:.75rem;border-top:1px solid var(--border);font-size:.8rem}
-.card .footer-row .link{font-weight:600;display:flex;align-items:center;gap:.3rem;color:var(--blue)}
-.card .footer-row .status{color:var(--green);font-size:.75rem;display:flex;align-items:center;gap:.4rem}
-.card .footer-row .status .dot{width:6px;height:6px;border-radius:50%;background:#5DA862}
+  .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+  .card-title { font-size: 1rem; font-weight: 700; line-height: 1.4; flex: 1; }
+  .status-badge {
+    font-size: 0.72rem; font-weight: 600; padding: 3px 10px; border-radius: 20px; white-space: nowrap; margin-left: 10px;
+  }
+  .status-completed { background: rgba(16,185,129,0.15); color: var(--green); }
+  .status-in_progress { background: rgba(245,158,11,0.15); color: var(--yellow); }
+  .status-planning { background: rgba(59,130,246,0.15); color: var(--blue); }
 
-/* ── Articles ── */
-.article-list{display:flex;flex-direction:column;gap:14px}
-.article-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px 24px;cursor:pointer;transition:box-shadow .2s ease}
-.article-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.05)}
-.article-meta{font-size:12px;color:var(--text3);margin-bottom:6px;display:flex;gap:10px;align-items:center}
-.article-card h3{font-family:var(--font-serif);font-size:1.15rem;font-weight:600;margin-bottom:6px}
-.article-card p{font-size:.88rem;color:var(--text2)}
-.article-detail{display:none}
-.article-detail.active{display:block}
-.article-detail .back{display:inline-flex;align-items:center;gap:6px;font-size:.85rem;color:var(--blue);cursor:pointer;margin-bottom:20px;text-decoration:none}
-.article-detail .body{font-size:.95rem;line-height:1.9;color:var(--text)}
-.article-detail .body p{margin-bottom:14px}
-.article-detail .body h4{font-family:var(--font-serif);font-size:1.1rem;margin:20px 0 10px}
-.article-detail h1{font-family:var(--font-serif);font-size:1.8rem;font-weight:600;margin-bottom:8px}
+  .card-date { font-size: 0.78rem; color: var(--text2); margin-bottom: 10px; }
+  .card-desc { font-size: 0.85rem; color: var(--text2); line-height: 1.6; margin-bottom: 14px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 
-/* ── About ── */
-.about-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:28px;max-width:680px}
-.about-card h3{font-family:var(--font-serif);font-size:1.3rem;margin-bottom:10px}
-.about-card p{color:var(--text2);font-size:.92rem;margin-bottom:12px}
-.about-list{font-size:.9rem;color:var(--text2);line-height:2}
+  .card-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+  .tag { font-size: 0.72rem; padding: 3px 10px; border-radius: 20px; background: var(--surface2); color: var(--text2); }
+  .tool-tag { background: rgba(108,99,255,0.15); color: #a5a0ff; }
 
-/* ── Image placeholder（等圖片生成後替換掉）── */
-.img-placeholder{border:2px dashed var(--border2);border-radius:12px;padding:20px;margin:18px 0;background:var(--bg3);color:var(--text3);font-size:.82rem;line-height:1.7;font-family:var(--mono)}
-.img-placeholder b{color:var(--text2);font-family:var(--font)}
-.article-detail .body img{max-width:100%;border-radius:12px;margin:18px 0;display:block}
+  .card-links { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .link-btn {
+    font-size: 0.78rem; padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border);
+    background: transparent; color: var(--text2); text-decoration: none; display: inline-flex; align-items: center; gap: 4px;
+    transition: all 0.2s; cursor: pointer;
+  }
+  .link-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .link-btn.live { border-color: rgba(16,185,129,0.4); color: var(--green); }
+  .link-btn.live:hover { background: rgba(16,185,129,0.1); }
 
-/* ── Tip box（gyozalab 風格的提示框）── */
-.tip-box{border-radius:10px;padding:14px 18px;margin:16px 0;font-size:.9rem;line-height:1.8}
-.tip-goal{background:var(--blue-bg);color:var(--blue)}
-.tip-info{background:var(--green-bg);color:var(--green)}
-.tip-warn{background:var(--yellow-bg);color:var(--yellow)}
-.step-block{margin:28px 0 18px}
-.step-block .step-title{font-family:var(--font-serif);font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:8px}
-.step-block .step-title .step-num{background:var(--sidebar);color:#fff;font-family:var(--mono);font-size:.75rem;padding:3px 9px;border-radius:9999px}
-.step-block ol{margin:8px 0 8px 22px;font-size:.92rem;color:var(--text);line-height:1.85}
-.step-done{font-size:.85rem;color:var(--green);font-weight:600;margin-top:6px}
-.article-detail .body table{width:100%;border-collapse:collapse;margin:14px 0;font-size:.88rem}
-.article-detail .body table th,.article-detail .body table td{border:1px solid var(--border);padding:8px 12px;text-align:left}
-.article-detail .body table th{background:var(--bg3);font-weight:700}
-.article-detail .body a{color:var(--blue);text-decoration:underline}
+  .card-admin-actions { display: none; gap: 8px; padding-top: 14px; border-top: 1px solid var(--border); }
+  .admin-mode .card-admin-actions { display: flex; }
 
-/* ── Article category filter ── */
-.filter-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}
-.filter-btn{font-size:.85rem;font-weight:600;padding:7px 16px;border-radius:9999px;border:1px solid var(--border2);background:var(--bg2);color:var(--text2);cursor:pointer;transition:all .15s}
-.filter-btn:hover{background:var(--bg3)}
-.filter-btn.active{background:var(--sidebar);color:#fff;border-color:var(--sidebar)}
+  .card-notes {
+    display: none; font-size: 0.78rem; color: var(--text2); background: var(--surface2);
+    border-radius: 8px; padding: 10px 12px; margin-bottom: 14px; white-space: pre-wrap; line-height: 1.6;
+  }
+  .admin-mode .card-notes { display: block; }
 
-@media (max-width:900px){
-  #sidebar{display:none}
-  #main{margin-left:0;max-width:100vw;padding:24px}
-  .grid{grid-template-columns:1fr}
-}
+  /* MODAL */
+  .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+  .overlay.open { display: flex; }
+  .modal {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 32px; width: 560px; max-width: 95vw; max-height: 90vh; overflow-y: auto;
+  }
+  .modal h2 { font-size: 1.1rem; margin-bottom: 24px; }
+  .form-group { margin-bottom: 16px; }
+  .form-group label { display: block; font-size: 0.82rem; color: var(--text2); margin-bottom: 6px; }
+  .form-group input, .form-group textarea, .form-group select {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+    padding: 9px 12px; border-radius: 8px; font-size: 0.85rem; outline: none; transition: border 0.2s;
+    font-family: inherit;
+  }
+  .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--accent); }
+  .form-group textarea { min-height: 80px; resize: vertical; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border); }
+
+  /* LOGIN MODAL */
+  .login-modal { max-width: 360px; text-align: center; }
+  .login-modal h2 { margin-bottom: 8px; }
+  .login-modal p { color: var(--text2); font-size: 0.85rem; margin-bottom: 24px; }
+  .login-modal input { text-align: center; letter-spacing: 2px; }
+
+  /* ADMIN BAR */
+  .admin-bar {
+    display: none; background: linear-gradient(135deg, rgba(108,99,255,0.15), rgba(108,99,255,0.05));
+    border-bottom: 1px solid rgba(108,99,255,0.3); padding: 10px 40px;
+    align-items: center; justify-content: space-between;
+  }
+  .admin-mode .admin-bar { display: flex; }
+  .admin-bar-label { font-size: 0.82rem; color: var(--accent); font-weight: 600; display: flex; align-items: center; gap: 6px; }
+
+  /* EMPTY */
+  .empty-state { grid-column: 1/-1; text-align: center; padding: 60px 20px; color: var(--text2); }
+  .empty-state div { font-size: 3rem; margin-bottom: 12px; }
+
+  /* LOG MODAL */
+  .log-content { white-space: pre-wrap; font-size: 0.78rem; color: var(--text2); line-height: 1.7; max-height: 60vh; overflow-y: auto; background: var(--surface2); padding: 16px; border-radius: 8px; }
+
+  @media (max-width: 600px) {
+    header, .stats-bar, .filters, .grid { padding-left: 16px; padding-right: 16px; }
+    .grid { grid-template-columns: 1fr; }
+    .form-row { grid-template-columns: 1fr; }
+    .admin-bar { padding-left: 16px; padding-right: 16px; }
+  }
 </style>
 </head>
 <body>
 
-<div id="sidebar">
-  <div class="sb-logo">
-    <div class="sb-brand">Oscar Hsiao</div>
-    <div class="sb-tag">職安 × AI × 永續</div>
+<header>
+  <div class="header-left">
+    <h1>Oscar 的<span>專案庫</span></h1>
+    <p>記錄每一個做過的東西</p>
   </div>
-  <div class="sb-nav" id="nav"></div>
-  <div class="sb-foot">© 2026 Oscar Hsiao</div>
+  <div class="header-right">
+    <button class="btn btn-ghost" id="loginBtn" onclick="openLogin()">🔐 管理者登入</button>
+    <button class="btn btn-danger" id="logoutBtn" onclick="logout()" style="display:none">登出</button>
+  </div>
+</header>
+
+<div class="admin-bar">
+  <div class="admin-bar-label">🛠️ 管理模式啟用中 — 可新增、編輯、刪除專案</div>
+  <button class="btn btn-primary" onclick="openAddModal()">＋ 新增專案</button>
 </div>
 
-<main id="main"></main>
+<div class="stats-bar" id="statsBar"></div>
+
+<div class="filters">
+  <input class="filter-input" type="text" id="searchInput" placeholder="搜尋專案名稱或標籤…" oninput="renderProjects()">
+  <button class="filter-btn active" data-filter="all" onclick="setFilter(this,'all')">全部</button>
+  <button class="filter-btn" data-filter="completed" onclick="setFilter(this,'completed')">已完成</button>
+  <button class="filter-btn" data-filter="in_progress" onclick="setFilter(this,'in_progress')">進行中</button>
+  <button class="filter-btn" data-filter="planning" onclick="setFilter(this,'planning')">規劃中</button>
+</div>
+
+<div class="grid" id="projectGrid"></div>
+
+<!-- LOGIN -->
+<div class="overlay" id="loginOverlay">
+  <div class="modal login-modal">
+    <h2>🔐 管理者登入</h2>
+    <p>輸入密碼以進入管理模式</p>
+    <div class="form-group">
+      <input type="password" id="pwInput" placeholder="密碼" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div id="loginError" style="color:#ef4444;font-size:0.82rem;margin-bottom:12px;display:none">密碼錯誤</div>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button class="btn btn-ghost" onclick="closeOverlay('loginOverlay')">取消</button>
+      <button class="btn btn-primary" onclick="doLogin()">登入</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD/EDIT PROJECT -->
+<div class="overlay" id="projectModal">
+  <div class="modal">
+    <h2 id="modalTitle">新增專案</h2>
+    <input type="hidden" id="editId">
+    <div class="form-row">
+      <div class="form-group">
+        <label>專案名稱 *</label>
+        <input type="text" id="fName" placeholder="例：法規鑑別清單系統">
+      </div>
+      <div class="form-group">
+        <label>日期 *</label>
+        <input type="date" id="fDate">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>狀態</label>
+        <select id="fStatus">
+          <option value="completed">✅ 已完成</option>
+          <option value="in_progress">🔄 進行中</option>
+          <option value="planning">📋 規劃中</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>對話記錄檔案名稱</label>
+        <input type="text" id="fLog" placeholder="例：法規鑑別清單系統_對話記錄.md">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>專案描述</label>
+      <textarea id="fDesc" placeholder="這個專案做了什麼？解決了什麼問題？"></textarea>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>網站連結</label>
+        <input type="url" id="fLive" placeholder="https://...">
+      </div>
+      <div class="form-group">
+        <label>GitHub Repo</label>
+        <input type="url" id="fGithub" placeholder="https://github.com/...">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>使用工具（逗號分隔）</label>
+      <input type="text" id="fTools" placeholder="HTML, JavaScript, GitHub Pages">
+    </div>
+    <div class="form-group">
+      <label>標籤（逗號分隔）</label>
+      <input type="text" id="fTags" placeholder="職安衛, 法規管理, 公信電子">
+    </div>
+    <div class="form-group">
+      <label>備註（只有管理者可見）</label>
+      <textarea id="fNotes" placeholder="密碼、待辦事項、補充說明…"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeOverlay('projectModal')">取消</button>
+      <button class="btn btn-primary" onclick="saveProject()">儲存</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM DELETE -->
+<div class="overlay" id="confirmModal">
+  <div class="modal" style="max-width:360px;text-align:center">
+    <div style="font-size:2.5rem;margin-bottom:12px">🗑️</div>
+    <h2 style="margin-bottom:8px">確認刪除？</h2>
+    <p style="color:var(--text2);font-size:0.85rem;margin-bottom:24px">此操作無法復原</p>
+    <div style="display:flex;gap:10px;justify-content:center">
+      <button class="btn btn-ghost" onclick="closeOverlay('confirmModal')">取消</button>
+      <button class="btn btn-danger" onclick="confirmDelete()">確認刪除</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOG VIEWER -->
+<div class="overlay" id="logModal">
+  <div class="modal" style="max-width:700px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h2 id="logModalTitle">對話記錄</h2>
+      <button class="btn btn-ghost" onclick="closeOverlay('logModal')">✕</button>
+    </div>
+    <div class="log-content" id="logContent">載入中…</div>
+  </div>
+</div>
 
 <script>
-// ═══════════════════════════════════════════════
-// 導覽分類
-// ═══════════════════════════════════════════════
-const NAV=[
-  {group:'',items:[
-    {id:'overview',label:'首頁'},
-    {id:'articles',label:'全部文章'},
-    {id:'articles',label:'　AI',filter:'ai'},
-    {id:'articles',label:'　永續／ESG',filter:'esg'},
-    {id:'articles',label:'　職安衛',filter:'osh'}
-  ]},
-  {group:'職業安全衛生',items:[
-    {id:'osh',label:'工具總覽'},
-    {id:'tool-law',label:'　法規登記系統',href:'法規登記系統.html'},
-    {id:'tool-meeting',label:'　會議追蹤工具',href:'會議追蹤工具.html'},
-    {id:'tool-training',label:'　教育訓練與證照管理',href:'教育訓練與證照管理系統.html'}
-  ]},
-  {group:'永續 ／ ESG',items:[
-    {id:'esg',label:'工具總覽'},
-    {id:'tool-ghg',label:'　溫室氣體盤查系統',href:'溫室氣體盤查系統.html'}
-  ]},
-  {group:'關於',items:[
-    {id:'about',label:'關於我'}
-  ]}
+// ─── DATA ───────────────────────────────────────────────────────────────────
+const ADMIN_HASH = '2afb5c2cbd67ce59a9a89b0adc501754a23333a2b08c2eecf94e7d62ba4bc8d1';
+
+const DEFAULT_PROJECTS = [
+  {
+    id: 1,
+    name: "公信電子法規鑑別清單管理系統",
+    date: "2026-06-11",
+    description: "基於115公信電子法規鑑別清單.xls，建立線上法規鑑別清單管理系統。三個分頁（職業安全衛生、ISO 45001、ISO 14001），共77筆法規，每條連結至全國法規資料庫，設有管理者登入機制。",
+    status: "completed",
+    liveUrl: "https://oscar-hsiao.github.io/law-registry/",
+    githubUrl: "https://github.com/Oscar-Hsiao/law-registry",
+    tools: ["HTML", "JavaScript", "GitHub Pages", "全國法規資料庫 API"],
+    tags: ["職安衛", "ISO 45001", "ISO 14001", "公信電子", "法規管理"],
+    logFile: "法規鑑別清單系統_對話記錄.md",
+    notes: "管理者密碼：ji394su3\nGAS 後端自動更新待設定（GAS_URL 需填入後才能自動查修正日期）\n全部 PCode 已逐一驗證"
+  }
 ];
 
-const TOOLS=[
-  {id:'tool-law',title:'法規登記系統',tags:[['法規管理','tag-blue'],['資料庫','tag-green']],
-    desc:'集中管理適用法規清單，追蹤法規修訂與生效日期，建立可隨時查詢的法令資料庫，協助掌握法規異動狀況。',
-    href:'法規登記系統.html',category:'osh'},
-  {id:'tool-meeting',title:'會議追蹤工具',tags:[['會議管理','tag-yellow']],
-    desc:'記錄會議內容、待辦事項與結案狀態，協助持續追蹤決議事項的執行進度。',
-    href:'會議追蹤工具.html',category:'osh'},
-  {id:'tool-training',title:'教育訓練與證照管理',tags:[['職安衛','tag-blue'],['教育訓練','tag-yellow']],
-    desc:'管理人員教育訓練與法定證照紀錄，自動計算回訓到期日，並依事業單位類別與人數自動推算所需證照、時數與回訓週期。',
-    href:'教育訓練與證照管理系統.html',category:'osh'},
-  {id:'tool-ghg',title:'溫室氣體盤查系統',tags:[['ESG','tag-green']],
-    desc:'彙整各範疇排放數據，協助 ESG 報告與碳盤查流程的資料整理與計算。',
-    href:'溫室氣體盤查系統.html',category:'esg'}
-];
+let projects = JSON.parse(localStorage.getItem('oscar_projects') || 'null') || DEFAULT_PROJECTS;
+let isAdmin = false;
+let currentFilter = 'all';
+let deleteTargetId = null;
 
-const ARTICLES=[
-  {id:'a1',date:'2026-06-15',category:'osh',tags:['職安衛','法規'],title:'第一類、第二類事業單位的安全衛生人員配置怎麼算？對照法規與真實案例試算',
-   excerpt:'企業配置安全衛生人員，就像大樓依樓層高度決定要裝幾台電梯。本文依《職業安全衛生管理辦法》拆解第一類、第二類事業的配置門檻，附法規連結與真實案例試算。',
-   body:`<div class="tip-box tip-goal">🎯 這篇文章帶你搞懂：怎麼判斷自己的事業屬於第幾類、勞工人數怎麼算，準確抓出該配置的安全衛生人員層級，文末附官方法規連結與試算範例。</div>
+function save() { localStorage.setItem('oscar_projects', JSON.stringify(projects)); }
 
-   <p>企業配置安全衛生人員的邏輯，其實跟大樓依樓層高度決定要裝幾台電梯、要不要設管理委員會很像——規模越大、風險越高，門檻就越嚴格，配置的人力規格也要跟著升級。</p>
-   <p>許多企業主直到勞動檢查上門，才發現自己「少配了一個人」。這通常不是故意違規，而是搞不清楚自己屬於第幾類事業、人數該怎麼算、跨過門檻後又該配置什麼層級的人員。</p>
-   <p>本文依《職業安全衛生管理辦法》逐一拆解第一類、第二類事業的配置門檻，並附上官方法規連結與實際試算範例，讓你五分鐘內就能套用在自己的事業單位上。</p>
-
-   <hr style="border:none;border-top:1px solid var(--border);margin:24px 0">
-
-   <h4>一、為什麼配置門檻會依「事業類別」不同？</h4>
-   <p>法規不是對所有產業都用同一套標準，而是先把事業依風險程度分成三類，風險越高的產業，門檻就訂得越嚴格：</p>
-   <table>
-     <tr><th>事業類別</th><th>風險特性</th><th>常見產業</th></tr>
-     <tr><td><b>第一類事業</b></td><td>高風險，重大職災機率高</td><td>製造業、營造業、化工業</td></tr>
-     <tr><td><b>第二類事業</b></td><td>中等風險</td><td>批發零售、倉儲、部分服務業</td></tr>
-     <tr><td>第三類事業</td><td>低風險</td><td>一般辦公室、金融、教育</td></tr>
-   </table>
-   <p>法規依據是《<a href="https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060001" target="_blank" rel="noopener">職業安全衛生法</a>》授權訂定的《<a href="https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060027" target="_blank" rel="noopener">職業安全衛生管理辦法</a>》，裡面明確規定了不同類別、不同人數規模下應配置的人員層級。</p>
-
-   <h4>二、第一類事業：100 人是第一個關鍵門檻</h4>
-   <div class="step-block">
-     <div class="step-title"><span class="step-num">STEP 1</span> 先確認自己的勞工人數區間</div>
-     <ol>
-       <li>未滿 100 人：依規模設置丙級或乙級職業安全衛生業務主管</li>
-       <li>100 人以上：應設置直接隸屬雇主的一級管理單位，並置甲級業務主管</li>
-       <li>300 人以上：除一級管理單位外，需配置專職的職業安全衛生人員</li>
-     </ol>
-     <div class="step-done">✅ 完成這步，你已經知道自己落在哪個門檻區間</div>
-   </div>
-   <div class="tip-box tip-info">💡 試算範例：一家有 150 名勞工的製造業（第一類事業），已超過 100 人門檻，依規定須設置直接隸屬雇主的一級管理單位，並配置甲級職業安全衛生業務主管 1 人。</div>
-
-   <h4>三、第二類事業：300 人是關鍵門檻</h4>
-   <p>第二類事業的風險相對較低，因此門檻人數訂得比第一類事業高：未滿 300 人者，依規模配置丙級或乙級業務主管即可；達到 300 人以上，才需要設置直接隸屬雇主的一級管理單位。</p>
-   <table>
-     <tr><th>事業類別</th><th>人數門檻</th><th>應配置</th></tr>
-     <tr><td>第一類</td><td>100 人以上</td><td>一級管理單位 + 甲級業務主管</td></tr>
-     <tr><td>第二類</td><td>300 人以上</td><td>一級管理單位</td></tr>
-   </table>
-
-   <h4>四、沒配對會怎樣？</h4>
-   <div class="tip-box tip-warn">⚠️ 未依規定配置安全衛生人員或管理單位，屬於違反《職業安全衛生法》的行為，可能面臨罰鍰並被要求限期改善，詳細罰則建議直接查閱《<a href="https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060001" target="_blank" rel="noopener">職業安全衛生法</a>》罰則章節。</div>
-
-   <hr style="border:none;border-top:1px solid var(--border);margin:24px 0">
-
-   <p>從第一類事業的 100 人門檻，到第二類事業的 300 人門檻，配置邏輯的核心其實是同一句話：規模越大、風險越高，管理的「正式程度」就要跟著提升。</p>
-   <p>掌握這套邏輯之後，你不只是在應付勞檢，而是真正為組織建立起能承擔風險的管理架構。</p>
-   <p>未來企業規模持續變動時，建議每年至少重新檢視一次勞工人數與事業類別，避免因為組織擴編而不知不覺跨過門檻。</p>
-   <div class="tip-box tip-info">📌 延伸閱讀：中小企業做溫室氣體盤查，第一步該從哪裡開始？</div>`},
-  {id:'a2',date:'2026-06-10',category:'esg',tags:['ESG','溫室氣體','新手教學'],title:'溫室氣體盤查新手包：用「邊、源、算、報、查」5步驟，從零開始搞懂範疇一二三',
-   excerpt:'完全沒做過溫盤也看得懂。本文用「邊、源、算、報、查」5字口訣，帶中小企業新手一步步搞懂範疇一、二、三，從零開始完成溫室氣體盤查。',
-   body:`<div class="tip-box tip-goal">🎯 這篇文章帶你搞懂：完全沒接觸過溫室氣體盤查也沒關係，只要記住「邊、源、算、報、查」5個字，照順序做下去，就能完成一次完整的溫盤流程。</div>
-
-   <p>溫室氣體盤查聽起來很專業，其實本質上就是「記帳」——記帳前要先知道「這個月錢從哪裡來、花到哪裡去」，盤查也一樣，要先知道「碳排放從哪裡來」，才能談怎麼減碳。</p>
-   <p>很多新手一聽到「範疇一、二、三」就想放棄，覺得太難太抽象。但拆開來看，整套流程其實只有 5 個步驟，而且每一步都有對應的白話比喻可以幫你記住。</p>
-   <p>本文用「<b>邊、源、算、報、查</b>」這 5 個字當骨架，從零開始帶你走完一次完整的溫室氣體盤查。</p>
-
-   <hr style="border:none;border-top:1px solid var(--border);margin:24px 0">
-
-   <h4>一、邊 — 先畫出你的「盤查邊界」</h4>
-   <p>第一步不是急著算數字，而是先回答一個問題：<b>「我要盤查的範圍到哪裡？」</b></p>
-   <p>這就像你要記帳之前，要先決定「只記我自己的錢」還是「連家裡的開銷也一起記」——範圍沒定清楚，後面算出來的數字就沒意義。</p>
-   <div class="step-block">
-     <div class="step-title"><span class="step-num">STEP 1</span> 決定組織邊界</div>
-     <p>用「營運控制權」來判斷：哪些廠房、子公司是你實際在管理營運的，就算在你的盤查範圍內；只有出資但不參與營運的，通常不算。</p>
-     <div class="step-done">✅ 完成這步，你已經知道「公司範圍」算到哪裡</div>
-   </div>
-   <div class="step-block">
-     <div class="step-title"><span class="step-num">STEP 2</span> 決定營運邊界（也就是範疇一、二、三）</div>
-     <p>公司範圍定好後，再決定「要算哪幾種排放」。這部分留到下一節「源」一起講，因為這兩件事是綁在一起看的。</p>
-     <div class="step-done">✅ 完成這步，你已經畫出盤查的「地圖範圍」</div>
-   </div>
-   <div class="tip-box tip-info">💡 新手常見誤解：以為盤查邊界 = 公司全部資產。其實只要抓「你實際管得到」的部分，外包出去、你管不到的，原則上不算進你的邊界。</div>
-
-   <h4>二、源 — 找出你的「排放源」在哪裡</h4>
-   <p>邊界畫好後，接著要在這個範圍裡，找出「哪些活動會產生溫室氣體」，這些活動就叫「排放源」。法規把排放源分成範疇一、二、三三大類，你可以這樣記：</p>
-   <table>
-     <tr><th>範疇</th><th>白話比喻</th><th>常見排放源</th><th>新手舉例</th></tr>
-     <tr><td><b>範疇一</b><br><span style="color:var(--text3);font-size:.8rem">直接排放</span></td><td>自己車子加的油</td><td>鍋爐燃料、公司車輛油耗</td><td>工廠燒天然氣的鍋爐、業務車加的汽油</td></tr>
-     <tr><td><b>範疇二</b><br><span style="color:var(--text3);font-size:.8rem">能源間接排放</span></td><td>家裡的電費單</td><td>外購電力、外購蒸氣</td><td>辦公室、工廠每月的台電帳單</td></tr>
-     <tr><td>範疇三<br><span style="color:var(--text3);font-size:.8rem">其他間接排放</span></td><td>買東西背後藏的碳</td><td>原料採購、員工通勤、廢棄物處理</td><td>買進來的原料、員工開車上班、出貨運輸</td></tr>
-   </table>
-   <div class="tip-box tip-info">💡 新手只要先做範疇一、二就好，範疇三牽涉供應商配合度高，通常是第二年、第三年才慢慢補齊的進階題，不用第一次就逼自己做到完整。</div>
-
-   <h4>三、算 — 把活動量換算成碳排放數字</h4>
-   <p>找到排放源後，接下來要把「用了多少」換算成「排放了多少碳」。公式其實只是一個乘法：</p>
-   <p style="font-family:var(--mono);background:var(--bg3);padding:12px 16px;border-radius:8px;font-size:.9rem;text-align:center">活動量 × 排放係數 = 碳排放量（CO2e）</p>
-   <p>可以想成「加油升數 × 油價 = 油錢」一樣簡單——只是這裡乘的不是油價，是「排放係數」（每用一單位的電/油，會排放多少碳）。</p>
-   <div class="step-block">
-     <div class="step-title"><span class="step-num">STEP 3</span> 蒐集活動量數據</div>
-     <p>把範疇一、二的原始數字找出來：每月用電量（範疇二）、燃料使用量如柴油天然氣（範疇一）、公司車輛油耗紀錄（範疇一）。</p>
-     <div class="step-done">✅ 完成這步，你已經有第一批可用的原始數據</div>
-   </div>
-   <div class="step-block">
-     <div class="step-title"><span class="step-num">STEP 4</span> 找對應的排放係數，相乘加總</div>
-     <p>用電量、用油量等實際使用量，乘上中央主管機關公告的排放係數，換算成統一單位的 CO2e（二氧化碳當量），才能跨能源類型加總比較。</p>
-     <div class="step-done">✅ 完成這步，你已經算出第一份碳排放數字</div>
-   </div>
-   <div class="tip-box tip-warn">⚠️ 排放係數每年都會更新，舊版係數用錯會讓整份數字失準，記得每次盤查都去查最新公告版本。</div>
-
-   <h4>四、報 — 登錄到法定平台</h4>
-   <p>數字算出來後，如果你的事業單位屬於中央主管機關公告應盤查登錄的對象，就要依規定期限把結果登錄上去，這一步讓你的盤查結果正式具備法規效力。</p>
-   <div class="step-block">
-     <div class="step-title"><span class="step-num">STEP 5</span> 確認登錄義務並完成登錄</div>
-     <p>依《<a href="https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=O0020102" target="_blank" rel="noopener">溫室氣體排放量盤查登錄及查驗管理辦法</a>》規定，公告對象須在期限內完成登錄；不確定自己是否屬於公告對象，建議直接查閱最新公告名單或洽詢主管機關。</p>
-     <div class="step-done">✅ 完成這步，你的盤查結果正式生效</div>
-   </div>
-
-   <h4>五、查 — 查核驗證，讓數字可信</h4>
-   <p>自己算出來的數字，外部單位（客戶、主管機關）不會直接相信，這時候需要第三方查驗機構確認你的計算方法、數據來源都沒問題，這就是「查」。</p>
-   <p>新手不用怕「查核」聽起來很嚴格——簡單說就是找一個有資格的外部單位，照著你蒐集數據的紀錄，重新核對一次你算的對不對，確認沒問題後出具查證意見。</p>
-   <div class="tip-box tip-info">💡 第一次盤查不一定馬上需要外部查驗，但平時就把「數據從哪裡來、怎麼算的」記錄清楚，之後真的要查驗時才不會手忙腳亂。</div>
-
-   <hr style="border:none;border-top:1px solid var(--border);margin:24px 0">
-
-   <p>「邊、源、算、報、查」這 5 個字，其實就是把一份複雜的法規文件，拆成新手也能一步步照做的流程：先畫範圍、再找排放源、然後算數字、依規定登錄、最後讓第三方確認可信。</p>
-   <p>盤查的真正價值不是應付法規，而是讓企業第一次「看見」自己的碳排放結構，知道減碳該從哪個環節下手最有效益。</p>
-   <p>建議中小企業第一次盤查先把範疇一、二做完整、做扎實，範疇三留給之後逐年補齊，不需要第一次就追求完美。</p>
-   <div class="tip-box tip-info">📌 延伸閱讀：用 AI 重構職安衛文件管理，從人工比對到自動化提醒的實務轉型</div>`},  {id:'a3',date:'2026-06-01',category:'cross',tags:['AI','職安衛'],title:'用 AI 重構職安衛文件管理：從人工比對到自動化提醒的實務轉型',
-   excerpt:'傳統職安衛文件管理就像沒有提醒功能的萬年曆。本文說明如何把法規規則寫進系統，讓規則引擎與 AI 接手重複性比對工作，並點出目前技術的限制。',
-   body:`<div class="tip-box tip-goal">🎯 這篇文章帶你搞懂：職安衛文件管理的傳統瓶頸在哪、規則引擎怎麼運作、AI 在其中該扮演什麼角色，以及目前技術的限制在哪裡。</div>
-
-   <p>傳統的職安衛文件管理，常常像一本「沒有提醒功能的萬年曆」——法規異動、證照到期、會議追蹤，每件事都得靠人腦記住期限，一旦人員異動或忙碌疏忽，就容易出現缺口。</p>
-   <p>法規異動比對、回訓週期推算、會議決議追蹤，這些工作本質上都是「重複性的規則比對」，卻長期仰賴人工逐項核對，耗時又容易遺漏。</p>
-   <p>本文說明如何把法規規則「寫進系統」，讓規則引擎與 AI 接手重複性比對工作，同時誠實點出目前這類自動化工具的技術限制。</p>
-
-   <hr style="border:none;border-top:1px solid var(--border);margin:24px 0">
-
-   <h4>一、傳統做法的瓶頸在哪裡？</h4>
-   <table>
-     <tr><th>工作項目</th><th>傳統做法</th><th>常見問題</th></tr>
-     <tr><td>法規異動比對</td><td>人工追蹤公告、訂閱電子報</td><td>容易漏看修法時間點</td></tr>
-     <tr><td>證照回訓提醒</td><td>人工排程、Excel 標色提醒</td><td>人員異動後容易斷層</td></tr>
-     <tr><td>會議決議追蹤</td><td>紙本紀錄或分散的 Word 檔</td><td>難以彙整查詢與覆盤</td></tr>
-   </table>
-
-   <h4>二、把「規則」寫進系統：規則引擎怎麼運作</h4>
-   <p>規則引擎可以理解成「把法規條文翻譯成 if-then 的客服機器人」——例如《<a href="https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060010" target="_blank" rel="noopener">職業安全衛生教育訓練規則</a>》規定的回訓週期與時數，只要把規則轉成系統邏輯，輸入人員的職類與上次訓練日期，系統就能自動推算下次回訓的到期日，不需要每次重新查表。</p>
-
-   <h4>三、AI 在這裡扮演的角色：加速比對，不取代判斷</h4>
-   <div class="tip-box tip-info">❓ 那 AI 是不是要取代職安衛人員的專業判斷？<br><br>不是。AI 與規則引擎能做的是初步比對、整理與提醒——例如掃出哪些證照即將到期、哪些法規條文有修訂、哪些會議決議尚未結案。但法規的最終解釋、風險的專業判斷，仍需要職安衛人員親自確認，工具的角色是減少人工核對的時間，不是取代決策。</div>
-
-   <h4>四、技術限制與該注意的風險</h4>
-   <div class="tip-box tip-warn">⚠️ 法規規則寫進系統後，仍需要人工定期確認是否為最新版本，修法後若沒有同步更新規則，系統反而會給出錯誤建議。對於文字模糊、需要脈絡判斷的條文，AI 也可能誤判，這類情況務必交由專業人員複核，不要直接採信系統輸出的結論。</div>
-
-   <hr style="border:none;border-top:1px solid var(--border);margin:24px 0">
-
-   <p>從人工逐項核對，到規則引擎自動比對，再到 AI 協助初步篩選，這是一條把「重複性工作」逐步交給工具的過程，而不是把「專業判斷」交出去。</p>
-   <p>真正的轉型價值，不在於工具有多聰明，而在於它讓職安衛人員把時間花在真正需要專業判斷的事情上，而不是埋頭核對日期與條文。</p>
-   <p>下一步可以思考的是，如何把法規更新的監控也自動化，讓規則庫本身能更即時跟上修法腳步。</p>
-   <div class="tip-box tip-info">📌 延伸閱讀：第一類、第二類事業單位的安全衛生人員配置怎麼算？</div>`},
-  {id:'a4',date:'2026-06-21',category:'osh',tags:['職安衛','法規','不法侵害'],title:'不法侵害怎麼認定？7月1日職安法霸凌防治專章上路，企業該怎麼準備',
-   excerpt:'從4個真實判決拆解「管理」與「霸凌」的法律界線，並解析7月1日起《職業安全衛生法》新增霸凌防治專章對企業申訴、調查機制的新要求，附法規連結與企業端SOP。',
-   body:`<div class="tip-box tip-goal">🎯 這篇文章帶你搞懂：法院怎麼判斷「管理權行使」與「職場霸凌」的界線、7月1日起職安法新增的霸凌防治專章對企業有什麼新義務，以及企業端可以照走的標準處理流程。</div>
-
-   <p>不法侵害這件事，像是一條畫在地上、但肉眼看不見的界線——管理權跟霸凌站在同一條路上，差別只在於有沒有越線。問題是，企業往往要等到員工申訴、甚至上了法院，才發現自己已經踩過去了。</p>
-   <p>員工申訴霸凌，不代表行為就一定違法；但企業也不能因此就什麼都不處理。這條界線該怎麼劃，連法院判決彼此之間都各有側重的角度。</p>
-   <p>本文從 4 個真實判決拆解法院認定的核心邏輯，並解析 2026 年 7 月 1 日起上路的職安法霸凌防治專章，企業的申訴、調查機制該怎麼準備。</p>
-
-   <hr style="border:none;border-top:1px solid var(--border);margin:24px 0">
-
-   <h4>一、不法侵害的法律定義</h4>
-   <p>依《<a href="https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060001" target="_blank" rel="noopener">職業安全衛生法</a>》第 6 條第 2 項規定，雇主對於執行職務因他人行為遭受身體或精神不法侵害，應採取必要的預防措施。白話來說：<b>不是員工「覺得」被霸凌就成立</b>，而是行為要符合特定構成要件，這也是為什麼同樣是主管要求加班、調職，有些被法院認定是合理管理，有些卻被認定是霸凌。</p>
-
-   <h4>二、法院怎麼判斷「管理」跟「霸凌」的界線？四個核心要件</h4>
-   <p>整理近期判決可以發現，法院認定不法侵害通常會檢視以下四個要件：</p>
-   <table>
-     <tr><th>要件</th><th>檢視重點</th></tr>
-     <tr><td><b>是否有敵意或惡意</b></td><td>主管是否基於敵視、討厭、歧視等目的</td></tr>
-     <tr><td><b>是否持續反覆</b></td><td>單次衝突或單次嚴厲管理，通常不容易構成霸凌</td></tr>
-     <tr><td><b>是否逾越社會通念</b></td><td>行為是否超過一般職場可接受的程度</td></tr>
-     <tr><td><b>是否與管理目的有關</b></td><td>若基於工作需求、稽核、績效、紀律調整，較可能被認定為管理權行使</td></tr>
-   </table>
-
-   <div class="tip-box tip-info">💡 案例整理：以下案例參考自林裕老師（性騷擾調查/職場霸凌調查專業人才）公開彙整的判決重點，案號已附上方便自行查閱原始判決，正式法律行動仍建議委請專業律師核對判決全文。</div>
-
-   <table>
-     <tr><th>案件</th><th>案件性質</th><th>判決結果</th><th>法院重點</th></tr>
-     <tr><td>能元科技案<br><span style="color:var(--text3);font-size:.8rem">臺南高等行政法院 114重勞上1號</span></td><td>確認僱傭關係存在，雇主依勞基法第12條第1項第4款解僱</td><td>勞方敗訴，解僱合法</td><td>勞工持續拒絕 PIP 與合理調動，已破壞勞資信任；即使部分懲處有瑕疵，核心違規事實「情節重大」仍成立</td></tr>
-     <tr><td>信義房屋案<br><span style="color:var(--text3);font-size:.8rem">臺北地方法院 114勞小1號</span></td><td>職場霸凌損害賠償</td><td>勞方敗訴，資方及主管免賠</td><td>搬運年鑑、催促簽呈等屬一般公務指派，未逾越合理範圍，不構成霸凌</td></tr>
-     <tr><td>南亞科技案<br><span style="color:var(--text3);font-size:.8rem">新北地方法院 113訴232號</span></td><td>確認僱傭關係存在，雇主依勞基法第11條第5款資遣</td><td>勞方敗訴，資遣合法</td><td>不能勝任不只看能力不足，也包含「能做卻不做」的消極不作為；資方已多次輔導與調整，符合最後手段性</td></tr>
-     <tr><td>公審決字案<br><span style="color:var(--text3);font-size:.8rem">115公審決字第000356號</span></td><td>公務員懲處爭議</td><td>復審駁回，申誡一次合法</td><td>霸凌不成立，不代表行為就合法；高聲咆嘯、摔公文、厲聲斥責、黃色笑話，仍屬言行失檢，可予懲處</td></tr>
-   </table>
-
-   <h4>三、不一定構成霸凌的管理權行使 vs 高風險行為</h4>
-   <table>
-     <tr><th>不一定構成霸凌（多屬管理權）</th><th>可能構成霸凌（高風險）</th></tr>
-     <tr><td>✅ 要求員工提交報告</td><td>❌ 針對特定人長期羞辱</td></tr>
-     <tr><td>✅ 催促簽呈或預算資料</td><td>❌ 公開貶低人格</td></tr>
-     <tr><td>✅ 要求交出稽核資料</td><td>❌ 故意孤立、排擠</td></tr>
-     <tr><td>✅ 要求配合 PIP</td><td>❌ 不合理加重工作</td></tr>
-     <tr><td>✅ 調動部門或工作內容</td><td>❌ 用歧視、敵意語言對待</td></tr>
-     <tr><td>✅ 對違規行為約談、懲處</td><td>❌ 申訴後報復懲處</td></tr>
-   </table>
-
-   <h4>四、7 月 1 日起，職安法「霸凌防治專章」上路了什麼？</h4>
-   <p>過去不法侵害預防主要依附在《職業安全衛生法》第 6 條的概括規定，具體預防措施則寫在《<a href="https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009" target="_blank" rel="noopener">職業安全衛生設施規則</a>》第 324-3 條這個行政層級的規則裡，並沒有明確規定企業的申訴、調查程序。2026 年 7 月 1 日起，職安法新增「霸凌防治專章」，把不法侵害預防正式拉到法律層級，並依企業規模課予分級義務：</p>
-   <table>
-     <tr><th>企業規模</th><th>新增義務</th></tr>
-     <tr><td>10 人以上</td><td>應建立申訴管道</td></tr>
-     <tr><td>30 人以上</td><td>應訂定預防措施（書面計畫）</td></tr>
-     <tr><td>100 人以上</td><td>應設置調查委員會</td></tr>
-   </table>
-   <div class="tip-box tip-warn">⚠️ 新制上路後罰鍰金額大幅提高，企業若未依規定建立申訴、調查機制，最高罰鍰可達 450 萬元。具體條文編號待行政院公告施行版本確定後可能調整，建議上路前直接查閱《<a href="https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060001" target="_blank" rel="noopener">職業安全衛生法</a>》最新版本確認條號。</div>
-
-   <h4>五、企業端標準處理流程（SOP）</h4>
-   <svg viewBox="0 0 700 230" style="width:100%;height:auto;margin:8px 0 20px" xmlns="http://www.w3.org/2000/svg">
-     <defs>
-       <marker id="arrowB" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-         <path d="M0,0 L10,5 L0,10 z" style="fill:var(--blue)"/>
-       </marker>
-       <marker id="arrowG" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-         <path d="M0,0 L10,5 L0,10 z" style="fill:var(--green)"/>
-       </marker>
-     </defs>
-     <!-- row1 nodes -->
-     <g font-family="var(--font)">
-       <rect x="10" y="20" width="140" height="70" rx="10" style="fill:var(--blue-bg);stroke:var(--blue)"/>
-       <circle cx="28" cy="38" r="14" style="fill:var(--blue)"/><text x="28" y="43" text-anchor="middle" font-size="13" fill="#fff" font-weight="700">1</text>
-       <text x="80" y="60" text-anchor="middle" font-size="13" style="fill:var(--text)" font-weight="700">釐清事件</text>
-
-       <rect x="170" y="20" width="140" height="70" rx="10" style="fill:var(--blue-bg);stroke:var(--blue)"/>
-       <circle cx="188" cy="38" r="14" style="fill:var(--blue)"/><text x="188" y="43" text-anchor="middle" font-size="13" fill="#fff" font-weight="700">2</text>
-       <text x="240" y="60" text-anchor="middle" font-size="13" style="fill:var(--text)" font-weight="700">蒐集事實</text>
-
-       <rect x="330" y="20" width="140" height="70" rx="10" style="fill:var(--blue-bg);stroke:var(--blue)"/>
-       <circle cx="348" cy="38" r="14" style="fill:var(--blue)"/><text x="348" y="43" text-anchor="middle" font-size="13" fill="#fff" font-weight="700">3</text>
-       <text x="400" y="60" text-anchor="middle" font-size="13" style="fill:var(--text)" font-weight="700">啟動調查</text>
-
-       <rect x="490" y="20" width="140" height="70" rx="10" style="fill:var(--blue-bg);stroke:var(--blue)"/>
-       <circle cx="508" cy="38" r="14" style="fill:var(--blue)"/><text x="508" y="43" text-anchor="middle" font-size="13" fill="#fff" font-weight="700">4</text>
-       <text x="560" y="60" text-anchor="middle" font-size="12" style="fill:var(--text)" font-weight="700">避免報復疑慮</text>
-
-       <!-- row1 arrows -->
-       <line x1="150" y1="55" x2="168" y2="55" style="stroke:var(--blue);stroke-width:2" marker-end="url(#arrowB)"/>
-       <line x1="310" y1="55" x2="328" y2="55" style="stroke:var(--blue);stroke-width:2" marker-end="url(#arrowB)"/>
-       <line x1="470" y1="55" x2="488" y2="55" style="stroke:var(--blue);stroke-width:2" marker-end="url(#arrowB)"/>
-
-       <!-- elbow connector row1→row2 -->
-       <path d="M560,90 L560,120 L80,120 L80,148" style="fill:none;stroke:var(--blue);stroke-width:2" marker-end="url(#arrowB)"/>
-
-       <!-- row2 nodes -->
-       <rect x="10" y="150" width="140" height="70" rx="10" style="fill:var(--green-bg);stroke:var(--green)"/>
-       <circle cx="28" cy="168" r="14" style="fill:var(--green)"/><text x="28" y="173" text-anchor="middle" font-size="13" fill="#fff" font-weight="700">5</text>
-       <text x="80" y="190" text-anchor="middle" font-size="12" style="fill:var(--text)" font-weight="700">管理行為留痕</text>
-
-       <rect x="170" y="150" width="140" height="70" rx="10" style="fill:var(--green-bg);stroke:var(--green)"/>
-       <circle cx="188" cy="168" r="14" style="fill:var(--green)"/><text x="188" y="173" text-anchor="middle" font-size="13" fill="#fff" font-weight="700">6</text>
-       <text x="240" y="190" text-anchor="middle" font-size="12" style="fill:var(--text)" font-weight="700">檢查比例原則</text>
-
-       <rect x="330" y="150" width="140" height="70" rx="10" style="fill:var(--green-bg);stroke:var(--green)"/>
-       <circle cx="348" cy="168" r="14" style="fill:var(--green)"/><text x="348" y="173" text-anchor="middle" font-size="13" fill="#fff" font-weight="700">7</text>
-       <text x="400" y="184" text-anchor="middle" font-size="12" style="fill:var(--text)" font-weight="700">檢查最後</text>
-       <text x="400" y="199" text-anchor="middle" font-size="12" style="fill:var(--text)" font-weight="700">手段性</text>
-
-       <!-- row2 arrows -->
-       <line x1="150" y1="185" x2="168" y2="185" style="stroke:var(--green);stroke-width:2" marker-end="url(#arrowG)"/>
-       <line x1="310" y1="185" x2="328" y2="185" style="stroke:var(--green);stroke-width:2" marker-end="url(#arrowG)"/>
-
-       <!-- done badge -->
-       <circle cx="610" cy="185" r="16" style="fill:var(--green)"/>
-       <text x="610" y="191" text-anchor="middle" font-size="15" fill="#fff" font-weight="700">✓</text>
-     </g>
-   </svg>
-   <div class="step-block">
-     <div class="step-title"><span class="step-num">STEP 1</span> 釐清事件</div>
-     <p>分清管理衝突、績效問題、職場不法侵害或溝通不良，這一步決定後面要走哪一套程序。</p>
-   </div>
-   <div class="step-block">
-     <div class="step-title"><span class="step-num">STEP 2</span> 蒐集事實</div>
-     <p>保留對話紀錄、信件、工作分派、面談、出勤等紀錄，事後補做永遠比不上事中即時留存。</p>
-   </div>
-   <div class="step-block">
-     <div class="step-title"><span class="step-num">STEP 3</span> 啟動調查</div>
-     <p>涉及霸凌或不法侵害申訴，應及成立調查程序，不要因為「看起來不嚴重」就略過正式流程。</p>
-   </div>
-   <div class="step-block">
-     <div class="step-title"><span class="step-num">STEP 4</span> 避免報復疑慮</div>
-     <p>申訴後任何懲處都要謹慎，避免被認定為秋後算帳，這是法院審查的重點之一。</p>
-   </div>
-   <div class="step-block">
-     <div class="step-title"><span class="step-num">STEP 5</span> 管理行為留痕</div>
-     <p>PIP、面談、調職、輔導、警告都要有書面紀錄，這是證明管理正當性與程序合法性最重要的關鍵。</p>
-   </div>
-   <div class="step-block">
-     <div class="step-title"><span class="step-num">STEP 6</span> 檢查比例原則</div>
-     <p>懲處要與行為嚴重性相當，不能過度懲戒，否則反而會弱化雇主立場。</p>
-   </div>
-   <div class="step-block">
-     <div class="step-title"><span class="step-num">STEP 7</span> 檢查最後手段性</div>
-     <p>解僱或資遣前，確認是否已沒有其他較輕手段，這是前述能元科技案、南亞科技案兩個判決共同強調的重點。</p>
-     <div class="step-done">✅ 完成這 7 步，企業端的管理行為才站得住法律審查</div>
-   </div>
-
-   <hr style="border:none;border-top:1px solid var(--border);margin:24px 0">
-
-   <p>從這幾個判決可以看出一句貫穿全部案例的邏輯：<b>職場霸凌不是員工覺得委屈就成立，而是主管行為必須逾越合理管理界線</b>；但反過來，霸凌不成立也不代表行為就毫無問題，公審決字案就是最好的例子。</p>
-   <p>7 月 1 日的修法把這條界線的責任更明確地交到企業手上——不是不能管理員工，而是管理行為要有合理理由、正當程序與完整紀錄。</p>
-   <p>學會合法管理、理性管理、留痕管理，才能降低企業端的爭訟風險，同時也保護真正受到不法侵害的員工。</p>
-   <div class="tip-box tip-info">📌 延伸閱讀：第一類、第二類事業單位的安全衛生人員配置怎麼算？</div>`}
-];
-
-ARTICLES.sort((a,b)=>new Date(b.date)-new Date(a.date));
-
-const CATEGORIES=[
-  {key:'all',label:'全部'},
-  {key:'ai',label:'AI'},
-  {key:'esg',label:'永續／ESG'},
-  {key:'osh',label:'職安衛'},
-  {key:'cross',label:'跨領域'}
-];
-
-// ═══════════════════════════════════════════════
-// Render
-// ═══════════════════════════════════════════════
-let currentSection='overview';
-let currentArticle=null;
-let currentArticleFilter='all';
-
-function renderNav(){
-  const el=document.getElementById('nav');
-  el.innerHTML='';
-  NAV.forEach(g=>{
-    if(g.group){
-      const gd=document.createElement('div');
-      gd.className='sb-group';
-      gd.textContent=g.group;
-      el.appendChild(gd);
-    }
-    g.items.forEach(item=>{
-      if(item.href){
-        const a=document.createElement('a');
-        a.className='sb-btn';
-        a.href=item.href;
-        a.textContent=item.label;
-        el.appendChild(a);
-      }else{
-        const isActive=currentSection===item.id&&(item.id!=='articles'||currentArticleFilter===(item.filter||'all'));
-        const btn=document.createElement('button');
-        btn.className='sb-btn'+(isActive?' active':'');
-        btn.textContent=item.label;
-        btn.onclick=()=>{currentSection=item.id;currentArticle=null;currentArticleFilter=item.filter||'all';renderNav();renderMain();};
-        el.appendChild(btn);
-      }
-    });
-  });
+// ─── AUTH ────────────────────────────────────────────────────────────────────
+function openLogin() { document.getElementById('loginOverlay').classList.add('open'); setTimeout(() => document.getElementById('pwInput').focus(), 100); }
+async function doLogin() {
+  const pw = document.getElementById('pwInput').value;
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pw));
+  const hash = Array.from(new Uint8Array(buf)).map(x => x.toString(16).padStart(2,'0')).join('');
+  if (hash === ADMIN_HASH) {
+    isAdmin = true;
+    document.body.classList.add('admin-mode');
+    document.getElementById('loginBtn').style.display = 'none';
+    document.getElementById('logoutBtn').style.display = '';
+    closeOverlay('loginOverlay');
+    document.getElementById('pwInput').value = '';
+    document.getElementById('loginError').style.display = 'none';
+    renderProjects();
+  } else {
+    document.getElementById('loginError').style.display = 'block';
+  }
+}
+function logout() {
+  isAdmin = false;
+  document.body.classList.remove('admin-mode');
+  document.getElementById('loginBtn').style.display = '';
+  document.getElementById('logoutBtn').style.display = 'none';
+  renderProjects();
 }
 
-function toolCard(t){
-  return`<a class="card${t.featured?' featured':''}" href="${t.href}">
-    <div class="tags">${t.tags.map(([label,cls])=>`<span class="${cls}">${label}</span>`).join('')}</div>
-    <h3>${t.title}</h3>
-    <p class="desc">${t.desc}</p>
-    <div class="footer-row">
-      <span class="status"><span class="dot"></span> 已上線</span>
-      <span class="link">前往使用 →</span>
+// ─── FILTER ──────────────────────────────────────────────────────────────────
+function setFilter(btn, f) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderProjects();
+}
+
+// ─── RENDER ──────────────────────────────────────────────────────────────────
+const STATUS_LABEL = { completed: '已完成', in_progress: '進行中', planning: '規劃中' };
+
+function renderStats() {
+  const total = projects.length;
+  const completed = projects.filter(p => p.status === 'completed').length;
+  const inProgress = projects.filter(p => p.status === 'in_progress').length;
+  document.getElementById('statsBar').innerHTML = `
+    <div class="stat"><div class="stat-num">${total}</div><div class="stat-label">全部專案</div></div>
+    <div class="stat"><div class="stat-num" style="color:var(--green)">${completed}</div><div class="stat-label">已完成</div></div>
+    <div class="stat"><div class="stat-num" style="color:var(--yellow)">${inProgress}</div><div class="stat-label">進行中</div></div>
+    <div class="stat"><div class="stat-num" style="color:var(--blue)">${projects.filter(p=>p.status==='planning').length}</div><div class="stat-label">規劃中</div></div>
+  `;
+}
+
+function renderProjects() {
+  renderStats();
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  let list = projects.filter(p => {
+    const matchFilter = currentFilter === 'all' || p.status === currentFilter;
+    const matchSearch = !q || p.name.toLowerCase().includes(q) ||
+      (p.tags || []).some(t => t.toLowerCase().includes(q)) ||
+      (p.tools || []).some(t => t.toLowerCase().includes(q)) ||
+      (p.description || '').toLowerCase().includes(q);
+    return matchFilter && matchSearch;
+  });
+
+  const grid = document.getElementById('projectGrid');
+  if (!list.length) {
+    grid.innerHTML = '<div class="empty-state"><div>📭</div>沒有符合條件的專案</div>';
+    return;
+  }
+
+  grid.innerHTML = list.map(p => `
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">${p.name}</div>
+        <span class="status-badge status-${p.status}">${STATUS_LABEL[p.status]}</span>
+      </div>
+      <div class="card-date">📅 ${p.date}</div>
+      <div class="card-desc">${p.description || ''}</div>
+      ${p.notes ? `<div class="card-notes">📝 備註\n${p.notes}</div>` : ''}
+      <div class="card-tags">
+        ${(p.tools||[]).map(t=>`<span class="tag tool-tag">⚙️ ${t}</span>`).join('')}
+        ${(p.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('')}
+      </div>
+      <div class="card-links">
+        ${p.liveUrl ? `<a class="link-btn live" href="${p.liveUrl}" target="_blank">🌐 網站</a>` : ''}
+        ${p.githubUrl ? `<a class="link-btn" href="${p.githubUrl}" target="_blank">📦 GitHub</a>` : ''}
+        ${p.logFile ? `<button class="link-btn" onclick="viewLog(${p.id})">📄 對話記錄</button>` : ''}
+      </div>
+      <div class="card-admin-actions">
+        <button class="btn btn-ghost" style="font-size:0.8rem;padding:6px 14px" onclick="openEditModal(${p.id})">✏️ 編輯</button>
+        <button class="btn btn-danger" style="font-size:0.8rem;padding:6px 14px" onclick="deleteProject(${p.id})">🗑️ 刪除</button>
+      </div>
     </div>
-  </a>`;
+  `).join('');
 }
 
-function renderMain(){
-  const main=document.getElementById('main');
+// ─── MODAL ───────────────────────────────────────────────────────────────────
+function closeOverlay(id) { document.getElementById(id).classList.remove('open'); }
 
-  if(currentSection==='overview'){
-    main.innerHTML=`
-      <div class="hero">
-        <span class="tag">作品集總覽</span>
-        <h1>職安 × AI × 永續</h1>
-        <p>整理目前完成的職業安全衛生與永續管理工具，結合資料自動化與法規規則引擎，協助企業以更有效率的方式管理日常職安衛與 ESG 事務。</p>
-      </div>
-      <p class="summary-line">目前已上線 <span class="num">${TOOLS.length}</span> 項工具，涵蓋職業安全衛生 <span class="num">${TOOLS.filter(t=>t.category==='osh').length}</span> 項、ESG／永續 <span class="num">${TOOLS.filter(t=>t.category==='esg').length}</span> 項，並累積 <span class="num">${ARTICLES.length}</span> 篇文章，持續記錄法規、ESG 與 AI 應用的實務心得。</p>
-      <div class="section-title">最新文章</div>
-      <div class="article-list">${ARTICLES.slice(0,2).map(articleCard).join('')}</div>
-      <div class="section-title">職業安全衛生工具</div>
-      <div class="grid">${TOOLS.filter(t=>t.category==='osh').map(toolCard).join('')}</div>
-      <div class="section-title">永續 ／ ESG 工具</div>
-      <div class="grid">${TOOLS.filter(t=>t.category==='esg').map(toolCard).join('')}</div>`;
-    bindArticleClicks();
-    return;
-  }
-
-  if(currentSection==='osh'){
-    main.innerHTML=`
-      <div class="hero">
-        <span class="tag tag-blue">職業安全衛生</span>
-        <h1>職業安全衛生工具</h1>
-        <p>涵蓋法規管理、會議追蹤與教育訓練／證照管理，協助企業掌握法規異動、追蹤會議決議並自動規劃證照回訓。</p>
-      </div>
-      <div class="grid">${TOOLS.filter(t=>t.category==='osh').map(toolCard).join('')}</div>`;
-    return;
-  }
-
-  if(currentSection==='esg'){
-    main.innerHTML=`
-      <div class="hero">
-        <span class="tag tag-green">永續 ／ ESG</span>
-        <h1>永續 ／ ESG 工具</h1>
-        <p>協助企業彙整溫室氣體排放數據，建立可追蹤的碳盤查資料庫，作為 ESG 報告與淨零規劃的基礎。</p>
-      </div>
-      <div class="grid">${TOOLS.filter(t=>t.category==='esg').map(toolCard).join('')}</div>`;
-    return;
-  }
-
-  if(currentSection==='articles'){
-    if(currentArticle){
-      const a=ARTICLES.find(x=>x.id===currentArticle);
-      main.innerHTML=`
-        <div class="article-detail active">
-          <a class="back" onclick="backToArticles()">← 返回文章列表</a>
-          <div class="article-meta">${a.date}　${a.tags.map(t=>'#'+t).join(' ')}</div>
-          <h1>${a.title}</h1>
-          <div class="body" style="margin-top:18px">${a.body}</div>
-        </div>`;
-      return;
-    }
-    const filtered=currentArticleFilter==='all'?ARTICLES:ARTICLES.filter(a=>a.category===currentArticleFilter);
-    main.innerHTML=`
-      <div class="hero">
-        <span class="tag tag-yellow">文章專欄</span>
-        <h1>文章專欄</h1>
-        <p>分享職安衛法規解讀、ESG 實務心得與 AI 應用於行政流程自動化的相關內容。</p>
-      </div>
-      <div class="filter-row">${CATEGORIES.map(c=>`<button class="filter-btn${currentArticleFilter===c.key?' active':''}" data-cat="${c.key}">${c.label}</button>`).join('')}</div>
-      <div class="article-list">${filtered.length?filtered.map(articleCard).join(''):'<p style="color:var(--text2);font-size:.9rem">這個分類還沒有文章。</p>'}</div>`;
-    document.querySelectorAll('.filter-btn').forEach(btn=>{
-      btn.onclick=()=>{currentArticleFilter=btn.getAttribute('data-cat');renderNav();renderMain();};
-    });
-    bindArticleClicks();
-    return;
-  }
-
-  if(currentSection==='about'){
-    main.innerHTML=`
-      <div class="hero">
-        <span class="tag">關於</span>
-        <h1>關於我</h1>
-        <p>Oscar Hsiao — 致力於將職業安全衛生管理流程數位化、自動化，並結合永續 ESG 議題打造實用工具。</p>
-      </div>
-      <div class="about-card">
-        <h3>專長領域</h3>
-        <div class="about-list">
-          職業安全衛生法規管理與證照訓練規劃<br>
-          溫室氣體盤查與 ESG 報告資料整理<br>
-          以 AI 與規則引擎打造行政流程自動化工具<br>
-          前端網頁開發（HTML / CSS / JavaScript）
-        </div>
-        <h3 style="margin-top:20px">聯絡方式</h3>
-        <p>如對本作品集的工具有興趣，或想討論客製化部署，歡迎透過 GitHub / Email 與我聯繫。</p>
-      </div>`;
-    return;
-  }
+function openAddModal() {
+  document.getElementById('modalTitle').textContent = '新增專案';
+  document.getElementById('editId').value = '';
+  ['fName','fDesc','fLive','fGithub','fTools','fTags','fNotes','fLog'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('fDate').value = new Date().toISOString().split('T')[0];
+  document.getElementById('fStatus').value = 'in_progress';
+  document.getElementById('projectModal').classList.add('open');
 }
 
-function articleCard(a){
-  return`<div class="article-card" data-id="${a.id}">
-    <div class="article-meta">${a.date}　${a.tags.map(t=>'#'+t).join(' ')}</div>
-    <h3>${a.title}</h3>
-    <p>${a.excerpt}</p>
-  </div>`;
+function openEditModal(id) {
+  const p = projects.find(x => x.id === id);
+  if (!p) return;
+  document.getElementById('modalTitle').textContent = '編輯專案';
+  document.getElementById('editId').value = id;
+  document.getElementById('fName').value = p.name || '';
+  document.getElementById('fDate').value = p.date || '';
+  document.getElementById('fStatus').value = p.status || 'in_progress';
+  document.getElementById('fDesc').value = p.description || '';
+  document.getElementById('fLive').value = p.liveUrl || '';
+  document.getElementById('fGithub').value = p.githubUrl || '';
+  document.getElementById('fTools').value = (p.tools || []).join(', ');
+  document.getElementById('fTags').value = (p.tags || []).join(', ');
+  document.getElementById('fNotes').value = p.notes || '';
+  document.getElementById('fLog').value = p.logFile || '';
+  document.getElementById('projectModal').classList.add('open');
 }
-function bindArticleClicks(){
-  document.querySelectorAll('.article-card').forEach(el=>{
-    el.onclick=()=>{currentSection='articles';currentArticle=el.getAttribute('data-id');renderNav();renderMain();window.scrollTo(0,0);};
-  });
-}
-function backToArticles(){currentArticle=null;renderMain();window.scrollTo(0,0);}
 
-renderNav();
-renderMain();
+function saveProject() {
+  const name = document.getElementById('fName').value.trim();
+  if (!name) { alert('請填寫專案名稱'); return; }
+  const data = {
+    name,
+    date: document.getElementById('fDate').value,
+    status: document.getElementById('fStatus').value,
+    description: document.getElementById('fDesc').value.trim(),
+    liveUrl: document.getElementById('fLive').value.trim(),
+    githubUrl: document.getElementById('fGithub').value.trim(),
+    tools: document.getElementById('fTools').value.split(',').map(s=>s.trim()).filter(Boolean),
+    tags: document.getElementById('fTags').value.split(',').map(s=>s.trim()).filter(Boolean),
+    notes: document.getElementById('fNotes').value.trim(),
+    logFile: document.getElementById('fLog').value.trim(),
+  };
+  const editId = document.getElementById('editId').value;
+  if (editId) {
+    const idx = projects.findIndex(p => p.id == editId);
+    if (idx >= 0) projects[idx] = { ...projects[idx], ...data };
+  } else {
+    data.id = Date.now();
+    projects.unshift(data);
+  }
+  save();
+  closeOverlay('projectModal');
+  renderProjects();
+}
+
+function deleteProject(id) { deleteTargetId = id; document.getElementById('confirmModal').classList.add('open'); }
+function confirmDelete() {
+  projects = projects.filter(p => p.id !== deleteTargetId);
+  save(); closeOverlay('confirmModal'); renderProjects();
+}
+
+// ─── LOG VIEWER ──────────────────────────────────────────────────────────────
+function viewLog(id) {
+  const p = projects.find(x => x.id === id);
+  if (!p || !p.logFile) return;
+  document.getElementById('logModalTitle').textContent = p.logFile;
+  document.getElementById('logModal').classList.add('open');
+  document.getElementById('logContent').textContent = '（對話記錄儲存在本機，請用文字編輯器開啟檔案：' + p.logFile + '）\n\n此檢視器顯示說明。實際記錄可在 Claude Cowork 的輸出資料夾中找到。';
+}
+
+// ─── CLOSE ON BACKDROP ───────────────────────────────────────────────────────
+document.querySelectorAll('.overlay').forEach(el => {
+  el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
+});
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+renderProjects();
 </script>
 </body>
 </html>

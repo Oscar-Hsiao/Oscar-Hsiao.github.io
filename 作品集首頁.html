@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oscar Hsiao 作品集</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FBFBFA;
+    --surface:#FFFFFF;
+    --border:#EAEAEA;
+    --text:#2F3437;
+    --muted:#787774;
+
+    --pale-blue:#E1F3FE;   --pale-blue-text:#1F6C9F;
+    --pale-green:#EDF3EC;  --pale-green-text:#346538;
+    --pale-yellow:#FBF3DB; --pale-yellow-text:#956400;
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+
+  html,body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Noto Sans TC', sans-serif;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  a{ color:inherit; text-decoration:none; }
+
+  .serif{
+    font-family:'Noto Serif TC', serif;
+    letter-spacing:-0.02em;
+    line-height:1.15;
+  }
+
+  .mono{
+    font-family:'JetBrains Mono', monospace;
+  }
+
+  /* ambient background blob */
+  .ambient{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:-1;
+    background:radial-gradient(ellipse 60% 40% at 70% 10%, rgba(31,108,159,0.04), transparent 70%);
+  }
+
+  /* ===== HEADER ===== */
+  header{
+    max-width:960px;
+    margin:0 auto;
+    padding:2rem 1.5rem 0;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  }
+  header .brand{
+    font-family:'Noto Serif TC', serif;
+    font-size:1.05rem;
+    font-weight:600;
+  }
+  header nav{
+    font-size:0.8rem;
+    color:var(--muted);
+    letter-spacing:0.05em;
+  }
+
+  /* ===== HERO ===== */
+  .hero{
+    max-width:960px;
+    margin:0 auto;
+    padding:5rem 1.5rem 4rem;
+    opacity:0;
+    transform:translateY(12px);
+    animation:fadeUp 700ms cubic-bezier(0.16,1,0.3,1) forwards;
+  }
+  .hero .tag{
+    display:inline-block;
+    font-size:0.75rem;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    background:var(--pale-blue);
+    color:var(--pale-blue-text);
+    padding:0.3rem 0.8rem;
+    border-radius:9999px;
+    margin-bottom:1.25rem;
+  }
+  .hero h1{
+    font-size:clamp(2.2rem, 6vw, 3.6rem);
+    font-weight:600;
+  }
+  .hero p{
+    margin-top:1.25rem;
+    max-width:520px;
+    color:var(--muted);
+    font-size:1rem;
+  }
+
+  /* ===== SECTION ===== */
+  section.projects{
+    max-width:960px;
+    margin:0 auto;
+    padding:0 1.5rem 6rem;
+  }
+  .section-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:1.5rem;
+    border-bottom:1px solid var(--border);
+    padding-bottom:1rem;
+  }
+  .section-head h2{
+    font-family:'Noto Serif TC', serif;
+    font-size:1.5rem;
+    font-weight:600;
+  }
+  .section-head span{
+    font-size:0.8rem;
+    color:var(--muted);
+  }
+
+  /* Bento grid */
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(2, 1fr);
+    gap:1rem;
+  }
+  .card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:1.75rem;
+    display:flex;
+    flex-direction:column;
+    gap:0.9rem;
+    opacity:0;
+    transform:translateY(12px);
+    animation:fadeUp 700ms cubic-bezier(0.16,1,0.3,1) forwards;
+    animation-delay:calc(var(--index) * 100ms);
+    transition:box-shadow 200ms ease, transform 200ms ease;
+  }
+  .card:hover{
+    box-shadow:0 2px 8px rgba(0,0,0,0.04);
+    transform:translateY(-2px);
+  }
+  .card.featured{
+    grid-column:1 / -1;
+  }
+  .card .tags{
+    display:flex;
+    gap:0.5rem;
+    flex-wrap:wrap;
+  }
+  .card .tags span{
+    font-size:0.7rem;
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+    border-radius:9999px;
+    padding:0.25rem 0.7rem;
+  }
+  .tag-blue{ background:var(--pale-blue); color:var(--pale-blue-text); }
+  .tag-green{ background:var(--pale-green); color:var(--pale-green-text); }
+  .tag-yellow{ background:var(--pale-yellow); color:var(--pale-yellow-text); }
+
+  .card h3{
+    font-family:'Noto Serif TC', serif;
+    font-size:1.5rem;
+    font-weight:600;
+  }
+  .card p.desc{
+    color:var(--muted);
+    font-size:0.9rem;
+    flex-grow:1;
+  }
+  .card .footer-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding-top:0.75rem;
+    border-top:1px solid var(--border);
+    font-size:0.8rem;
+  }
+  .card .footer-row .link{
+    font-weight:500;
+    display:flex;
+    align-items:center;
+    gap:0.3rem;
+  }
+  .card .footer-row .link svg{
+    transition:transform 200ms ease;
+  }
+  .card:hover .footer-row .link svg{
+    transform:translate(2px,-2px);
+  }
+  .card .footer-row .status{
+    color:var(--pale-green-text);
+    font-size:0.75rem;
+    display:flex;
+    align-items:center;
+    gap:0.4rem;
+  }
+  .card .footer-row .status .dot{
+    width:6px; height:6px;
+    border-radius:50%;
+    background:#5DA862;
+  }
+
+  @keyframes fadeUp{
+    to{ opacity:1; transform:translateY(0); }
+  }
+
+  /* ===== FOOTER ===== */
+  footer{
+    max-width:960px;
+    margin:0 auto;
+    padding:2rem 1.5rem 3rem;
+    border-top:1px solid var(--border);
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:0.5rem;
+    font-size:0.8rem;
+    color:var(--muted);
+  }
+
+  @media (max-width: 720px){
+    .grid{ grid-template-columns:1fr; }
+    .hero{ padding-top:3.5rem; padding-bottom:3rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="ambient"></div>
+
+<header>
+  <div class="brand">Oscar Hsiao</div>
+  <nav>內部工具作品集</nav>
+</header>
+
+<section class="hero">
+  <span class="tag">工具總覽</span>
+  <h1 class="serif">我的作品集</h1>
+  <p>整理目前完成的幾項工作工具，涵蓋法規管理、會議追蹤與溫室氣體盤查，皆以網頁形式建置，方便日常使用與查詢。</p>
+</section>
+
+<section class="projects">
+  <div class="section-head">
+    <h2>專案列表</h2>
+    <span>共 4 項</span>
+  </div>
+
+  <div class="grid">
+
+    <a class="card featured" style="--index:0" href="法規登記系統.html">
+      <div class="tags">
+        <span class="tag-blue">法規管理</span>
+        <span class="tag-green">資料庫</span>
+      </div>
+      <h3 class="serif">法規登記系統</h3>
+      <p class="desc">集中管理適用法規清單，追蹤法規修訂與生效日期，建立可隨時查詢的法令資料庫，協助掌握法規異動狀況。</p>
+      <div class="footer-row">
+        <span class="status"><span class="dot"></span> 已上線</span>
+        <span class="link">
+          前往使用
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H8M17 7V16"/></svg>
+        </span>
+      </div>
+    </a>
+
+    <a class="card" style="--index:1" href="會議追蹤工具.html">
+      <div class="tags">
+        <span class="tag-yellow">會議管理</span>
+      </div>
+      <h3 class="serif">會議追蹤工具</h3>
+      <p class="desc">記錄會議內容、待辦事項與結案狀態，協助持續追蹤決議事項的執行進度。</p>
+      <div class="footer-row">
+        <span class="status"><span class="dot"></span> 已上線</span>
+        <span class="link">
+          前往使用
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H8M17 7V16"/></svg>
+        </span>
+      </div>
+    </a>
+
+    <a class="card" style="--index:2" href="溫室氣體盤查系統.html">
+      <div class="tags">
+        <span class="tag-green">ESG</span>
+      </div>
+      <h3 class="serif">溫室氣體盤查系統</h3>
+      <p class="desc">彙整各範疇排放數據，協助 ESG 報告與碳盤查流程的資料整理與計算。</p>
+      <div class="footer-row">
+        <span class="status"><span class="dot"></span> 已上線</span>
+        <span class="link">
+          前往使用
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H8M17 7V16"/></svg>
+        </span>
+      </div>
+    </a>
+
+    <a class="card" style="--index:3" href="教育訓練與證照管理系統.html">
+      <div class="tags">
+        <span class="tag-blue">職安衛</span>
+        <span class="tag-yellow">教育訓練</span>
+      </div>
+      <h3 class="serif">教育訓練與證照管理</h3>
+      <p class="desc">管理人員教育訓練與法定證照紀錄，自動計算回訓到期日，並依公司規模盤點各項證照的所需與現有人數缺口。</p>
+      <div class="footer-row">
+        <span class="status"><span class="dot"></span> 已上線</span>
+        <span class="link">
+          前往使用
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H8M17 7V16"/></svg>
+        </span>
+      </div>
+    </a>
+
+  </div>
+</section>
+
+<footer>
+  <span>© 2026 Oscar Hsiao</span>
+  <span>以網頁形式整理日常工作工具</span>
+</footer>
+
+</body>
+</html>
