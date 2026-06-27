@@ -148,7 +148,7 @@ body.sidebar-collapsed .sb-toggle{transform:rotate(180deg)}
   .article-detail .body{max-width:calc(min(1920px,98vw))}
 }
 .article-detail .body p{line-height:2rem;margin-top:.75rem;margin-bottom:.75rem}
-.article-detail .body h1{font-size:1.875em}
+.article-detail .body h1{font-size:1.875em;margin-top:1.08em}
 .article-detail .body h2{font-size:1.5em;margin-top:1.1em}
 .article-detail .body h3,
 .article-detail .body h4{font-size:1.25em;margin-top:1em}
@@ -256,6 +256,7 @@ const ARTICLES=[
   {id:'a4',date:'2026-06-21',cover:'images/a4-mgmt-vs-bullying.png',tags:['職安衛','法規','不法侵害'],title:'不法侵害怎麼認定？7月1日職安法霸凌防治專章上路，企業該怎麼準備',
    excerpt:'從4個真實判決拆解「管理」與「霸凌」的法律界線，並解析7月1日起《職業安全衛生法》新增霸凌防治專章對企業申訴、調查機制的新要求，附法規連結與企業端SOP。',
    body:`<img src="images/a4-mgmt-vs-bullying.png" alt="合理管理 vs 職場霸凌">
+   <div class="notion-asset-caption">合理管理與職場霸凌的法律界線示意圖</div>
    <div class="tip-box tip-goal">🎯 這篇文章帶你搞懂：法院怎麼判斷「管理權行使」與「職場霸凌」的界線、7月1日起職安法新增的霸凌防治專章對企業有什麼新義務，以及企業端可以照走的標準處理流程。</div>
 
    <p>不法侵害這件事，像是一條畫在地上、但肉眼看不見的界線——管理權跟霸凌站在同一條路上，差別只在於有沒有越線。問題是，企業往往要等到員工申訴、甚至上了法院，才發現自己已經踩過去了。</p>
@@ -310,6 +311,7 @@ const ARTICLES=[
 
    <h4>五、企業端標準處理流程（SOP）</h4>
    <img src="images/a4-sop-7steps.png" alt="企業端標準處理流程 SOP 7步驟">
+   <div class="notion-asset-caption">企業端標準處理流程（SOP）7 步驟</div>
 
    <hr style="border:none;border-top:1px solid var(--border);margin:24px 0">
 
@@ -320,6 +322,7 @@ const ARTICLES=[
   {id:'a1',date:'2026-06-15',cover:'images/a1-cover-godzilla.png',tags:['職安衛','法規'],title:'事業單位的安全衛生人員配置怎麼算？',
    excerpt:'每次人數一變動就要重新查表算一次配置門檻，乾脆把規則整個拆開來看，順手做成系統，下次不用再重算。',
    body:`<img src="images/a1-cover-godzilla.png" alt="職安衛人員配置怎麼算">
+   <div class="notion-asset-caption">事業單位安全衛生人員配置示意圖</div>
    <p>每隔一段時間，HR 那邊就會丟一句「我們這個月又新增了幾個人，職安衛人員夠不夠？」過來。一開始我都是翻法規、查表、用 Excel 手動對照人數區間，算完才發現——上次算的版本早就過期了。後來乾脆把整套規則拆開來看一次，順手寫成系統，這篇就是拆解過程的筆記。</p>
 
    <div class="summary-box"><div class="summary-title">🎯 這篇文章的重點</div>
@@ -367,6 +370,7 @@ const ARTICLES=[
   {id:'a2',date:'2026-06-10',cover:'images/a2-cover-godzilla.png',tags:['ESG','溫室氣體'],title:'中小企業做溫室氣體盤查，第一步該從哪裡開始？範疇一、二、三全解析',
    excerpt:'完全沒接觸過溫盤的新手也能看懂：用「邊、源、算、報、查」五個字，帶你走一遍溫室氣體盤查的完整流程。',
    body:`<img src="images/a2-cover-godzilla.png" alt="中小企業溫室氣體盤查 5步驟一次搞懂">
+   <div class="notion-asset-caption">中小企業溫室氣體盤查「邊、源、算、報、查」5步驟</div>
    <p>每次客戶或主管問「我們公司要做溫室氣體盤查，要從哪裡開始」，我都看到對方臉上閃過一絲「這聽起來很麻煩」的表情。說實話，第一次聽到「範疇一、二、三」也覺得很難，但拆開來看，整個流程其實可以濃縮成 5 個字：<strong>邊、源、算、報、查</strong>。把這 5 個字記住，照順序做一遍，就是一次完整的溫盤。</p>
 
    <div class="summary-box"><div class="summary-title">🎯 這篇文章的重點</div>
@@ -412,6 +416,7 @@ const ARTICLES=[
   {id:'a3',date:'2026-06-01',cover:'images/a3-cover-godzilla.png',tags:['AI','職安衛'],title:'用 AI 協助職安衛文件管理：從手動到自動化的轉變',
    excerpt:'說實話，職安衛最花時間的從來不是「懂法規」，而是「每個月重複對表」。把規則寫進系統之後，這件事終於不用再手動做了。',
    body:`<img src="images/a3-cover-godzilla.png" alt="用AI協助職安衛文件管理：從手動到自動化的轉變">
+   <div class="notion-asset-caption">職安衛文件管理：從手動比對到 AI 自動化的轉變</div>
    <p>講個老實話：職安衛這個工作，難的從來不是看懂法規條文，而是「每個月都要重複做一次同樣的比對」——這個人的證照是不是要到期了、這個月的會議紀錄誰還沒簽核、公司人數變動了配置夠不夠。一開始我也是滿桌子的證照清單、訓練紀錄、會議紀錄三個資料夾，外加一台快被我按壞的計算機，每次要查證照到期日都要把三個資料夾全部翻一遍。後來忍不住把整套邏輯寫成系統，這篇就是整理這段「從手忙腳亂到自動化」的轉變過程。</p>
 
    <div class="summary-box"><div class="summary-title">🎯 這篇文章的重點</div>
