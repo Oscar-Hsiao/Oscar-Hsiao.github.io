@@ -187,9 +187,13 @@ body.sidebar-collapsed .sb-toggle{transform:rotate(180deg)}
 .article-detail h1{font-family:var(--font-serif);font-size:1.8rem;font-weight:600;margin-bottom:8px}
 
 /* ── About ── */
-.about-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:28px;max-width:680px}
-.about-card h3{font-family:var(--font-serif);font-size:1.3rem;margin-bottom:10px}
-.about-card p{color:var(--text2);font-size:.92rem;margin-bottom:12px}
+.about-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:32px 36px;max-width:760px}
+.about-card h3{font-family:var(--font-serif);font-size:1.3rem;margin:28px 0 10px}
+.about-card h3:first-child{margin-top:0}
+.about-card p{color:var(--text2);font-size:.92rem;margin-bottom:12px;line-height:1.9}
+.about-card ul{color:var(--text2);font-size:.92rem;margin:8px 0 14px 20px;line-height:1.9}
+.about-card li{margin-bottom:6px}
+.about-card a{color:var(--blue)}
 .about-list{font-size:.9rem;color:var(--text2);line-height:2}
 
 @media (max-width:900px){
@@ -651,18 +655,63 @@ function renderMain(){
       <div class="hero">
         <span class="tag">關於</span>
         <h1>關於我</h1>
-        <p>Oscar Hsiao — 致力於將職業安全衛生管理流程數位化、自動化，並結合永續 ESG 議題打造實用工具。</p>
+        <p>嗨，我是 Oscar。歡迎來到這裡。</p>
       </div>
       <div class="about-card">
-        <h3>專長領域</h3>
-        <div class="about-list">
-          職業安全衛生法規管理與證照訓練規劃<br>
-          溫室氣體盤查與 ESG 報告資料整理<br>
-          以 AI 與規則引擎打造行政流程自動化工具<br>
-          前端網頁開發（HTML / CSS / JavaScript）
-        </div>
-        <h3 style="margin-top:20px">聯絡方式</h3>
-        <p>如對本作品集的工具有興趣，或想討論客製化部署，歡迎透過 GitHub / Email 與我聯繫。</p>
+        <p>這個網站主要記錄我在<strong>職業安全衛生、環境與永續資料整理、流程優化，以及 AI 工具應用</strong>上的學習、實作與整理。</p>
+        <p>我一直對一件事很有興趣。那些原本很繁瑣、很依賴人工、很容易因為經驗差異而做法不一致的工作，有沒有可能被整理得更清楚一些？</p>
+        <p>有沒有可能透過流程設計、數位工具，甚至 AI 的協助，讓事情變得更有效率、更穩定，也更容易交接與延續？</p>
+        <p>這個網站，就是我一路摸索這些問題的過程記錄。</p>
+        <p>如果你也對職安衛管理、ESG、行政流程優化、自動化工具有興趣，或正在思考怎麼把工作做得更系統化，這裡也許會對你有幫助。</p>
+
+        <h3>我是誰</h3>
+        <p>我是在補教業累積多年經驗後，於 2025 年轉職，開始走向職業安全衛生與 ESG 永續相關工作。</p>
+        <p>進入這個領域之後，我很快就發現，很多流程仍然高度依賴紙本與人工整理。資料分散、表單繁多、紀錄方式不一致。平常看起來好像都能運作，但真正到了要追蹤、查找、統整或交接的時候，往往就會變得很凌亂。</p>
+        <p>也因為這樣，我開始持續思考：這些制度和流程，有沒有可能被整理得更清楚一些？有沒有可能透過更好的結構、規則設計與數位工具，讓原本繁瑣的工作變得更穩定、更有效率，也更容易延續？</p>
+        <p>所以我開始把這些工作拆解成可以被理解、被標準化、被優化的部分。有些透過表單整理，有些透過規則梳理，有些用前端小工具實作，也有些會嘗試結合 AI，來減少重複性的行政處理。</p>
+        <p>我不是科班出身的工程師，也不是單純為了展示技術而做工具的人。比起做一個「看起來很厲害」的系統，我更在意的是：這個東西能不能真正解決問題。</p>
+
+        <h3>為什麼寫這些</h3>
+        <p>開始寫這些內容的原因，其實很單純。我在工作和學習的過程中，常常發現很多有價值的知識，不是不重要，而是寫得太硬、太散、太像給已經熟悉的人看的。</p>
+        <p>但真正需要這些資訊的人，往往正卡在：不知道從哪開始，看了很多，還是不知道怎麼做。</p>
+        <p>所以我想把自己整理過、實際做過、反覆驗證過的東西，用比較清楚、比較容易吸收的方式留下來。這裡的內容不會追求炫技，比較像是一份持續更新的工作筆記、工具筆記和實作筆記。如果剛好能幫到同樣在摸索的人，那就很值得。</p>
+
+        <h3>這裡會寫些什麼</h3>
+        <p>這個網站大致會記錄以下幾類內容：</p>
+        <ul>
+          <li>職業安全衛生管理相關整理與實務思考</li>
+          <li>ESG／溫室氣體盤查／碳管理的資料整理方式</li>
+          <li>AI 工具應用在行政與管理流程中的實際用法</li>
+          <li>流程自動化與規則整理的實作筆記</li>
+          <li>前端小工具開發的紀錄與想法</li>
+          <li>一些關於數位化、制度落地、工作優化的觀察</li>
+        </ul>
+        <p>如果你也在關注這些主題，歡迎一起交流。</p>
+
+        <h3>在其他地方找到我</h3>
+        <p>如果你對這裡分享的內容有興趣，或想聊聊職安衛、ESG、AI 應用、流程自動化、工具開發，歡迎透過 Email 與我聯繫。</p>
+
+        <h3>內容政策</h3>
+        <p>本站文章以我個人的學習、工作整理與實作經驗為主。部分內容在整理與撰寫過程中，會使用 AI 工具協助架構發想、草稿整理或內容迭代；但文章中的觀點、判斷、整理方式與最終發布內容，仍以我本人確認後的版本為準。</p>
+        <p>我希望這裡的內容，至少符合以下幾個原則：</p>
+        <ul>
+          <li><strong>親身驗證</strong>：只分享我實際用過、整理過，或親自測試過的方法與工具。</li>
+          <li><strong>持續更新</strong>：技術、制度與工具都會變動，我會盡量定期回頭檢查舊文，必要時補充與更新內容。</li>
+          <li><strong>錯誤修正</strong>：如果文章內容有明顯錯誤、過時資訊或引用不完整的地方，歡迎來信告知，我會在確認後盡快修正。</li>
+          <li><strong>透明揭露</strong>：目前本站沒有任何付費合作、商業置入或聯盟行銷內容。若未來有相關合作，會在文章中清楚標示。</li>
+        </ul>
+
+        <h3>免責聲明</h3>
+        <p>本站所有內容主要作為個人學習記錄、工作整理與經驗分享之用，不代表任何官方機構、主管機關或特定組織立場。另外，也補充幾點說明：</p>
+        <ul>
+          <li><strong>法規、制度與考試資訊</strong>：若文章中提及法規、制度、證照、訓練或相關規範，仍應以各主管機關、發證單位或官方公告為準。</li>
+          <li><strong>AI 工具與數位服務</strong>：AI 工具、平台功能、收費方式與政策可能隨時調整，本站內容以文章發布或更新當時的資訊為準；如有疑義，請以官方文件或服務頁面為準。</li>
+          <li><strong>方法與建議適用性</strong>：本站提到的流程、工具、整理方式與學習經驗，皆基於我個人的工作場景與使用經驗，不一定適用於所有人或所有組織。</li>
+          <li><strong>讀者自行判斷使用</strong>：若您將本站內容應用於工作管理、制度建置、法遵判斷、教育訓練或系統導入，仍建議依自身需求與實際情境進一步評估。</li>
+        </ul>
+
+        <p style="margin-top:20px">如果你也正在摸索怎麼把工作做得更清楚、更有效率，希望這裡的一些內容，能讓你少繞一些路。我們一起慢慢把事情做好。</p>
+        <p>有任何想聊的，歡迎來信：<a href="mailto:oscarhsiao1082@gmail.com">oscarhsiao1082@gmail.com</a></p>
       </div>`;
     return;
   }
