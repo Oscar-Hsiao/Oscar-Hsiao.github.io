@@ -81,7 +81,7 @@ body.sidebar-collapsed .sb-toggle{transform:rotate(180deg)}
 .section-title:first-of-type{margin-top:0}
 
 /* ── Card grid ── */
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;max-width:960px}
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:12px;text-decoration:none;color:inherit;transition:box-shadow .25s ease,transform .25s ease;position:relative;overflow:hidden}
 .card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--blue)}
 .card.cat-esg::before{background:var(--green)}
@@ -103,7 +103,7 @@ body.sidebar-collapsed .sb-toggle{transform:rotate(180deg)}
 .card .footer-row .status .dot{width:6px;height:6px;border-radius:50%;background:#5DA862}
 
 /* ── Articles (gyozalab.com 風格：圖文左右交錯卡片) ── */
-.article-list{display:flex;flex-direction:column;gap:24px}
+.article-list{display:flex;flex-direction:column;gap:24px;max-width:960px}
 .empty{color:var(--text2);font-size:.9rem;padding:24px 0;text-align:center;border:1px dashed var(--border);border-radius:12px}
 .article-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;cursor:pointer;overflow:hidden;display:grid;grid-template-columns:2fr 3fr;align-items:stretch;transition:box-shadow .25s ease,transform .25s ease}
 .article-card:nth-child(even){direction:rtl}
