@@ -631,9 +631,9 @@ function renderMain(){
       main.innerHTML=`
         <div class="article-detail active">
           <a class="back" onclick="backToArticles()">← 返回「${navItem?navItem.label:tag}」文章列表</a>
+          <h1>${a.title}</h1>
           <div class="article-meta">${a.date}　${a.tags.map(t=>'#'+t).join(' ')}</div>
           <div class="read-stats"><span>📝 字數 ${rs.words}</span><span>⏱ 閱讀時間~${rs.minutes} 分鐘</span></div>
-          <h1>${a.title}</h1>
           <div class="body" style="margin-top:18px">${a.body}</div>
         </div>`;
       setupReadingProgress();
