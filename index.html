@@ -64,24 +64,24 @@ body.sidebar-collapsed .sb-toggle{transform:rotate(180deg)}
 .section.active{display:block}
 
 /* ── Hero ── */
-.hero{margin-bottom:40px}
+.hero{margin:0 auto 40px;max-width:960px}
 .hero .tag{display:inline-block;font-size:0.75rem;letter-spacing:0.08em;text-transform:uppercase;background:var(--blue-bg);color:var(--blue);padding:0.3rem 0.8rem;border-radius:9999px;margin-bottom:1rem;font-weight:600}
 .hero h1{font-family:var(--font-serif);font-size:clamp(1.8rem,4vw,2.6rem);font-weight:600;margin-bottom:.75rem}
 .hero p{color:var(--text2);font-size:.95rem;max-width:620px}
 
 /* ── Metric / overview ── */
-.metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:32px}
+.metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:0 auto 32px;max-width:960px}
 .metric-card{background:var(--bg2);border-radius:10px;border:1px solid var(--border);padding:18px 20px}
 .metric-label{font-size:12px;color:var(--text2);margin-bottom:6px}
 .metric-value{font-size:28px;font-weight:700;font-family:var(--font-serif);color:var(--blue)}
 .metric-unit{font-size:12px;color:var(--text2);margin-top:2px}
 
 /* ── Section title ── */
-.section-title{font-family:var(--font-serif);font-size:1.4rem;font-weight:600;color:var(--text);margin:36px 0 16px}
+.section-title{font-family:var(--font-serif);font-size:1.4rem;font-weight:600;color:var(--text);margin:36px auto 16px;max-width:960px}
 .section-title:first-of-type{margin-top:0}
 
 /* ── Card grid ── */
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;max-width:960px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;max-width:960px;margin:0 auto}
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:12px;text-decoration:none;color:inherit;transition:box-shadow .25s ease,transform .25s ease;position:relative;overflow:hidden}
 .card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--blue)}
 .card.cat-esg::before{background:var(--green)}
@@ -103,7 +103,7 @@ body.sidebar-collapsed .sb-toggle{transform:rotate(180deg)}
 .card .footer-row .status .dot{width:6px;height:6px;border-radius:50%;background:#5DA862}
 
 /* ── Articles (gyozalab.com 風格：圖文左右交錯卡片) ── */
-.article-list{display:flex;flex-direction:column;gap:24px;max-width:960px}
+.article-list{display:flex;flex-direction:column;gap:24px;max-width:960px;margin:0 auto}
 .empty{color:var(--text2);font-size:.9rem;padding:24px 0;text-align:center;border:1px dashed var(--border);border-radius:12px}
 .article-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;cursor:pointer;overflow:hidden;display:grid;grid-template-columns:2fr 3fr;align-items:stretch;transition:box-shadow .25s ease,transform .25s ease}
 .article-card:nth-child(even){direction:rtl}
@@ -113,10 +113,10 @@ body.sidebar-collapsed .sb-toggle{transform:rotate(180deg)}
 .article-card-cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .35s ease}
 .article-card:hover .article-card-cover img{transform:scale(1.06)}
 .article-card-body{padding:24px 28px;display:flex;flex-direction:column;justify-content:center;gap:8px}
-.article-card-body .meta{font-size:.8rem;color:var(--text2)}
-.article-card-body h3{font-family:var(--font-serif);font-size:1.25rem;font-weight:700;line-height:1.5;transition:color .2s ease}
+.article-card-body .meta{font-size:.8rem;color:var(--text2);line-height:1.4}
+.article-card-body h3{font-family:var(--font-serif);font-size:1.45rem;font-weight:700;line-height:1.4;transition:color .2s ease}
 .article-card:hover .article-card-body h3{color:var(--blue)}
-.article-card-body .desc{font-size:.85rem;color:var(--text2);line-height:1.6;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.article-card-body .desc{font-size:.9rem;color:var(--text2);line-height:1.75;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .article-card-body .tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
 .article-card-body .tags span{font-size:.72rem;background:var(--bg3);color:var(--text2);border-radius:9999px;padding:.25rem .7rem}
 .article-card-body .read-more{font-size:.85rem;font-weight:600;color:var(--blue);display:inline-flex;align-items:center;gap:4px;margin-top:6px;transition:gap .2s ease}
@@ -581,10 +581,8 @@ function renderMain(){
       </div>
       <div class="section-title">最新文章</div>
       <div class="article-list">${ARTICLES.map(articleCard).join('')}</div>
-      <div class="section-title">職業安全衛生工具</div>
-      <div class="grid">${TOOLS.filter(t=>t.category==='osh').map(toolCard).join('')}</div>
-      <div class="section-title">永續 ／ ESG 工具</div>
-      <div class="grid">${TOOLS.filter(t=>t.category==='esg').map(toolCard).join('')}</div>`;
+      <div class="section-title">工具導覽</div>
+      <div class="grid">${TOOLS.map(toolCard).join('')}</div>`;
     bindArticleClicks();
     return;
   }
