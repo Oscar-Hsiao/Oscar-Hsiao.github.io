@@ -32,21 +32,30 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
 .sb-tag{font-size:14px;color:#C9A24B;letter-spacing:.12em;margin-top:6px;font-weight:600}
 .sb-nav{padding:14px 10px;display:flex;flex-direction:column;gap:2px;flex:1;overflow-y:auto}
 .sb-group{margin-top:14px;margin-bottom:2px;padding:0 12px;font-size:14px;color:rgba(255,255,255,.35);letter-spacing:.1em;text-transform:uppercase;font-weight:700}
-.sb-btn{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:8px;border:none;background:transparent;color:rgba(255,255,255,.65);font-size:16px;cursor:pointer;text-align:left;width:100%;transition:all .15s;font-family:inherit;text-decoration:none}
+.sb-btn{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;border:none;background:transparent;color:rgba(255,255,255,.65);font-size:15px;cursor:pointer;text-align:left;width:100%;transition:all .15s;font-family:inherit;text-decoration:none}
 .sb-btn:hover{background:rgba(255,255,255,.08);color:#fff}
 .sb-btn.active{background:rgba(255,255,255,.15);color:#fff;font-weight:600}
 .sb-btn .label-short{display:none;width:100%;text-align:center}
+.sb-icon{flex-shrink:0;width:20px;text-align:center;font-size:15px;color:rgba(255,255,255,.4);transition:color .15s}
+.sb-btn:hover .sb-icon,.sb-btn.active .sb-icon{color:rgba(255,255,255,.75)}
+.sb-chevron{flex:1;text-align:right;font-size:16px;color:rgba(255,255,255,.35);transition:transform .2s ease}
+.sb-acc-head.open .sb-chevron{transform:rotate(90deg)}
+.sb-acc-body{max-height:0;overflow:hidden;transition:max-height .22s ease}
+.sb-acc-body.open{max-height:400px}
+.sb-sub{padding-left:38px;font-size:14px}
 .sb-foot{padding:16px 22px;border-top:1px solid rgba(255,255,255,.1);font-size:14px;color:rgba(255,255,255,.35)}
 .sb-toggle{position:absolute;top:24px;right:-14px;width:28px;height:28px;border-radius:50%;background:#4E565C;border:1px solid rgba(255,255,255,.2);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;z-index:101;transition:transform .18s ease}
 body.sidebar-collapsed #sidebar{width:64px}
 body.sidebar-collapsed #main{margin-left:64px;max-width:calc(100vw - 64px)}
 body.sidebar-collapsed .sb-tag,
-body.sidebar-collapsed .sb-group,
 body.sidebar-collapsed .sb-foot,
+body.sidebar-collapsed .sb-acc-body,
+body.sidebar-collapsed .sb-chevron,
 body.sidebar-collapsed .sb-btn .label-full{display:none}
 body.sidebar-collapsed .sb-brand{font-size:14px;text-align:center}
-body.sidebar-collapsed .sb-btn{justify-content:center;padding:9px 4px}
+body.sidebar-collapsed .sb-btn{justify-content:center;padding:10px 4px}
 body.sidebar-collapsed .sb-btn .label-short{display:block}
+body.sidebar-collapsed .sb-icon{width:auto;font-size:18px}
 body.sidebar-collapsed .sb-toggle{transform:rotate(180deg)}
 
 /* ── Main ── */
@@ -72,30 +81,35 @@ body.sidebar-collapsed .sb-toggle{transform:rotate(180deg)}
 .section-title:first-of-type{margin-top:0}
 
 /* ── Card grid ── */
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
-.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px;display:flex;flex-direction:column;gap:12px;text-decoration:none;color:inherit;transition:box-shadow .2s ease,transform .2s ease}
-.card:hover{box-shadow:0 2px 8px rgba(0,0,0,.05);transform:translateY(-2px)}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:12px;text-decoration:none;color:inherit;transition:box-shadow .25s ease,transform .25s ease;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--blue)}
+.card.cat-esg::before{background:var(--green)}
+.card:hover{box-shadow:0 8px 24px rgba(0,0,0,.08);transform:translateY(-3px)}
 .card.featured{grid-column:1/-1}
 .card .tags{display:flex;gap:8px;flex-wrap:wrap}
 .card .tags span{font-size:.7rem;letter-spacing:.05em;text-transform:uppercase;border-radius:9999px;padding:.25rem .7rem;font-weight:600}
 .tag-blue{background:var(--blue-bg);color:var(--blue)}
 .tag-green{background:var(--green-bg);color:var(--green)}
 .tag-yellow{background:var(--yellow-bg);color:var(--yellow)}
-.card h3{font-family:var(--font-serif);font-size:1.3rem;font-weight:600}
-.card p.desc{color:var(--text2);font-size:.9rem;flex-grow:1}
+.card h3{font-family:var(--font-serif);font-size:1.4rem;font-weight:600;transition:color .2s ease}
+.card:hover h3{color:var(--blue)}
+.card.cat-esg:hover h3{color:var(--green)}
+.card p.desc{color:var(--text2);font-size:.88rem;line-height:1.7;flex-grow:1}
 .card .footer-row{display:flex;justify-content:space-between;align-items:center;padding-top:.75rem;border-top:1px solid var(--border);font-size:.8rem}
-.card .footer-row .link{font-weight:600;display:flex;align-items:center;gap:.3rem;color:var(--blue)}
+.card .footer-row .link{font-weight:600;display:flex;align-items:center;gap:.3rem;color:var(--blue);transition:gap .2s ease}
+.card:hover .footer-row .link{gap:.55rem}
 .card .footer-row .status{color:var(--green);font-size:.75rem;display:flex;align-items:center;gap:.4rem}
 .card .footer-row .status .dot{width:6px;height:6px;border-radius:50%;background:#5DA862}
 
 /* ── Articles (gyozalab.com 風格：圖文左右交錯卡片) ── */
 .article-list{display:flex;flex-direction:column;gap:24px}
 .empty{color:var(--text2);font-size:.9rem;padding:24px 0;text-align:center;border:1px dashed var(--border);border-radius:12px}
-.article-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;cursor:pointer;overflow:hidden;display:grid;grid-template-columns:1fr 1fr;transition:box-shadow .25s ease,transform .25s ease}
+.article-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;cursor:pointer;overflow:hidden;display:grid;grid-template-columns:5fr 6fr;align-items:stretch;transition:box-shadow .25s ease,transform .25s ease}
 .article-card:nth-child(even){direction:rtl}
 .article-card:nth-child(even) .article-card-body{direction:ltr}
 .article-card:hover{box-shadow:0 8px 24px rgba(0,0,0,.08);transform:translateY(-3px)}
-.article-card-cover{position:relative;overflow:hidden;min-height:240px;background:var(--bg3)}
+.article-card-cover{position:relative;overflow:hidden;aspect-ratio:4/3;background:var(--bg3)}
 .article-card-cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .35s ease}
 .article-card:hover .article-card-cover img{transform:scale(1.06)}
 .article-card-body{padding:28px 32px;display:flex;flex-direction:column;justify-content:center;gap:10px}
@@ -109,7 +123,7 @@ body.sidebar-collapsed .sb-toggle{transform:rotate(180deg)}
 .article-card:hover .article-card-body .read-more{gap:8px}
 @media (max-width:760px){
   .article-card,.article-card:nth-child(even){grid-template-columns:1fr;direction:ltr}
-  .article-card-cover{min-height:180px}
+  .article-card-cover{aspect-ratio:16/9}
 }
 .article-meta{font-size:12px;color:var(--text3);margin-bottom:6px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .read-stats{display:flex;gap:14px;align-items:center;font-size:12px;color:var(--text3)}
@@ -208,27 +222,19 @@ body.sidebar-collapsed .sb-toggle{transform:rotate(180deg)}
 // 導覽分類
 // ═══════════════════════════════════════════════
 const NAV=[
-  {group:'',items:[
-    {id:'overview',label:'首頁'}
-  ]},
-  {group:'文章專欄',items:[
+  {id:'overview',label:'首頁',icon:'⌂',type:'link'},
+  {id:'articles',label:'文章專欄',icon:'▤',type:'accordion',children:[
     {id:'articles-職安衛',label:'職安衛',tag:'職安衛'},
     {id:'articles-ESG',label:'ESG／永續',tag:'ESG'},
     {id:'articles-AI',label:'AI',tag:'AI'}
   ]},
-  {group:'職業安全衛生',items:[
-    {id:'osh',label:'工具總覽'},
-    {id:'tool-law',label:'　法規登記系統',href:'法規登記系統.html'},
-    {id:'tool-meeting',label:'　會議追蹤工具',href:'會議追蹤工具.html'},
-    {id:'tool-training',label:'　教育訓練與證照管理',href:'教育訓練與證照管理系統.html'}
+  {id:'tools',label:'工具總覽',icon:'⚙',type:'accordion',children:[
+    {id:'tool-law',label:'法規登記系統',href:'法規登記系統.html'},
+    {id:'tool-meeting',label:'會議追蹤工具',href:'會議追蹤工具.html'},
+    {id:'tool-training',label:'教育訓練與證照管理',href:'教育訓練與證照管理系統.html'},
+    {id:'tool-ghg',label:'溫室氣體盤查系統',href:'溫室氣體盤查系統.html'}
   ]},
-  {group:'永續 ／ ESG',items:[
-    {id:'esg',label:'工具總覽'},
-    {id:'tool-ghg',label:'　溫室氣體盤查系統',href:'溫室氣體盤查系統.html'}
-  ]},
-  {group:'關於',items:[
-    {id:'about',label:'關於我'}
-  ]}
+  {id:'about',label:'關於我',icon:'ⓘ',type:'link'}
 ];
 
 const TOOLS=[
@@ -464,39 +470,59 @@ function toggleSidebar(){
 }
 if(localStorage.getItem('sidebarCollapsed')==='1')document.body.classList.add('sidebar-collapsed');
 
+let expandedNav={articles:currentSection.startsWith('articles-'),tools:false};
+function toggleNavGroup(id){
+  expandedNav[id]=!expandedNav[id];
+  renderNav();
+}
 function renderNav(){
   const el=document.getElementById('nav');
   el.innerHTML='';
-  NAV.forEach(g=>{
-    if(g.group){
-      const gd=document.createElement('div');
-      gd.className='sb-group';
-      gd.textContent=g.group;
-      el.appendChild(gd);
+  NAV.forEach(item=>{
+    if(item.type==='link'){
+      const btn=document.createElement('button');
+      btn.className='sb-btn'+(currentSection===item.id?' active':'');
+      btn.title=item.label;
+      btn.innerHTML=`<span class="sb-icon">${item.icon}</span><span class="label-full">${item.label}</span>`;
+      btn.onclick=()=>{currentSection=item.id;currentArticle=null;renderNav();renderMain();};
+      el.appendChild(btn);
+      return;
     }
-    g.items.forEach(item=>{
-      const labelHtml=`<span class="label-full">${item.label}</span><span class="label-short">${shortLabel(item.label)}</span>`;
-      if(item.href){
+    const isOpen=!!expandedNav[item.id];
+    const head=document.createElement('button');
+    head.className='sb-btn sb-acc-head'+(isOpen?' open':'');
+    head.title=item.label;
+    head.innerHTML=`<span class="sb-icon">${item.icon}</span><span class="label-full">${item.label}</span><span class="label-full sb-chevron">›</span>`;
+    head.onclick=()=>{
+      if(document.body.classList.contains('sidebar-collapsed')){toggleSidebar();expandedNav[item.id]=true;renderNav();return;}
+      toggleNavGroup(item.id);
+    };
+    el.appendChild(head);
+    const wrap=document.createElement('div');
+    wrap.className='sb-acc-body'+(isOpen?' open':'');
+    item.children.forEach(child=>{
+      if(child.href){
         const a=document.createElement('a');
-        a.className='sb-btn';
-        a.href=item.href;
-        a.title=item.label;
-        a.innerHTML=labelHtml;
-        el.appendChild(a);
+        a.className='sb-btn sb-sub';
+        a.href=child.href;
+        a.title=child.label;
+        a.innerHTML=`<span class="label-full">${child.label}</span><span class="label-short">${shortLabel(child.label)}</span>`;
+        wrap.appendChild(a);
       }else{
         const btn=document.createElement('button');
-        btn.className='sb-btn'+(currentSection===item.id?' active':'');
-        btn.title=item.label;
-        btn.innerHTML=labelHtml;
-        btn.onclick=()=>{currentSection=item.id;currentArticle=null;renderNav();renderMain();};
-        el.appendChild(btn);
+        btn.className='sb-btn sb-sub'+(currentSection===child.id?' active':'');
+        btn.title=child.label;
+        btn.innerHTML=`<span class="label-full">${child.label}</span><span class="label-short">${shortLabel(child.label)}</span>`;
+        btn.onclick=()=>{currentSection=child.id;currentArticle=null;renderNav();renderMain();};
+        wrap.appendChild(btn);
       }
     });
+    el.appendChild(wrap);
   });
 }
 
 function toolCard(t){
-  return`<a class="card" href="${t.href}">
+  return`<a class="card${t.category==='esg'?' cat-esg':''}" href="${t.href}">
     <div class="tags">${t.tags.map(([label,cls])=>`<span class="${cls}">${label}</span>`).join('')}</div>
     <h3>${t.title}</h3>
     <p class="desc">${t.desc}</p>
@@ -587,7 +613,7 @@ function renderMain(){
 
   if(currentSection.startsWith('articles-')){
     const tag=currentSection.replace('articles-','');
-    const navItem=NAV.flatMap(g=>g.items).find(i=>i.id===currentSection);
+    const navItem=NAV.flatMap(g=>g.children||[]).find(i=>i.id===currentSection);
     const filtered=ARTICLES.filter(a=>a.tags.includes(tag));
     if(currentArticle){
       const a=ARTICLES.find(x=>x.id===currentArticle);
@@ -656,7 +682,7 @@ function bindArticleClicks(){
       const id=el.getAttribute('data-id');
       const a=ARTICLES.find(x=>x.id===id);
       if(!currentSection.startsWith('articles-')){
-        const matchedTag=a.tags.find(t=>NAV.flatMap(g=>g.items).some(i=>i.id==='articles-'+t));
+        const matchedTag=a.tags.find(t=>NAV.flatMap(g=>g.children||[]).some(i=>i.id==='articles-'+t));
         currentSection='articles-'+(matchedTag||a.tags[0]);
       }
       currentArticle=id;
