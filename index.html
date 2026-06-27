@@ -26,8 +26,8 @@
 body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex;min-height:100vh;line-height:1.6;-webkit-font-smoothing:antialiased}
 
 /* ── Sidebar ── */
-#sidebar{width:250px;min-height:100vh;background:#4E565C;position:fixed;top:0;left:0;padding:0;z-index:100;display:flex;flex-direction:column}
-.sb-logo{padding:28px 22px 18px;border-bottom:1px solid rgba(255,255,255,.1)}
+#sidebar{width:250px;min-height:100vh;background:#4E565C;position:fixed;top:0;left:0;padding:0;z-index:100;display:flex;flex-direction:column;transition:width .18s ease}
+.sb-logo{padding:28px 22px 18px;border-bottom:1px solid rgba(255,255,255,.1);position:relative}
 .sb-brand{font-family:var(--font-serif);font-size:21px;font-weight:600;color:#fff}
 .sb-tag{font-size:14px;color:#C9A24B;letter-spacing:.12em;margin-top:6px;font-weight:600}
 .sb-nav{padding:14px 10px;display:flex;flex-direction:column;gap:2px;flex:1;overflow-y:auto}
@@ -35,7 +35,19 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
 .sb-btn{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:8px;border:none;background:transparent;color:rgba(255,255,255,.65);font-size:16px;cursor:pointer;text-align:left;width:100%;transition:all .15s;font-family:inherit;text-decoration:none}
 .sb-btn:hover{background:rgba(255,255,255,.08);color:#fff}
 .sb-btn.active{background:rgba(255,255,255,.15);color:#fff;font-weight:600}
+.sb-btn .label-short{display:none;width:100%;text-align:center}
 .sb-foot{padding:16px 22px;border-top:1px solid rgba(255,255,255,.1);font-size:14px;color:rgba(255,255,255,.35)}
+.sb-toggle{position:absolute;top:24px;right:-14px;width:28px;height:28px;border-radius:50%;background:#4E565C;border:1px solid rgba(255,255,255,.2);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;z-index:101;transition:transform .18s ease}
+body.sidebar-collapsed #sidebar{width:64px}
+body.sidebar-collapsed #main{margin-left:64px;max-width:calc(100vw - 64px)}
+body.sidebar-collapsed .sb-tag,
+body.sidebar-collapsed .sb-group,
+body.sidebar-collapsed .sb-foot,
+body.sidebar-collapsed .sb-btn .label-full{display:none}
+body.sidebar-collapsed .sb-brand{font-size:14px;text-align:center}
+body.sidebar-collapsed .sb-btn{justify-content:center;padding:9px 4px}
+body.sidebar-collapsed .sb-btn .label-short{display:block}
+body.sidebar-collapsed .sb-toggle{transform:rotate(180deg)}
 
 /* ── Main ── */
 #main{margin-left:250px;flex:1;padding:40px 48px 60px;max-width:calc(100vw - 250px)}
@@ -161,9 +173,12 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
 <body>
 
 <div id="sidebar">
-  <div class="sb-logo" style="cursor:pointer" onclick="goHome()">
-    <div class="sb-brand">Oscar Hsiao</div>
-    <div class="sb-tag">職安 × AI × 永續</div>
+  <div class="sb-logo">
+    <button class="sb-toggle" onclick="toggleSidebar()" title="收起／展開選單">‹</button>
+    <div style="cursor:pointer" onclick="goHome()">
+      <div class="sb-brand">Oscar Hsiao</div>
+      <div class="sb-tag">職安 × AI × 永續</div>
+    </div>
   </div>
   <div class="sb-nav" id="nav"></div>
   <div class="sb-foot">© 2026 Oscar Hsiao</div>
@@ -423,6 +438,16 @@ let currentArticle=null;
 
 function goHome(){currentSection='overview';currentArticle=null;renderNav();renderMain();window.scrollTo(0,0);}
 
+function shortLabel(label){
+  const trimmed=label.replace(/^[\s　]+/,'');
+  return trimmed.charAt(0)||'•';
+}
+function toggleSidebar(){
+  document.body.classList.toggle('sidebar-collapsed');
+  localStorage.setItem('sidebarCollapsed',document.body.classList.contains('sidebar-collapsed')?'1':'0');
+}
+if(localStorage.getItem('sidebarCollapsed')==='1')document.body.classList.add('sidebar-collapsed');
+
 function renderNav(){
   const el=document.getElementById('nav');
   el.innerHTML='';
@@ -434,16 +459,19 @@ function renderNav(){
       el.appendChild(gd);
     }
     g.items.forEach(item=>{
+      const labelHtml=`<span class="label-full">${item.label}</span><span class="label-short">${shortLabel(item.label)}</span>`;
       if(item.href){
         const a=document.createElement('a');
         a.className='sb-btn';
         a.href=item.href;
-        a.textContent=item.label;
+        a.title=item.label;
+        a.innerHTML=labelHtml;
         el.appendChild(a);
       }else{
         const btn=document.createElement('button');
         btn.className='sb-btn'+(currentSection===item.id?' active':'');
-        btn.textContent=item.label;
+        btn.title=item.label;
+        btn.innerHTML=labelHtml;
         btn.onclick=()=>{currentSection=item.id;currentArticle=null;renderNav();renderMain();};
         el.appendChild(btn);
       }

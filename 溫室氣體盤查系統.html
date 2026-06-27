@@ -50,8 +50,8 @@ body.readonly .admin-only{display:none!important}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Noto Sans TC','Microsoft JhengHei',system-ui,sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh}
 /* Sidebar */
-#sidebar{width:210px;min-height:100vh;background:var(--sidebar);position:fixed;top:0;left:0;padding:0;z-index:100;display:flex;flex-direction:column}
-.sb-logo{padding:22px 20px 18px;border-bottom:1px solid rgba(255,255,255,.1)}
+#sidebar{width:210px;min-height:100vh;background:var(--sidebar);position:fixed;top:0;left:0;padding:0;z-index:100;display:flex;flex-direction:column;transition:width .18s ease}
+.sb-logo{padding:22px 20px 18px;border-bottom:1px solid rgba(255,255,255,.1);position:relative}
 .sb-company{font-size:11px;color:var(--gold);font-weight:700;letter-spacing:.1em;margin-bottom:3px}
 .sb-title{font-size:15px;font-weight:700;color:#fff;font-family:'Noto Serif TC','Noto Sans TC',serif}
 .sb-sub{font-size:11px;color:rgba(255,255,255,.4);margin-top:2px}
@@ -59,8 +59,19 @@ body{font-family:'Noto Sans TC','Microsoft JhengHei',system-ui,sans-serif;backgr
 .sb-btn{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:8px;border:none;background:transparent;color:rgba(255,255,255,.55);font-size:13px;cursor:pointer;text-align:left;width:100%;transition:all .15s;font-family:inherit}
 .sb-btn:hover{background:rgba(255,255,255,.08);color:rgba(255,255,255,.85)}
 .sb-btn.active{background:rgba(255,255,255,.15);color:#fff;font-weight:600}
+.sb-btn .label-short{display:none;width:100%;text-align:center}
+.sb-toggle{position:absolute;top:16px;right:-14px;width:28px;height:28px;border-radius:50%;background:var(--sidebar);border:1px solid rgba(255,255,255,.2);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;z-index:101;transition:transform .18s ease}
+body.sidebar-collapsed #sidebar{width:64px}
+body.sidebar-collapsed #main{margin-left:64px;max-width:calc(100vw - 64px)}
+body.sidebar-collapsed .sb-company,
+body.sidebar-collapsed .sb-title,
+body.sidebar-collapsed .sb-sub,
+body.sidebar-collapsed .sb-btn .label-full{display:none}
+body.sidebar-collapsed .sb-btn{justify-content:center;padding:9px 4px}
+body.sidebar-collapsed .sb-btn .label-short{display:block}
+body.sidebar-collapsed .sb-toggle{transform:rotate(180deg)}
 /* Main */
-#main{margin-left:210px;flex:1;padding:28px 32px;max-width:calc(100vw - 210px)}
+#main{margin-left:210px;flex:1;padding:28px 32px;max-width:calc(100vw - 210px);transition:margin-left .18s ease}
 /* Cards */
 .card{background:#fff;border-radius:12px;border:1px solid var(--border);padding:20px 24px;margin-bottom:16px}
 .metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
@@ -210,6 +221,7 @@ select[style*="width"]{width:auto}
 
 <div id="sidebar">
   <div class="sb-logo">
+    <button class="sb-toggle" onclick="toggleSidebar()" title="收起／展開選單">‹</button>
     <div class="sb-company">示範企業</div>
     <div class="sb-title">GHG 盤查系統</div>
     <div class="sb-sub">ISO 14064-1</div>
@@ -500,6 +512,12 @@ const NAVS=[
 ];
 
 const ADMIN_TABS=new Set(['entry-elec','entry-cat1','coefficients','import','scan']);
+function toggleSidebar(){
+  document.body.classList.toggle('sidebar-collapsed');
+  localStorage.setItem('sidebarCollapsed',document.body.classList.contains('sidebar-collapsed')?'1':'0');
+}
+if(localStorage.getItem('sidebarCollapsed')==='1')document.body.classList.add('sidebar-collapsed');
+
 function renderNav(){
   var admin=window.isAdmin&&window.isAdmin();
   var el=document.getElementById('nav');
@@ -509,7 +527,8 @@ function renderNav(){
     if(ADMIN_TABS.has(n.id)&&!admin)continue;
     var btn=document.createElement('button');
     btn.className='sb-btn'+(currentTab===n.id?' active':'');
-    btn.textContent=n.icon+' '+n.label;
+    btn.title=n.label;
+    btn.innerHTML='<span class="label-full">'+n.icon+' '+n.label+'</span><span class="label-short">'+n.icon+'</span>';
     (function(tabId){btn.onclick=function(){goto(tabId);};})(n.id);
     el.appendChild(btn);
   }

@@ -23,8 +23,8 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex;min-height:100vh}
 /* Sidebar */
-#sidebar{width:220px;min-height:100vh;background:var(--sidebar);position:fixed;top:0;left:0;padding:0;z-index:100;display:flex;flex-direction:column}
-.sb-logo{padding:24px 20px 18px;border-bottom:1px solid rgba(255,255,255,.1);display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+#sidebar{width:220px;min-height:100vh;background:var(--sidebar);position:fixed;top:0;left:0;padding:0;z-index:100;display:flex;flex-direction:column;transition:width .18s ease}
+.sb-logo{padding:24px 20px 18px;border-bottom:1px solid rgba(255,255,255,.1);display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;position:relative}
 .sb-logo img{height:40px;width:auto;display:block}
 .sb-titlebox{display:flex;flex-direction:column;align-items:center;gap:2px}
 .sb-titlebox .sb-company{font-size:13px;color:var(--gold);font-weight:700;letter-spacing:.1em}
@@ -33,8 +33,18 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
 .sb-btn{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:8px;border:none;background:transparent;color:rgba(255,255,255,.6);font-size:13px;cursor:pointer;text-align:left;width:100%;transition:all .15s;font-family:inherit}
 .sb-btn:hover{background:rgba(255,255,255,.1);color:#fff}
 .sb-btn.active{background:rgba(255,255,255,.15);color:#fff;font-weight:600}
+.sb-btn .label-short{display:none;width:100%;text-align:center}
+.sb-toggle{position:absolute;top:18px;right:-14px;width:28px;height:28px;border-radius:50%;background:var(--sidebar);border:1px solid rgba(255,255,255,.2);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;z-index:101;transition:transform .18s ease}
+body.sidebar-collapsed #sidebar{width:64px}
+body.sidebar-collapsed #main{margin-left:64px;max-width:calc(100vw - 64px)}
+body.sidebar-collapsed #adminBar{left:64px}
+body.sidebar-collapsed .sb-titlebox,
+body.sidebar-collapsed .sb-btn .label-full{display:none}
+body.sidebar-collapsed .sb-btn{justify-content:center;padding:9px 4px}
+body.sidebar-collapsed .sb-btn .label-short{display:block}
+body.sidebar-collapsed .sb-toggle{transform:rotate(180deg)}
 /* Admin bar */
-#adminBar{position:fixed;top:0;left:220px;right:0;height:60px;background:#fff;display:flex;align-items:center;justify-content:flex-end;padding:0 24px;gap:12px;z-index:90;font-size:13px;overflow:hidden;box-sizing:border-box}
+#adminBar{position:fixed;top:0;left:220px;right:0;height:60px;background:#fff;display:flex;align-items:center;justify-content:flex-end;padding:0 24px;gap:12px;z-index:90;font-size:13px;overflow:hidden;box-sizing:border-box;transition:left .18s ease}
 #adminBar .ab-label{color:var(--text);margin-right:auto;font-weight:700;font-size:20px;line-height:1;font-family:var(--font-serif)}
 .ab-badge{background:var(--green-bg);color:var(--green);border-radius:6px;padding:4px 10px;font-weight:600;font-size:12px}
 .ab-btn{border:1px solid var(--border2);background:#fff;border-radius:8px;padding:6px 14px;font-size:13px;cursor:pointer;font-family:inherit;color:var(--text)}
@@ -188,6 +198,7 @@ input:focus,select:focus{outline:2px solid var(--blue);border-color:transparent}
 
 <div id="sidebar">
   <div class="sb-logo">
+    <button class="sb-toggle" onclick="toggleSidebar()" title="收起／展開選單">‹</button>
     <div class="sb-titlebox">
       <div class="sb-company">示範企業</div>
       <div class="sb-title">職業安全衛生管理</div>
@@ -363,12 +374,19 @@ const NAVS=[
   {id:'legal',label:'法規依據'},
 ];
 let currentTab='dashboard';
+function toggleSidebar(){
+  document.body.classList.toggle('sidebar-collapsed');
+  localStorage.setItem('sidebarCollapsed',document.body.classList.contains('sidebar-collapsed')?'1':'0');
+}
+if(localStorage.getItem('sidebarCollapsed')==='1')document.body.classList.add('sidebar-collapsed');
+
 function renderNav(){
   const el=document.getElementById('nav');el.innerHTML='';
   NAVS.forEach(n=>{
     const btn=document.createElement('button');
     btn.className='sb-btn'+(currentTab===n.id?' active':'');
-    btn.textContent=n.label;
+    btn.title=n.label;
+    btn.innerHTML=`<span class="label-full">${n.label}</span><span class="label-short">${n.label.charAt(0)}</span>`;
     btn.onclick=()=>{currentTab=n.id;renderNav();renderMain();};
     el.appendChild(btn);
   });
