@@ -88,19 +88,35 @@ body.sidebar-collapsed .sb-toggle{transform:rotate(180deg)}
 .card .footer-row .status{color:var(--green);font-size:.75rem;display:flex;align-items:center;gap:.4rem}
 .card .footer-row .status .dot{width:6px;height:6px;border-radius:50%;background:#5DA862}
 
-/* ── Articles ── */
-.article-list{display:flex;flex-direction:column;gap:14px}
+/* ── Articles (gyozalab.com 風格：圖文左右交錯卡片) ── */
+.article-list{display:flex;flex-direction:column;gap:24px}
 .empty{color:var(--text2);font-size:.9rem;padding:24px 0;text-align:center;border:1px dashed var(--border);border-radius:12px}
-.article-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px 24px;cursor:pointer;transition:box-shadow .2s ease}
-.article-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.article-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;cursor:pointer;overflow:hidden;display:grid;grid-template-columns:1fr 1fr;transition:box-shadow .25s ease,transform .25s ease}
+.article-card:nth-child(even){direction:rtl}
+.article-card:nth-child(even) .article-card-body{direction:ltr}
+.article-card:hover{box-shadow:0 8px 24px rgba(0,0,0,.08);transform:translateY(-3px)}
+.article-card-cover{position:relative;overflow:hidden;min-height:240px;background:var(--bg3)}
+.article-card-cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .35s ease}
+.article-card:hover .article-card-cover img{transform:scale(1.06)}
+.article-card-body{padding:28px 32px;display:flex;flex-direction:column;justify-content:center;gap:10px}
+.article-card-body .meta{font-size:.78rem;color:var(--text2);letter-spacing:.04em}
+.article-card-body h3{font-family:var(--font-serif);font-size:1.4rem;font-weight:600;line-height:1.35;transition:color .2s ease}
+.article-card:hover .article-card-body h3{color:var(--blue)}
+.article-card-body .desc{font-size:.88rem;color:var(--text2);line-height:1.7;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.article-card-body .tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.article-card-body .tags span{font-size:.72rem;background:var(--bg3);color:var(--text2);border-radius:9999px;padding:.25rem .7rem}
+.article-card-body .read-more{font-size:.85rem;font-weight:600;color:var(--blue);display:inline-flex;align-items:center;gap:4px;margin-top:6px;transition:gap .2s ease}
+.article-card:hover .article-card-body .read-more{gap:8px}
+@media (max-width:760px){
+  .article-card,.article-card:nth-child(even){grid-template-columns:1fr;direction:ltr}
+  .article-card-cover{min-height:180px}
+}
 .article-meta{font-size:12px;color:var(--text3);margin-bottom:6px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .read-stats{display:flex;gap:14px;align-items:center;font-size:12px;color:var(--text3)}
 .read-stats span{display:inline-flex;align-items:center;gap:4px}
 #readingProgress{position:fixed;top:0;left:250px;right:0;height:4px;background:var(--border);z-index:200}
 #readingProgress .fill{height:100%;width:0%;background:var(--blue);transition:width .1s linear}
 @media (max-width:900px){#readingProgress{left:0}}
-.article-card h3{font-family:var(--font-serif);font-size:1.15rem;font-weight:600;margin-bottom:6px}
-.article-card p{font-size:.88rem;color:var(--text2)}
 .article-detail{display:none}
 .article-detail.active{display:block}
 .article-detail .back{display:inline-flex;align-items:center;gap:6px;font-size:.85rem;color:var(--blue);cursor:pointer;margin-bottom:20px;text-decoration:none}
@@ -231,7 +247,7 @@ const TOOLS=[
 ];
 
 const ARTICLES=[
-  {id:'a4',date:'2026-06-21',tags:['職安衛','法規','不法侵害'],title:'不法侵害怎麼認定？7月1日職安法霸凌防治專章上路，企業該怎麼準備',
+  {id:'a4',date:'2026-06-21',cover:'images/a4-mgmt-vs-bullying.png',tags:['職安衛','法規','不法侵害'],title:'不法侵害怎麼認定？7月1日職安法霸凌防治專章上路，企業該怎麼準備',
    excerpt:'從4個真實判決拆解「管理」與「霸凌」的法律界線，並解析7月1日起《職業安全衛生法》新增霸凌防治專章對企業申訴、調查機制的新要求，附法規連結與企業端SOP。',
    body:`<img src="images/a4-mgmt-vs-bullying.png" alt="合理管理 vs 職場霸凌">
    <div class="tip-box tip-goal">🎯 這篇文章帶你搞懂：法院怎麼判斷「管理權行使」與「職場霸凌」的界線、7月1日起職安法新增的霸凌防治專章對企業有什麼新義務，以及企業端可以照走的標準處理流程。</div>
@@ -295,7 +311,7 @@ const ARTICLES=[
    <p>7 月 1 日的修法把這條界線的責任更明確地交到企業手上——不是不能管理員工，而是管理行為要有合理理由、正當程序與完整紀錄。</p>
    <p>學會合法管理、理性管理、留痕管理，才能降低企業端的爭訟風險，同時也保護真正受到不法侵害的員工。</p>
    <div class="tip-box tip-info">📌 延伸閱讀：<a href="#" onclick="event.preventDefault();currentSection='articles-職安衛';currentArticle='a1';renderNav();renderMain();window.scrollTo(0,0);">事業單位的安全衛生人員配置怎麼算？</a></div>`},
-  {id:'a1',date:'2026-06-15',tags:['職安衛','法規'],title:'事業單位的安全衛生人員配置怎麼算？',
+  {id:'a1',date:'2026-06-15',cover:'images/a1-cover-godzilla.png',tags:['職安衛','法規'],title:'事業單位的安全衛生人員配置怎麼算？',
    excerpt:'每次人數一變動就要重新查表算一次配置門檻，乾脆把規則整個拆開來看，順手做成系統，下次不用再重算。',
    body:`<img src="images/a1-cover-godzilla.png" alt="職安衛人員配置怎麼算">
    <p>每隔一段時間，HR 那邊就會丟一句「我們這個月又新增了幾個人，職安衛人員夠不夠？」過來。一開始我都是翻法規、查表、用 Excel 手動對照人數區間，算完才發現——上次算的版本早就過期了。後來乾脆把整套規則拆開來看一次，順手寫成系統，這篇就是拆解過程的筆記。</p>
@@ -342,7 +358,7 @@ const ARTICLES=[
    <div class="tip">📍 常見誤解：「我們是辦公室，不用管職安衛」。只要勞工人數夠多，第三類事業一樣有配置義務，只是門檻比製造業寬鬆很多，企業常常因為「自認低風險」而忽略這塊。</div>
 
    <p style="margin-top:24px">把這些區間整理成表格之後，其實邏輯不難，麻煩的是「每次人數變動、或不確定自己事業類別時都要重新查一次」。後來我把這套規則直接寫進「<a href="教育訓練與證照管理系統.html">教育訓練與證照管理系統</a>」工具裡——輸入事業類別與目前人數，系統會自動推算應配置的證照、人數與回訓週期，不用再每次翻法規對表。算是把這篇文章拆解的規則，變成可以重複使用的工具。</p>`},
-  {id:'a2',date:'2026-06-10',tags:['ESG','溫室氣體'],title:'中小企業做溫室氣體盤查，第一步該從哪裡開始？範疇一、二、三全解析',
+  {id:'a2',date:'2026-06-10',cover:'images/a2-cover-godzilla.png',tags:['ESG','溫室氣體'],title:'中小企業做溫室氣體盤查，第一步該從哪裡開始？範疇一、二、三全解析',
    excerpt:'完全沒接觸過溫盤的新手也能看懂：用「邊、源、算、報、查」五個字，帶你走一遍溫室氣體盤查的完整流程。',
    body:`<img src="images/a2-cover-godzilla.png" alt="中小企業溫室氣體盤查 5步驟一次搞懂">
    <p>每次客戶或主管問「我們公司要做溫室氣體盤查，要從哪裡開始」，我都看到對方臉上閃過一絲「這聽起來很麻煩」的表情。說實話，第一次聽到「範疇一、二、三」也覺得很難，但拆開來看，整個流程其實可以濃縮成 5 個字：<strong>邊、源、算、報、查</strong>。把這 5 個字記住，照順序做一遍，就是一次完整的溫盤。</p>
@@ -387,7 +403,7 @@ const ARTICLES=[
    <div class="tip">💡 第一次盤查不一定要馬上做外部查證，可以先完成內部盤查、累積 1～2 年數據後再尋求查證，逐步走完整套流程。</div></div></div>
 
    <p style="margin-top:24px">把「邊、源、算、報、查」這 5 個步驟走完一輪，就是一次完整的溫室氣體盤查。本系統的「<a href="溫室氣體盤查系統.html">溫室氣體盤查系統</a>」工具，已將範疇一～三的資料登錄與彙整介面準備好，協助企業從零開始逐步建立可追蹤的碳排放資料庫。</p>`},
-  {id:'a3',date:'2026-06-01',tags:['AI','職安衛'],title:'用 AI 協助職安衛文件管理：從手動到自動化的轉變',
+  {id:'a3',date:'2026-06-01',cover:'images/a3-cover-godzilla.png',tags:['AI','職安衛'],title:'用 AI 協助職安衛文件管理：從手動到自動化的轉變',
    excerpt:'說實話，職安衛最花時間的從來不是「懂法規」，而是「每個月重複對表」。把規則寫進系統之後，這件事終於不用再手動做了。',
    body:`<img src="images/a3-cover-godzilla.png" alt="用AI協助職安衛文件管理：從手動到自動化的轉變">
    <p>講個老實話：職安衛這個工作，難的從來不是看懂法規條文，而是「每個月都要重複做一次同樣的比對」——這個人的證照是不是要到期了、這個月的會議紀錄誰還沒簽核、公司人數變動了配置夠不夠。一開始我也是滿桌子的證照清單、訓練紀錄、會議紀錄三個資料夾，外加一台快被我按壞的計算機，每次要查證照到期日都要把三個資料夾全部翻一遍。後來忍不住把整套邏輯寫成系統，這篇就是整理這段「從手忙腳亂到自動化」的轉變過程。</p>
@@ -537,12 +553,12 @@ function renderMain(){
         <div class="metric-card"><div class="metric-label">ESG / 永續工具</div><div class="metric-value">${TOOLS.filter(t=>t.category==='esg').length}</div><div class="metric-unit">項</div></div>
         <div class="metric-card"><div class="metric-label">文章篇數</div><div class="metric-value">${ARTICLES.length}</div><div class="metric-unit">篇</div></div>
       </div>
+      <div class="section-title">最新文章</div>
+      <div class="article-list">${ARTICLES.map(articleCard).join('')}</div>
       <div class="section-title">職業安全衛生工具</div>
       <div class="grid">${TOOLS.filter(t=>t.category==='osh').map(toolCard).join('')}</div>
       <div class="section-title">永續 ／ ESG 工具</div>
-      <div class="grid">${TOOLS.filter(t=>t.category==='esg').map(toolCard).join('')}</div>
-      <div class="section-title">最新文章</div>
-      <div class="article-list">${ARTICLES.slice(0,2).map(articleCard).join('')}</div>`;
+      <div class="grid">${TOOLS.filter(t=>t.category==='esg').map(toolCard).join('')}</div>`;
     bindArticleClicks();
     return;
   }
@@ -621,12 +637,19 @@ function renderMain(){
 }
 
 function articleCard(a){
+  const cover=a.cover||'';
   return`<div class="article-card" data-id="${a.id}">
-    <div class="article-meta">${a.date}　${a.tags.map(t=>'#'+t).join(' ')}</div>
-    <h3>${a.title}</h3>
-    <p>${a.excerpt}</p>
+    <div class="article-card-cover">${cover?`<img src="${cover}" alt="${esc(a.title)}" loading="lazy">`:''}</div>
+    <div class="article-card-body">
+      <div class="meta">${esc(a.tags[0]||'')}　•　${a.date}</div>
+      <h3>${esc(a.title)}</h3>
+      <p class="desc">${esc(a.excerpt)}</p>
+      <div class="tags">${a.tags.map(t=>`<span>#${esc(t)}</span>`).join('')}</div>
+      <span class="read-more">閱讀全文 →</span>
+    </div>
   </div>`;
 }
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function bindArticleClicks(){
   document.querySelectorAll('.article-card').forEach(el=>{
     el.onclick=()=>{
