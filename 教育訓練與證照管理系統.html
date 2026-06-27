@@ -112,7 +112,19 @@ input:focus,select:focus{outline:2px solid var(--blue);border-color:transparent}
 .empty{color:var(--text2);font-size:13px;padding:24px 0;text-align:center}
 .info-box{padding:14px;border-radius:8px;font-size:12px;line-height:1.8}
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
-@media (max-width:900px){.metric-grid{grid-template-columns:repeat(2,1fr)}.two-col{grid-template-columns:1fr}}
+@media (max-width:900px){
+  .metric-grid{grid-template-columns:repeat(2,1fr)}
+  .two-col{grid-template-columns:1fr}
+  #sidebar{width:64px}
+  #main{margin-left:64px;max-width:calc(100vw - 64px);padding:100px 16px 24px}
+  #adminBar{left:64px}
+  .sb-titlebox,.sb-btn .label-full{display:none}
+  .sb-btn{justify-content:center;padding:9px 4px}
+  .sb-btn .label-short{display:block}
+}
+@media (max-width:600px){
+  #main{padding:100px 12px 20px}
+}
 </style>
 </head>
 <body class="readonly">
