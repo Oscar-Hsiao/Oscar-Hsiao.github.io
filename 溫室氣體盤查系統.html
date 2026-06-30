@@ -174,7 +174,8 @@ select[style*="width"]{width:auto}
 
 <script>
 (function(){
-  const PW='demo1234';
+  const ADMIN_HASH='0ead2060b65992dca4769af601a1b3a35ef38cfad2c2c465bb160ea764157c5d'; // SHA-256 of demo1234, avoid storing plaintext in source
+  async function sha256(str){const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');}
   const SK='ghg_admin';
   let isAdmin=sessionStorage.getItem(SK)==='1';
 
@@ -195,9 +196,10 @@ select[style*="width"]{width:auto}
   function closeLoginModal(){
     document.getElementById('loginModal').classList.add('hidden');
   }
-  function doLogin(){
+  async function doLogin(){
     const v=document.getElementById('pwInput').value;
-    if(v===PW){
+    const hash=await sha256(v);
+    if(hash===ADMIN_HASH){
       isAdmin=true;
       sessionStorage.setItem(SK,'1');
       closeLoginModal();
