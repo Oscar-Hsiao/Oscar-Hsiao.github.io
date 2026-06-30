@@ -54,8 +54,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
 .stat-na .stat-dot{background:var(--text3)}
 
 /* ── MAIN ── */
-.main{padding:24px 28px;max-width:1000px;margin:0 auto}
-.section-title{font-family:var(--font-serif);font-size:15px;font-weight:600;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.main{padding:24px 0;max-width:1000px;margin:0 auto}
+.section-title{font-family:var(--font-serif);font-size:15px;font-weight:600;margin-bottom:12px;padding:0 28px 8px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
 .section-title .hint{font-family:var(--font);font-size:11px;color:var(--text3);font-weight:400}
 
 /* ── ITEM CARDS ── */
@@ -147,9 +147,11 @@ textarea:focus,input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 
 }
 @media (max-width:1040px){
   .hdr,.main,.meta-bar,.stats-bar,.action-bar{padding-left:20px;padding-right:20px}
+  .section-title{padding-left:0;padding-right:0}
 }
 @media (max-width:680px){
   .hdr,.main,.meta-bar,.stats-bar,.action-bar{padding-left:16px;padding-right:16px}
+  .section-title{padding-left:0;padding-right:0}
   .stat-card{min-width:45%}
 }
 </style>
