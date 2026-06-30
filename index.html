@@ -109,10 +109,10 @@ body.sidebar-collapsed .sb-toggle{transform:rotate(180deg)}
 .article-card:nth-child(even){direction:rtl}
 .article-card:nth-child(even) .article-card-body{direction:ltr}
 .article-card:hover{box-shadow:0 8px 24px rgba(0,0,0,.08);transform:translateY(-3px)}
-.article-card-cover{position:relative;overflow:hidden;aspect-ratio:1/1;background:var(--bg3)}
+.article-card-cover{position:relative;overflow:hidden;aspect-ratio:1/1;background:var(--bg3);min-width:0}
 .article-card-cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .35s ease}
 .article-card:hover .article-card-cover img{transform:scale(1.06)}
-.article-card-body{padding:24px 28px;display:flex;flex-direction:column;justify-content:center;gap:8px}
+.article-card-body{padding:24px 28px;display:flex;flex-direction:column;justify-content:center;gap:8px;min-width:0;overflow-wrap:break-word}
 .article-card-body .meta{font-size:.8rem;color:var(--text2);line-height:1.4}
 .article-card-body h3{font-family:var(--font-serif);font-size:1.45rem;font-weight:700;line-height:1.4;transition:color .2s ease}
 .article-card:hover .article-card-body h3{color:var(--blue)}
@@ -256,9 +256,9 @@ const TOOLS=[
 ];
 
 const ARTICLES=[
-  {id:'a4',date:'2026-06-21',cover:'images/a4-mgmt-vs-bullying.png',tags:['職安衛','法規','不法侵害'],title:'不法侵害怎麼認定？7月1日職安法霸凌防治專章上路，企業該怎麼準備',
+  {id:'a4',date:'2026-06-21',cover:'images/a4-mgmt-vs-bullying.webp',tags:['職安衛','法規','不法侵害'],title:'不法侵害怎麼認定？7月1日職安法霸凌防治專章上路，企業該怎麼準備',
    excerpt:'從4個真實判決拆解「管理」與「霸凌」的法律界線，並解析7月1日起《職業安全衛生法》新增霸凌防治專章對企業申訴、調查機制的新要求，附法規連結與企業端SOP。',
-   body:`<img src="images/a4-mgmt-vs-bullying.png" alt="合理管理 vs 職場霸凌">
+   body:`<img src="images/a4-mgmt-vs-bullying.webp" alt="合理管理 vs 職場霸凌">
    <div class="notion-asset-caption">合理管理與職場霸凌的法律界線示意圖</div>
    <div class="tip-box tip-goal">🎯 這篇文章帶你搞懂：法院怎麼判斷「管理權行使」與「職場霸凌」的界線、7月1日起職安法新增的霸凌防治專章對企業有什麼新義務，以及企業端可以照走的標準處理流程。</div>
 
@@ -313,7 +313,7 @@ const ARTICLES=[
    <div class="tip-box tip-warn">⚠️ 新制上路後罰鍰金額大幅提高，企業若未依規定建立申訴、調查機制，最高罰鍰可達 450 萬元。具體條文編號待行政院公告施行版本確定後可能調整，建議上路前直接查閱《<a href="https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060001" target="_blank" rel="noopener">職業安全衛生法</a>》最新版本確認條號。</div>
 
    <h4>五、企業端標準處理流程（SOP）</h4>
-   <img src="images/a4-sop-7steps.png" alt="企業端標準處理流程 SOP 7步驟">
+   <img src="images/a4-sop-7steps.webp" alt="企業端標準處理流程 SOP 7步驟">
    <div class="notion-asset-caption">企業端標準處理流程（SOP）7 步驟</div>
 
    <hr style="border:none;border-top:1px solid var(--border);margin:24px 0">
@@ -322,9 +322,9 @@ const ARTICLES=[
    <p>7 月 1 日的修法把這條界線的責任更明確地交到企業手上——不是不能管理員工，而是管理行為要有合理理由、正當程序與完整紀錄。</p>
    <p>學會合法管理、理性管理、留痕管理，才能降低企業端的爭訟風險，同時也保護真正受到不法侵害的員工。</p>
    <div class="tip-box tip-info">📌 延伸閱讀：<a href="#" onclick="event.preventDefault();currentSection='articles-職安衛';currentArticle='a1';renderNav();renderMain();window.scrollTo(0,0);">事業單位的安全衛生人員配置怎麼算？</a></div>`},
-  {id:'a1',date:'2026-06-15',cover:'images/a1-cover-godzilla.png',tags:['職安衛','法規'],title:'事業單位的安全衛生人員配置怎麼算？',
+  {id:'a1',date:'2026-06-15',cover:'images/a1-cover-godzilla.webp',tags:['職安衛','法規'],title:'事業單位的安全衛生人員配置怎麼算？',
    excerpt:'每次人數一變動就要重新查表算一次配置門檻，乾脆把規則整個拆開來看，順手做成系統，下次不用再重算。',
-   body:`<img src="images/a1-cover-godzilla.png" alt="職安衛人員配置怎麼算">
+   body:`<img src="images/a1-cover-godzilla.webp" alt="職安衛人員配置怎麼算">
    <div class="notion-asset-caption">事業單位安全衛生人員配置示意圖</div>
    <p>每隔一段時間，HR 那邊就會丟一句「我們這個月又新增了幾個人，職安衛人員夠不夠？」過來。一開始我都是翻法規、查表、用 Excel 手動對照人數區間，算完才發現——上次算的版本早就過期了。後來乾脆把整套規則拆開來看一次，順手寫成系統，這篇就是拆解過程的筆記。</p>
 
@@ -351,7 +351,7 @@ const ARTICLES=[
    </table>
    <div class="tip">📍 同樣是 150 人的公司，第一類事業要配置的人員規格，會比第三類事業嚴格不少——分類錯了，後面全部算錯，建議先用公司營業登記的行業代號去對照勞動部公告的分類表確認，不要憑感覺判斷。</div>
 
-   <img src="images/a1-three-categories.png" alt="第一類、第二類、第三類事業示意圖">
+   <img src="images/a1-three-categories.webp" alt="第一類、第二類、第三類事業示意圖">
    <div class="notion-asset-caption">第一類（製造業）、第二類（批發零售）、第三類（辦公室服務業）事業示意圖</div>
 
    <h4>三、第一類事業：100～300 人是關鍵卡點</h4>
@@ -373,9 +373,9 @@ const ARTICLES=[
    <div class="tip">📍 常見誤解：「我們是辦公室，不用管職安衛」。只要勞工人數夠多，第三類事業一樣有配置義務，只是門檻比製造業寬鬆很多，企業常常因為「自認低風險」而忽略這塊。</div>
 
    <p style="margin-top:24px">把這些區間整理成表格之後，其實邏輯不難，麻煩的是「每次人數變動、或不確定自己事業類別時都要重新查一次」。後來我把這套規則直接寫進「<a href="教育訓練與證照管理系統.html">教育訓練與證照管理系統</a>」工具裡——輸入事業類別與目前人數，系統會自動推算應配置的證照、人數與回訓週期，不用再每次翻法規對表。算是把這篇文章拆解的規則，變成可以重複使用的工具。</p>`},
-  {id:'a2',date:'2026-06-10',cover:'images/a2-cover-godzilla.png',tags:['ESG','溫室氣體'],title:'中小企業做溫室氣體盤查，第一步該從哪裡開始？範疇一、二、三全解析',
+  {id:'a2',date:'2026-06-10',cover:'images/a2-cover-godzilla.webp',tags:['ESG','溫室氣體'],title:'中小企業做溫室氣體盤查，第一步該從哪裡開始？範疇一、二、三全解析',
    excerpt:'完全沒接觸過溫盤的新手也能看懂：用「邊、源、算、報、查」五個字，帶你走一遍溫室氣體盤查的完整流程。',
-   body:`<img src="images/a2-cover-godzilla.png" alt="中小企業溫室氣體盤查 5步驟一次搞懂">
+   body:`<img src="images/a2-cover-godzilla.webp" alt="中小企業溫室氣體盤查 5步驟一次搞懂">
    <div class="notion-asset-caption">中小企業溫室氣體盤查「邊、源、算、報、查」5步驟</div>
    <p>每次客戶或主管問「我們公司要做溫室氣體盤查，要從哪裡開始」，我都看到對方臉上閃過一絲「這聽起來很麻煩」的表情。說實話，第一次聽到「範疇一、二、三」也覺得很難，但拆開來看，整個流程其實可以濃縮成 5 個字：<strong>邊、源、算、報、查</strong>。把這 5 個字記住，照順序做一遍，就是一次完整的溫盤。</p>
 
@@ -419,9 +419,9 @@ const ARTICLES=[
    <div class="tip">💡 第一次盤查不一定要馬上做外部查證，可以先完成內部盤查、累積 1～2 年數據後再尋求查證，逐步走完整套流程。</div></div></div>
 
    <p style="margin-top:24px">把「邊、源、算、報、查」這 5 個步驟走完一輪，就是一次完整的溫室氣體盤查。本系統的「<a href="溫室氣體盤查系統.html">溫室氣體盤查系統</a>」工具，已將範疇一～三的資料登錄與彙整介面準備好，協助企業從零開始逐步建立可追蹤的碳排放資料庫。</p>`},
-  {id:'a3',date:'2026-06-01',cover:'images/a3-cover-godzilla.png',tags:['AI','職安衛'],title:'用 AI 協助職安衛文件管理：從手動到自動化的轉變',
+  {id:'a3',date:'2026-06-01',cover:'images/a3-cover-godzilla.webp',tags:['AI','職安衛'],title:'用 AI 協助職安衛文件管理：從手動到自動化的轉變',
    excerpt:'說實話，職安衛最花時間的從來不是「懂法規」，而是「每個月重複對表」。把規則寫進系統之後，這件事終於不用再手動做了。',
-   body:`<img src="images/a3-cover-godzilla.png" alt="用AI協助職安衛文件管理：從手動到自動化的轉變">
+   body:`<img src="images/a3-cover-godzilla.webp" alt="用AI協助職安衛文件管理：從手動到自動化的轉變">
    <div class="notion-asset-caption">職安衛文件管理：從手動比對到 AI 自動化的轉變</div>
    <p>講個老實話：職安衛這個工作，難的從來不是看懂法規條文，而是「每個月都要重複做一次同樣的比對」——這個人的證照是不是要到期了、這個月的會議紀錄誰還沒簽核、公司人數變動了配置夠不夠。一開始我也是滿桌子的證照清單、訓練紀錄、會議紀錄三個資料夾，外加一台快被我按壞的計算機，每次要查證照到期日都要把三個資料夾全部翻一遍。後來忍不住把整套邏輯寫成系統，這篇就是整理這段「從手忙腳亂到自動化」的轉變過程。</p>
 
@@ -657,7 +657,7 @@ function renderMain(){
         <p>嗨，我是 Oscar。歡迎來到這裡。</p>
       </div>
       <div class="about-card">
-        <img src="images/about-cover-godzilla.png" alt="關於我：職安安全管理、流程自動化、ESG與碳管理" style="max-width:100%;border-radius:12px;display:block;margin:0 auto 6px">
+        <img src="images/about-cover-godzilla.webp" alt="關於我：職安安全管理、流程自動化、ESG與碳管理" style="max-width:100%;border-radius:12px;display:block;margin:0 auto 6px">
         <div class="notion-asset-caption">職安安全管理、流程自動化、ESG與碳管理、持續學習</div>
         <p>這個網站主要記錄我在<strong>職業安全衛生、環境與永續資料整理、流程優化，以及 AI 工具應用</strong>上的學習、實作與整理。</p>
         <p>我一直對一件事很有興趣。那些原本很繁瑣、很依賴人工、很容易因為經驗差異而做法不一致的工作，有沒有可能被整理得更清楚一些？</p>
