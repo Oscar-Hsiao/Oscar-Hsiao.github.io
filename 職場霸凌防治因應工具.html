@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>示範股份有限公司 — 職場不法侵害防治工具</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;600&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#FBFBFA;--bg2:#fff;--bg3:#F7F6F3;
+  --border:#EAEAEA;--border2:#DDDBD6;
+  --text:#2F3437;--text2:#787774;--text3:#A8A29E;
+  --blue:#1F6C9F;--blue-bg:#E1F3FE;
+  --green:#346538;--green-bg:#EDF3EC;
+  --yellow:#956400;--yellow-bg:#FBF3DB;
+  --red:#AF4040;--red-bg:#FCEAEA;
+  --purple:#6B4FA0;--purple-bg:#EFEAF7;
+  --gold:#C9A24B;--sidebar:#4E565C;
+  --font:'Noto Sans TC',-apple-system,BlinkMacSystemFont,'Segoe UI','Microsoft JhengHei',sans-serif;
+  --font-serif:'Noto Serif TC',-apple-system,serif;
+  --mono:'JetBrains Mono','Courier New',monospace;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+
+/* ── HEADER ── */
+.hdr{background:var(--bg2);color:var(--text);position:sticky;top:0;z-index:100;border-bottom:1px solid var(--border)}
+.hdr-top{display:flex;justify-content:space-between;align-items:flex-start;padding:18px 0 12px;margin:0 2cm;flex-wrap:wrap;gap:8px}
+.logo-wrap{display:flex;align-items:center;gap:12px}
+.logo-icon{height:44px;width:44px;border-radius:8px;background:var(--yellow-bg);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+.logo-t h1{font-size:21px;font-weight:600;color:var(--text);line-height:1.3;font-family:var(--font-serif)}
+.logo-t p{font-size:13px;color:var(--text3);margin-top:3px}
+.hdr-meta{text-align:right;font-size:13px;color:var(--text2);line-height:2;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.badge-2026{background:var(--red-bg);color:var(--red);font-size:12px;font-weight:600;padding:3px 9px;border-radius:10px}
+.back-btn{font-size:13px;padding:5px 12px;border-radius:8px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);cursor:pointer;font-family:var(--font);display:inline-flex;align-items:center;gap:5px;transition:all .15s;text-decoration:none}
+.back-btn:hover{background:var(--bg);color:var(--text)}
+
+/* ── LOGIN ── */
+#loginWrap{position:fixed;inset:0;background:rgba(251,251,250,.95);display:flex;align-items:center;justify-content:center;z-index:999}
+.login-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:40px 48px;width:360px;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,.06)}
+.login-card h2{font-size:20px;font-weight:600;margin-bottom:6px;font-family:var(--font-serif)}
+.login-card p{font-size:14px;color:var(--text2);margin-bottom:24px}
+.login-card input{width:100%;padding:10px 14px;border:1px solid var(--border2);border-radius:8px;font-size:15px;font-family:var(--font);color:var(--text);background:var(--bg3);outline:none;margin-bottom:12px}
+.login-card input:focus{border-color:var(--blue)}
+.login-card button{width:100%;padding:10px;font-size:15px;font-weight:600;border-radius:8px;border:none;background:var(--text);color:#fff;cursor:pointer;font-family:var(--font)}
+.login-card button:hover{background:#4a4f52}
+.login-err{color:var(--red);font-size:13px;margin-top:8px;min-height:20px}
+
+/* ── COMPANY INFO BAR ── */
+.info-bar{background:var(--yellow-bg);border-bottom:2px solid #F4E4B8;padding:12px 0;margin:0}
+.info-bar-inner{margin:0 2cm;display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.info-group{display:flex;flex-direction:column;gap:3px;min-width:140px}
+.info-group label{font-size:12px;color:var(--yellow);font-weight:600;letter-spacing:.03em}
+.info-group input,.info-group select{font-size:14px;padding:5px 10px;border:1px solid #F4E4B8;border-radius:6px;background:#fff;color:var(--text);font-family:var(--font);outline:none;min-width:120px}
+.info-group input:focus,.info-group select:focus{border-color:var(--gold)}
+
+/* ── TABS ── */
+.tabs{display:flex;border-bottom:1px solid var(--border);margin:0 2cm;background:var(--bg2);gap:0;overflow-x:auto}
+.tab{padding:11px 20px;font-size:15px;cursor:pointer;border:none;border-bottom:3px solid transparent;color:var(--text2);background:none;font-family:var(--font);display:flex;align-items:center;gap:7px;transition:all .15s;font-weight:500;white-space:nowrap}
+.tab.on{color:var(--text);border-bottom-color:var(--text)}
+.tab:hover:not(.on){color:var(--text);background:var(--bg3)}
+
+/* ── SECTION ── */
+.main{margin:0 2cm;padding:32px 0 60px}
+.section{display:none}
+.section.on{display:block}
+
+/* ── PANEL ── */
+.panel{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:20px}
+.panel-hdr{padding:14px 20px;background:var(--bg3);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.panel-title{font-size:15px;font-weight:600;font-family:var(--font-serif);display:flex;align-items:center;gap:8px}
+.panel-body{padding:20px}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;font-size:14px;border-radius:8px;border:1px solid var(--border2);cursor:pointer;font-family:var(--font);white-space:nowrap;transition:all .15s;font-weight:500}
+.btn:hover{opacity:.85}
+.btn-p{background:var(--text);color:#fff;border-color:var(--text)}
+.btn-p:hover{background:#4a4f52;opacity:1}
+.btn-g{background:var(--bg3);color:var(--text)}
+.btn-green{background:var(--green-bg);color:var(--green);border-color:#C5DBC6}
+.btn-yellow{background:var(--yellow-bg);color:var(--yellow);border-color:#F4E4B8}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+/* ── LAW BADGE ── */
+.law-tag{display:inline-block;font-size:12px;padding:2px 8px;border-radius:4px;font-weight:600;background:var(--blue-bg);color:var(--blue);font-family:var(--mono)}
+.amend-tag{display:inline-block;font-size:12px;padding:2px 8px;border-radius:4px;font-weight:600;background:var(--red-bg);color:var(--red)}
+
+/* ── FORM GRID ── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-grid.col3{grid-template-columns:1fr 1fr 1fr}
+.form-field{display:flex;flex-direction:column;gap:4px}
+.form-field.span2{grid-column:span 2}
+.form-field label{font-size:13px;color:var(--text2);font-weight:500}
+.form-field input,.form-field select,.form-field textarea{font-size:14px;padding:8px 12px;border:1px solid var(--border2);border-radius:8px;background:var(--bg3);color:var(--text);font-family:var(--font);outline:none;transition:border .15s}
+.form-field input:focus,.form-field select:focus,.form-field textarea:focus{border-color:var(--blue);background:#fff}
+.form-field textarea{resize:vertical;min-height:72px;line-height:1.6}
+.hint{font-size:12px;color:var(--text3);margin-top:2px}
+
+/* ── DOCUMENT OUTPUT ── */
+.doc-output{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:24px;font-size:14px;line-height:1.9;color:var(--text);min-height:200px;white-space:pre-wrap;word-break:break-word;font-family:var(--font)}
+.doc-output h3{font-size:16px;font-weight:700;margin:16px 0 8px;color:var(--text);font-family:var(--font-serif)}
+.doc-output h3:first-child{margin-top:0}
+.doc-output p{margin-bottom:10px}
+.doc-output ul,.doc-output ol{padding-left:22px;margin-bottom:10px}
+.doc-output li{margin-bottom:4px}
+.doc-output .doc-title{font-size:20px;font-weight:700;text-align:center;margin-bottom:6px;font-family:var(--font-serif)}
+.doc-output .doc-sub{font-size:14px;text-align:center;color:var(--text2);margin-bottom:24px}
+.doc-output hr{border:none;border-top:1px solid var(--border2);margin:20px 0}
+.doc-placeholder{color:var(--text3);text-align:center;padding:40px 0;font-size:15px}
+
+/* ── FLOW CHART ── */
+.flow{display:flex;flex-direction:column;gap:0;align-items:center;width:100%}
+.flow-step{background:var(--bg2);border:2px solid var(--border2);border-radius:10px;padding:14px 20px;width:100%;max-width:520px;font-size:14px;position:relative}
+.flow-step.trigger{border-color:#F4E4B8;background:var(--yellow-bg)}
+.flow-step.investigate{border-color:#C5DBC6;background:var(--green-bg)}
+.flow-step.decide{border-color:#B8D4F0;background:var(--blue-bg)}
+.flow-step.remedy{border-color:#D4C5E8;background:var(--purple-bg)}
+.flow-step-title{font-weight:700;font-size:15px;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.flow-step-num{width:26px;height:26px;border-radius:50%;background:var(--text);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.flow-arrow{font-size:20px;color:var(--text3);padding:6px 0;display:flex;align-items:center;justify-content:center}
+.flow-arrow span{font-size:13px;color:var(--text3);margin-left:8px}
+.flow-split{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;max-width:520px}
+.flow-branch{background:var(--bg2);border:1.5px solid var(--border2);border-radius:10px;padding:12px 16px;font-size:13px}
+.flow-branch.yes{border-color:#C5DBC6;background:var(--green-bg)}
+.flow-branch.no{border-color:#F6D8D7;background:var(--red-bg)}
+.flow-days{font-size:12px;font-family:var(--mono);background:rgba(0,0,0,.06);padding:2px 7px;border-radius:4px;margin-left:6px}
+
+/* ── PENALTY TABLE ── */
+.penalty-table{width:100%;border-collapse:collapse;font-size:14px}
+.penalty-table th{background:var(--bg3);padding:10px 14px;text-align:left;font-weight:600;border-bottom:2px solid var(--border2);font-size:13px;color:var(--text2)}
+.penalty-table td{padding:12px 14px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.7}
+.penalty-table tr:hover td{background:var(--bg3)}
+.sev-chip{display:inline-block;font-size:12px;padding:2px 8px;border-radius:6px;font-weight:600}
+.sev-1{background:var(--yellow-bg);color:var(--yellow)}
+.sev-2{background:var(--red-bg);color:var(--red)}
+.sev-3{background:#2f3437;color:#fff}
+.edit-area{width:100%;border:1px solid var(--border2);border-radius:6px;padding:6px 10px;font-size:13px;font-family:var(--font);color:var(--text);background:var(--bg3);resize:vertical;line-height:1.6;outline:none}
+.edit-area:focus{border-color:var(--blue);background:#fff}
+
+/* ── PRINT ── */
+@media print{
+  .hdr,.info-bar,.tabs,.btn-row{display:none!important}
+  body{background:#fff}
+  .main{margin:0;padding:0}
+  .panel{border:none;border-radius:0}
+  .panel-hdr .btn-row{display:none!important}
+}
+@media(max-width:900px){
+  .hdr-top,.info-bar-inner,.main{margin:0 16px}
+  .tabs{margin:0 16px}
+  .form-grid,.form-grid.col3{grid-template-columns:1fr}
+  .form-field.span2{grid-column:span 1}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginWrap">
+  <div class="login-card">
+    <div style="font-size:36px;margin-bottom:12px">🛡️</div>
+    <h2>職場不法侵害防治工具</h2>
+    <p>請輸入管理員密碼以繼續</p>
+    <input type="password" id="pwInput" placeholder="輸入密碼" onkeydown="if(event.key==='Enter')doLogin()">
+    <button onclick="doLogin()">登入</button>
+    <div class="login-err" id="loginErr"></div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-top">
+    <div class="logo-wrap">
+      <a href="/" class="back-btn">← 回首頁</a>
+      <div class="logo-icon">🛡️</div>
+      <div class="logo-t">
+        <h1>職場不法侵害防治工具</h1>
+        <p>示範股份有限公司｜人力資源部</p>
+      </div>
+    </div>
+    <div class="hdr-meta">
+      <span class="badge-2026">2026修法版</span>
+      <span style="font-size:13px;color:var(--text3)">依職業安全衛生法 §36 及執行指引</span>
+    </div>
+  </div>
+</div>
+
+<!-- COMPANY INFO BAR -->
+<div class="info-bar">
+  <div class="info-bar-inner">
+    <div class="info-group">
+      <label>事業單位名稱</label>
+      <input id="companyName" value="示範股份有限公司" oninput="cacheInfo()">
+    </div>
+    <div class="info-group">
+      <label>員工人數</label>
+      <select id="companySize" onchange="cacheInfo()">
+        <option value="30以下">30人以下</option>
+        <option value="30-99">30–99人</option>
+        <option value="100-299" selected>100–299人</option>
+        <option value="300以上">300人以上</option>
+      </select>
+    </div>
+    <div class="info-group">
+      <label>雇主/負責人</label>
+      <input id="ceoName" placeholder="姓名" oninput="cacheInfo()">
+    </div>
+    <div class="info-group">
+      <label>職安衛承辦人</label>
+      <input id="oshContact" placeholder="姓名" oninput="cacheInfo()">
+    </div>
+    <div class="info-group">
+      <label>申訴窗口</label>
+      <input id="hrContact" placeholder="姓名或分機" oninput="cacheInfo()">
+    </div>
+    <div class="info-group">
+      <label>生效日期</label>
+      <input id="effectDate" type="date" oninput="cacheInfo()">
+    </div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab on" onclick="switchTab(0)">📄 防治計畫書</button>
+  <button class="tab" onclick="switchTab(1)">🔄 申訴處理流程</button>
+  <button class="tab" onclick="switchTab(2)">⚖️ 懲處規範草案</button>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- ── TAB 0: 防治計畫書 ── -->
+  <div class="section on" id="tab0">
+
+    <div class="panel">
+      <div class="panel-hdr">
+        <div class="panel-title">
+          📋 計畫書基本設定
+          <span class="law-tag">職安法 §36</span>
+          <span class="amend-tag">2026修法</span>
+        </div>
+      </div>
+      <div class="panel-body">
+        <p style="font-size:13px;color:var(--text2);margin-bottom:16px">
+          依職業安全衛生法第36條，僱用勞工人數在 <strong>30人以上</strong>之事業單位，應依執行指引擬訂防治計畫並公告。
+          2026修法重點：擴大客戶/第三方騷擾防治義務、強化調查機制、違反罰鍰最高 <strong>30萬元</strong>。
+        </p>
+        <div class="form-grid">
+          <div class="form-field">
+            <label>產業類型</label>
+            <select id="industry">
+              <option value="製造業">製造業</option>
+              <option value="服務業">服務業</option>
+              <option value="金融業">金融業</option>
+              <option value="醫療業">醫療業</option>
+              <option value="零售業">零售業</option>
+              <option value="建築業">建築業</option>
+              <option value="其他">其他</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>計畫版本</label>
+            <input id="planVer" value="第一版" placeholder="如：第一版、2026年修訂版">
+          </div>
+          <div class="form-field">
+            <label>調查委員會人數</label>
+            <select id="committeeSz">
+              <option value="3">3人</option>
+              <option value="5" selected>5人</option>
+              <option value="7">7人</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>外部成員比例</label>
+            <select id="externalRatio">
+              <option value="不設外部成員">不設外部成員</option>
+              <option value="至少1/3" selected>至少1/3（建議）</option>
+              <option value="至少1/2">至少1/2</option>
+            </select>
+          </div>
+          <div class="form-field span2">
+            <label>特殊風險說明（可空白）</label>
+            <input id="specialRisk" placeholder="如：業務人員須接觸不特定客戶、夜間單獨作業等">
+          </div>
+        </div>
+        <div class="btn-row" style="margin-top:16px">
+          <button class="btn btn-p" onclick="generatePlan()">⚡ 生成計畫書</button>
+          <button class="btn btn-g" onclick="printSection('planOut')">🖨 列印</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-hdr">
+        <div class="panel-title">📃 職場不法侵害防治計畫書</div>
+        <div class="btn-row">
+          <button class="btn btn-yellow" onclick="copyDoc('planOut')">📋 複製全文</button>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div id="planOut" class="doc-output">
+          <div class="doc-placeholder">填寫上方設定後，按「生成計畫書」產生文件</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── TAB 1: 申訴處理流程 ── -->
+  <div class="section" id="tab1">
+
+    <div class="panel">
+      <div class="panel-hdr">
+        <div class="panel-title">⚙️ 申訴管道設定</div>
+      </div>
+      <div class="panel-body">
+        <div class="form-grid col3">
+          <div class="form-field">
+            <label>書面申訴收件人</label>
+            <input id="f_written" placeholder="如：人資部門主管">
+          </div>
+          <div class="form-field">
+            <label>申訴信箱</label>
+            <input id="f_email" placeholder="harassment@example.com">
+          </div>
+          <div class="form-field">
+            <label>申訴專線</label>
+            <input id="f_phone" placeholder="分機 XXXX 或外線">
+          </div>
+          <div class="form-field">
+            <label>調查期限（工作天）</label>
+            <select id="f_days">
+              <option value="20">20 工作天</option>
+              <option value="30" selected>30 工作天</option>
+              <option value="60">60 工作天（複雜案件）</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>召集人</label>
+            <input id="f_convener" placeholder="如：人事處長">
+          </div>
+          <div class="form-field">
+            <label>結果通知方式</label>
+            <select id="f_notify">
+              <option value="書面通知">書面通知（存證）</option>
+              <option value="電子郵件">電子郵件</option>
+              <option value="書面及電子郵件">書面及電子郵件</option>
+            </select>
+          </div>
+        </div>
+        <div class="btn-row" style="margin-top:14px">
+          <button class="btn btn-p" onclick="renderFlow()">⚡ 更新流程圖</button>
+          <button class="btn btn-g" onclick="window.print()">🖨 列印</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-hdr">
+        <div class="panel-title">🔄 申訴處理流程圖</div>
+      </div>
+      <div class="panel-body">
+        <div id="flowChart" class="flow">
+          <div class="doc-placeholder">按「更新流程圖」產生</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-hdr">
+        <div class="panel-title">📌 注意事項 <span class="amend-tag">2026修法</span></div>
+      </div>
+      <div class="panel-body" style="font-size:14px;line-height:2">
+        <ul style="padding-left:20px;color:var(--text2)">
+          <li><strong style="color:var(--text)">調查保密義務：</strong>委員、當事人及證人均負保密義務，違者依法懲處。</li>
+          <li><strong style="color:var(--text)">申訴人保護：</strong>不得因申訴而對申訴人有不利之對待（含調職、降薪、解僱）。</li>
+          <li><strong style="color:var(--text)">2026修法新增：</strong>第三方（客戶、廠商、訪客）對勞工之不法侵害，雇主亦須依法採取保護措施。</li>
+          <li><strong style="color:var(--text)">外部管道：</strong>勞工亦可向當地勞工局或勞動部1955申訴，雇主不得阻止。</li>
+          <li><strong style="color:var(--text)">調查逾期：</strong>超過法定期限未完成，主管機關可介入並裁罰。</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── TAB 2: 懲處規範草案 ── -->
+  <div class="section" id="tab2">
+
+    <div class="panel">
+      <div class="panel-hdr">
+        <div class="panel-title">⚖️ 懲處級距設定</div>
+        <div class="btn-row">
+          <button class="btn btn-p" onclick="generatePenalty()">⚡ 生成草案</button>
+          <button class="btn btn-yellow" onclick="copyDoc('penaltyOut')">📋 複製</button>
+          <button class="btn btn-g" onclick="window.print()">🖨 列印</button>
+        </div>
+      </div>
+      <div class="panel-body">
+        <p style="font-size:13px;color:var(--text2);margin-bottom:16px">
+          懲處規範應納入工作規則，並依勞動基準法相關規定辦理。調整各級定義後按「生成草案」更新文件。
+        </p>
+        <table class="penalty-table">
+          <colgroup><col style="width:120px"><col style="width:180px"><col></colgroup>
+          <thead>
+            <tr>
+              <th>嚴重程度</th>
+              <th>行為定義</th>
+              <th>懲處方式（可編輯）</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="sev-chip sev-1">輕微</span></td>
+              <td>言語冒犯、開不當玩笑、<br>不雅綽號等初次行為</td>
+              <td><textarea class="edit-area" id="p_mild" rows="3">書面警告一次、強制參加職場倫理教育訓練（至少4小時）、主管約談並留存紀錄。</textarea></td>
+            </tr>
+            <tr>
+              <td><span class="sev-chip sev-1">輕微累犯</span></td>
+              <td>同類行為第二次以上，<br>或情節輕微之肢體接觸</td>
+              <td><textarea class="edit-area" id="p_mild2" rows="3">記過一次、強制教育訓練（8小時）、調整職務/座位隔離、三個月列管追蹤。</textarea></td>
+            </tr>
+            <tr>
+              <td><span class="sev-chip sev-2">中度</span></td>
+              <td>持續騷擾、霸凌、言語<br>威脅、散布謠言、孤立排擠</td>
+              <td><textarea class="edit-area" id="p_mid" rows="3">記大過一次（得累計解僱）、停職調查期間留薪停工、強制輔導、通知被害人保護措施。</textarea></td>
+            </tr>
+            <tr>
+              <td><span class="sev-chip sev-2">中度累犯</span></td>
+              <td>中度行為第二次以上，<br>或主管對下屬之不法侵害</td>
+              <td><textarea class="edit-area" id="p_mid2" rows="3">降職或調職、記大過二次、專案留觀六個月，情節嚴重者得依勞動基準法第12條終止勞動契約。</textarea></td>
+            </tr>
+            <tr>
+              <td><span class="sev-chip sev-3">嚴重</span></td>
+              <td>肢體暴力、性侵、嚴重<br>心理虐待、惡意報復申訴人</td>
+              <td><textarea class="edit-area" id="p_severe" rows="3">不經預告立即依勞動基準法第12條第1項第2款終止勞動契約（懲戒解僱）、視情節報請司法機關處理、拒絕發給非自願離職証明。</textarea></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-hdr">
+        <div class="panel-title">📃 懲處規範草案（工作規則條文格式）</div>
+      </div>
+      <div class="panel-body">
+        <div id="penaltyOut" class="doc-output">
+          <div class="doc-placeholder">按「生成草案」產生條文</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ── AUTH ── */
+const ADMIN_HASH='0ead2060b65992dca4769af601a1b3a35ef38cfad2c2c465bb160ea764157c5d';
+async function sha256(str){const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');}
+async function doLogin(){
+  const v=document.getElementById('pwInput').value;
+  const hash=await sha256(v);
+  if(hash===ADMIN_HASH){
+    document.getElementById('loginWrap').style.display='none';
+    loadInfo();
+  } else {
+    document.getElementById('loginErr').textContent='密碼錯誤，請再試一次。';
+  }
+}
+
+/* ── TAB SWITCH ── */
+function switchTab(i){
+  document.querySelectorAll('.tab').forEach((t,idx)=>t.classList.toggle('on',idx===i));
+  document.querySelectorAll('.section').forEach((s,idx)=>s.classList.toggle('on',idx===i));
+  if(i===1)renderFlow();
+}
+
+/* ── COMPANY INFO CACHE ── */
+function cacheInfo(){
+  const d={companyName:v('companyName'),companySize:v('companySize'),ceoName:v('ceoName'),
+    oshContact:v('oshContact'),hrContact:v('hrContact'),effectDate:v('effectDate')};
+  localStorage.setItem('bully_info',JSON.stringify(d));
+}
+function loadInfo(){
+  try{
+    const d=JSON.parse(localStorage.getItem('bully_info')||'{}');
+    Object.keys(d).forEach(k=>{const el=document.getElementById(k);if(el)el.value=d[k];});
+  }catch(e){}
+  if(!document.getElementById('effectDate').value){
+    document.getElementById('effectDate').value=new Date().toISOString().slice(0,10);
+  }
+}
+function v(id){return document.getElementById(id)?.value||'';}
+
+/* ── HELPERS ── */
+function goHome(){window.location.href='/';}
+function copyDoc(id){
+  const el=document.getElementById(id);
+  const text=el.innerText||el.textContent;
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn=event.target;btn.textContent='✅ 已複製';setTimeout(()=>{btn.textContent='📋 複製全文';},1500);
+  });
+}
+function printSection(id){window.print();}
+
+/* ── PLAN GENERATOR ── */
+function generatePlan(){
+  const co=v('companyName')||'（事業單位名稱）';
+  const sz=v('companySize');
+  const ceo=v('ceoName')||'＿＿＿＿';
+  const osh=v('oshContact')||'＿＿＿＿';
+  const hr=v('hrContact')||'＿＿＿＿';
+  const date=v('effectDate')||'＿＿年＿＿月＿＿日';
+  const industry=v('industry');
+  const ver=v('planVer')||'第一版';
+  const csz=v('committeeSz');
+  const ext=v('externalRatio');
+  const risk=v('specialRisk');
+
+  const html=`<div class="doc-title">${co}<br>職場不法侵害預防計畫</div>
+<div class="doc-sub">${ver}　生效日期：${date}</div>
+<hr>
+<h3>一、政策聲明</h3>
+<p>${co}（以下稱本公司）致力於建立零容忍職場暴力之安全、健康工作環境。本公司雇主 ${ceo} 承諾：對任何形式之職場不法侵害行為，無論其行為人為主管、同事或第三方（客戶、廠商、承攬商），均依本計畫嚴肅處理，不因身分地位有所差異。</p>
+
+<h3>二、適用範圍</h3>
+<p>本計畫適用於本公司全體員工（正職、兼職、派遣及實習人員），以及在本公司工作場所範圍內從事工作之承攬商人員。${risk?'<br>特殊風險說明：'+risk:''}</p>
+
+<h3>三、不法侵害定義</h3>
+<p>依職業安全衛生法施行細則第11-1條，職場不法侵害包含：</p>
+<ul>
+<li><strong>肢體暴力：</strong>踢打、推撞、丟擲物品等肢體傷害行為</li>
+<li><strong>言語暴力：</strong>威脅、恐嚇、謾罵、侮辱等言語攻擊</li>
+<li><strong>心理暴力：</strong>歧視、孤立、霸凌、不合理工作要求、惡意評論</li>
+<li><strong>性騷擾：</strong>性別歧視、性暗示、不受歡迎之性接觸或語言（另依性騷擾防治措施辦法辦理）</li>
+<li><strong>第三方侵害（2026修法）：</strong>來自客戶、廠商或訪客之上述行為，雇主亦負保護義務</li>
+</ul>
+
+<h3>四、危害因子辨識與評估</h3>
+<p>本公司每年至少辦理一次職場不法侵害危害因子辨識，重點評估項目如下：</p>
+<ul>
+<li>高風險工作環境（如：夜班獨立作業、現金處理、業務接觸不特定客戶）</li>
+<li>${industry}行業特性相關危害（如顧客服務糾紛、現場施工壓力）</li>
+<li>組織管理因素（如高壓績效文化、溝通不暢、申訴管道不健全）</li>
+</ul>
+
+<h3>五、預防措施</h3>
+<p>本公司採取以下措施以預防職場不法侵害：</p>
+<ol>
+<li>每年至少辦理職場不法侵害教育訓練（一般員工至少3小時、主管至少6小時）</li>
+<li>設立申訴管道（詳見第六點），確保員工知悉管道且申訴不受阻礙</li>
+<li>定期進行職場環境檢核，對高風險場域採取環境改善措施</li>
+<li>建立友善職場文化，鼓勵員工相互尊重，零容忍不法侵害行為</li>
+<li>對接觸不特定第三方之職務，提供必要的工作指引與保護措施</li>
+</ol>
+
+<h3>六、申訴與通報機制</h3>
+<p>本公司設立多元申訴管道，確保被害人得以匿名或具名申訴：</p>
+<ul>
+<li><strong>書面申訴：</strong>填寫申訴表交由 ${hr}（人力資源部門）</li>
+<li><strong>口頭申訴：</strong>得向直屬主管或人資部門口頭申訴</li>
+<li><strong>外部管道：</strong>向當地勞工主管機關或撥打1955舉報</li>
+</ul>
+<p>本公司承諾對申訴人身分及案件內容嚴格保密，且不得對申訴人有任何不利對待。</p>
+
+<h3>七、調查委員會</h3>
+<p>接獲申訴後，本公司應於5工作天內組成不法侵害調查委員會，成員共 ${csz} 人（${ext}為外部獨立人士）。委員會應於 30 工作天內完成調查並提出書面報告。調查結束後，本公司應依報告結論，於10工作天內對行為人採取懲處措施，並通知申訴人處理結果。</p>
+
+<h3>八、事後協助</h3>
+<p>對於遭受不法侵害之員工，本公司提供以下協助：</p>
+<ul>
+<li>心理健康諮商轉介（員工協助方案 EAP）</li>
+<li>工作調整（調整職務、工作地點或班別）</li>
+<li>必要時協助申請職業災害補償或其他法律救濟</li>
+<li>追蹤關懷，確保後續工作環境之安全</li>
+</ul>
+
+<h3>九、計畫公告與更新</h3>
+<p>本計畫經雇主核定後，公告於公司公告欄及內部網路，並確保全體員工均可取得。本計畫至少每二年或當法令修正時重新檢討更新。</p>
+<hr>
+<p style="text-align:right;color:#aaa;font-size:13px">計畫承辦人：${osh}　│　雇主：${ceo}　│　生效日期：${date}</p>`;
+
+  document.getElementById('planOut').innerHTML=html;
+}
+
+/* ── FLOW CHART ── */
+function renderFlow(){
+  const days=v('f_days')||'30 工作天';
+  const convener=v('f_convener')||'人資部主管';
+  const notify=v('f_notify')||'書面通知';
+  const written=v('f_written')||'人資部門';
+  const email=v('f_email')||'（申訴信箱）';
+  const phone=v('f_phone')||'（申訴專線）';
+  const co=v('companyName')||'本公司';
+
+  document.getElementById('flowChart').innerHTML=`
+<div class="flow-step trigger">
+  <div class="flow-step-title"><div class="flow-step-num">1</div>事件發生／知情</div>
+  <div style="font-size:13px;color:var(--text2)">被害人、目睹人或其他知情者發現不法侵害情事</div>
+</div>
+<div class="flow-arrow">↓ <span>提出申訴（具名或匿名均可）</span></div>
+
+<div class="flow-step trigger">
+  <div class="flow-step-title"><div class="flow-step-num">2</div>提出申訴</div>
+  <div style="font-size:13px;color:var(--text2);margin-top:6px">
+    📨 書面申訴 → ${written}<br>
+    📧 電子郵件 → ${email}<br>
+    📞 電話 → ${phone}<br>
+    🌐 外部管道 → 勞工局 / 1955
+  </div>
+</div>
+<div class="flow-arrow">↓ <span>5 工作天內</span></div>
+
+<div class="flow-step">
+  <div class="flow-step-title"><div class="flow-step-num">3</div>受理確認與初步審查</div>
+  <div style="font-size:13px;color:var(--text2)">人資部確認案件受理、通知申訴人、必要時採取緊急保護措施（如暫時調整座位或班別）</div>
+</div>
+<div class="flow-arrow">↓ <span>組成委員會</span></div>
+
+<div class="flow-step investigate">
+  <div class="flow-step-title"><div class="flow-step-num">4</div>調查委員會運作 <span class="flow-days">${days}</span></div>
+  <div style="font-size:13px;color:var(--text2);margin-top:6px">
+    召集人：${convener}<br>
+    • 分別約談申訴人、被申訴人及相關證人<br>
+    • 蒐集相關書面資料及調查資料<br>
+    • 委員依法保密，不得洩露當事人資訊<br>
+    • 製作調查報告並提出懲處建議
+  </div>
+</div>
+<div class="flow-arrow">↓ <span>提交報告後 10 工作天</span></div>
+
+<div class="flow-step decide">
+  <div class="flow-step-title"><div class="flow-step-num">5</div>決議與懲處</div>
+  <div style="font-size:13px;color:var(--text2)">依調查報告認定結果，由雇主決定懲處措施；${notify}通知當事人雙方。</div>
+</div>
+<div class="flow-arrow">↓</div>
+
+<div class="flow-split">
+  <div class="flow-branch yes">
+    <strong style="color:var(--green)">✅ 申訴成立</strong><br>
+    <span style="font-size:13px">對行為人依懲處規範予以懲戒；對被害人提供後續協助與追蹤</span>
+  </div>
+  <div class="flow-branch no">
+    <strong style="color:var(--red)">❌ 申訴不成立</strong><br>
+    <span style="font-size:13px">書面說明理由通知申訴人；申訴人得依法向主管機關提出再申訴</span>
+  </div>
+</div>
+<div class="flow-arrow">↓ <span>無論結果</span></div>
+
+<div class="flow-step remedy">
+  <div class="flow-step-title"><div class="flow-step-num">6</div>事後追蹤與改善</div>
+  <div style="font-size:13px;color:var(--text2)">提供被害人 EAP 心理支持；追蹤被申訴人行為；檢討防治措施；三個月後複查改善成效</div>
+</div>
+`;
+}
+
+/* ── PENALTY GENERATOR ── */
+function generatePenalty(){
+  const co=v('companyName')||'（事業單位名稱）';
+  const date=v('effectDate')||'＿＿年＿＿月＿＿日';
+  const mild=v('p_mild');
+  const mild2=v('p_mild2');
+  const mid=v('p_mid');
+  const mid2=v('p_mid2');
+  const severe=v('p_severe');
+
+  const html=`<div class="doc-title">${co}<br>職場不法侵害懲處規範</div>
+<div class="doc-sub">本規範為工作規則之附件，生效日期：${date}</div>
+<hr>
+<h3>第一條　目的</h3>
+<p>為落實職場不法侵害防治計畫，確保行為人受到合理懲處，特訂定本懲處規範。本規範依勞動基準法第70條規定，納入公司工作規則。</p>
+
+<h3>第二條　適用範圍</h3>
+<p>凡本公司全體員工（含正職、兼職、試用期員工），因職場不法侵害行為受調查委員會認定後，依本規範懲處。</p>
+
+<h3>第三條　懲處原則</h3>
+<p>懲處應依調查報告認定之行為事實、頻率、造成影響及行為人態度，綜合衡量後採比例原則決定，不因行為人職級或年資有所差異。</p>
+
+<h3>第四條　各級懲處基準</h3>
+
+<p><strong>第一款　輕微違規</strong><br>
+<em>定義：</em>言語冒犯、開不當玩笑、不雅綽號等初次行為。<br>
+<em>懲處：</em>${mild}</p>
+
+<p><strong>第二款　輕微違規（累犯）</strong><br>
+<em>定義：</em>同類行為第二次以上，或情節輕微之肢體接觸。<br>
+<em>懲處：</em>${mild2}</p>
+
+<p><strong>第三款　中度違規</strong><br>
+<em>定義：</em>持續騷擾、霸凌、言語威脅、散布謠言、孤立排擠。<br>
+<em>懲處：</em>${mid}</p>
+
+<p><strong>第四款　中度違規（累犯或主管對下屬）</strong><br>
+<em>定義：</em>中度行為第二次以上，或具主管身分對下屬施以不法侵害。<br>
+<em>懲處：</em>${mid2}</p>
+
+<p><strong>第五款　嚴重違規</strong><br>
+<em>定義：</em>肢體暴力、性侵、嚴重心理虐待、惡意報復申訴人。<br>
+<em>懲處：</em>${severe}</p>
+
+<h3>第五條　申訴人保護</h3>
+<p>任何人不得因申訴、作證或協助調查，而受到降職、調職、減薪、解僱或其他不利對待。違反者以中度違規以上論處。</p>
+
+<h3>第六條　懲處程序</h3>
+<p>懲處決定應由雇主或授權之人事委員會做成，並以書面通知受懲處人。受懲處人得於10工作天內提出異議，由雇主重新審酌後做成最終決定。</p>
+<hr>
+<p style="text-align:right;color:#aaa;font-size:13px">生效日期：${date}　│　${co}</p>`;
+
+  document.getElementById('penaltyOut').innerHTML=html;
+}
+
+/* ── INIT ── */
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('pwInput').focus();
+});
+</script>
+</body>
+</html>
