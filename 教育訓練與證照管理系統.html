@@ -232,7 +232,10 @@ input:focus,select:focus{outline:2px solid var(--blue);border-color:transparent}
 // 資料
 // ═══════════════════════════════════════════════
 const STAFF_KEY='train_staff', RECORD_KEY='train_records', CERTREQ_KEY='train_certreq', META_KEY='train_meta';
-const GAS_URL=''; // 填入 Google Apps Script 部署網址（空白 = 純 localStorage 模式）
+const JB_KEY_STORE='jb_master_key', JB_BIN_STORE='jb_bin_id';
+function jbKey(){return localStorage.getItem(JB_KEY_STORE)||'';}
+function jbBin(){return localStorage.getItem(JB_BIN_STORE)||'';}
+const JSONBIN_BASE='https://api.jsonbin.io/v3/b';
 
 // 法定 / 常見需回訓證照
 // 示範企業為「第一類事業單位（非營造業）」，勞工人數180人，落於100~300人區間：
@@ -372,30 +375,32 @@ if(!META.category)META.category=1;
 function saveAll(){
   META.lastUpdated=new Date().toISOString();
   saveJSON(STAFF_KEY,STAFF);saveJSON(RECORD_KEY,RECORDS);saveJSON(CERTREQ_KEY,CERTS);saveJSON(META_KEY,META);
-  gasSave();
+  jsonbinSave();
 }
 
-async function gasLoad(){
-  if(!GAS_URL)return;
+async function jsonbinLoad(){
+  const key=jbKey(),bin=jbBin();
+  if(!key||!bin)return;
   try{
-    const res=await fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'load'})});
+    const res=await fetch(`${JSONBIN_BASE}/${bin}/latest`,{headers:{'X-Master-Key':key}});
     const j=await res.json();
-    if(j.ok&&j.data){
-      STAFF=j.data.staff||STAFF;RECORDS=j.data.records||RECORDS;
-      CERTS=j.data.certs||CERTS;META=Object.assign(META,j.data.meta||{});
+    if(j.record){
+      const d=j.record;
+      STAFF=d.staff||STAFF;RECORDS=d.records||RECORDS;
+      CERTS=d.certs||CERTS;META=Object.assign(META,d.meta||{});
       saveJSON(STAFF_KEY,STAFF);saveJSON(RECORD_KEY,RECORDS);saveJSON(CERTREQ_KEY,CERTS);saveJSON(META_KEY,META);
       toast('已從雲端載入最新資料','info');
     }
-  }catch(e){console.warn('GAS load failed',e);}
+  }catch(e){console.warn('JSONBin load failed',e);}
 }
 
-function gasSave(){
-  if(!GAS_URL)return;
-  fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({action:'save',data:{staff:STAFF,records:RECORDS,certs:CERTS,meta:META}})
-  }).then(r=>r.json()).then(j=>{
-    if(!j.ok)console.warn('GAS save failed',j.error);
-  }).catch(e=>console.warn('GAS save error',e));
+function jsonbinSave(){
+  const key=jbKey(),bin=jbBin();
+  if(!key||!bin)return;
+  fetch(`${JSONBIN_BASE}/${bin}`,{method:'PUT',
+    headers:{'Content-Type':'application/json','X-Master-Key':key},
+    body:JSON.stringify({staff:STAFF,records:RECORDS,certs:CERTS,meta:META})
+  }).catch(e=>console.warn('JSONBin save error',e));
 }
 
 // ═══════════════════════════════════════════════
@@ -450,6 +455,7 @@ const NAVS=[
   {id:'records',label:'訓練／證照紀錄'},
   {id:'certreq',label:'法定證照需求設定'},
   {id:'legal',label:'法規依據'},
+  {id:'system',label:'⚙ 雲端設定'},
 ];
 let currentTab='dashboard';
 function toggleSidebar(){
@@ -475,6 +481,7 @@ function renderMain(){
   else if(currentTab==='records')pageRecords();
   else if(currentTab==='certreq')pageCertReq();
   else if(currentTab==='legal')pageLegal();
+  else if(currentTab==='system')pageSystem();
 }
 
 // ═══════════════════════════════════════════════
@@ -1145,8 +1152,84 @@ function pageLegal(){
     </div>`;
 }
 
-// 暴露 GAS 函數給登入 script 使用
-window.gasLoad = gasLoad;
+function pageSystem(){
+  const k=jbKey(),b=jbBin();
+  document.getElementById('main').innerHTML=`
+    <div class="page-header"><div>
+      <div class="page-title">⚙ 雲端同步設定</div>
+      <div class="page-sub">資料將同步至 JSONBin.io，換電腦或給客戶使用時不會遺失。</div>
+    </div></div>
+    <div class="card" style="max-width:560px">
+      <div class="section-title">JSONBin 連線資訊</div>
+      <div class="form-group"><div class="form-label">X-Master-Key</div>
+        <input id="jbKeyInput" type="password" value="${esc(k)}" placeholder="$2a$10$..." style="width:100%;font-family:monospace;font-size:12px">
+      </div>
+      <div class="form-group" style="margin-top:8px"><div class="form-label">Bin ID</div>
+        <input id="jbBinInput" type="text" value="${esc(b)}" placeholder="6a520d79da38895dfe4eb805" style="width:100%;font-family:monospace;font-size:12px">
+      </div>
+      <div style="display:flex;gap:8px;margin-top:16px">
+        <button class="btn btn-primary" onclick="saveJbConfig()">💾 儲存設定</button>
+        <button class="btn btn-ghost" onclick="testJbConfig()">🔗 測試連線</button>
+        <button class="btn btn-ghost" onclick="loadFromJb()">⬇ 立即從雲端載入</button>
+      </div>
+      <div id="jbStatus" style="margin-top:12px;font-size:13px;color:var(--text2)"></div>
+    </div>
+    <div class="card" style="max-width:560px;margin-top:16px">
+      <div class="section-title">說明</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.8">
+        <p>1. 到 <strong>jsonbin.io</strong> 免費註冊帳號</p>
+        <p>2. 點左欄「API Keys」，複製 X-Master-Key</p>
+        <p>3. 此工具會自動建立 Bin（儲存空間），或貼入已有的 Bin ID</p>
+        <p>4. 設定完成後每次存檔都會自動同步到雲端</p>
+        <p style="color:var(--yellow)">⚠ 請勿將 Key 分享給他人，每個客戶應有自己的帳號</p>
+      </div>
+    </div>`;
+}
+
+async function saveJbConfig(){
+  const k=document.getElementById('jbKeyInput').value.trim();
+  const b=document.getElementById('jbBinInput').value.trim();
+  if(!k){document.getElementById('jbStatus').textContent='請填入 X-Master-Key';return;}
+  localStorage.setItem(JB_KEY_STORE,k);
+  if(b)localStorage.setItem(JB_BIN_STORE,b);
+  // 如果沒有 Bin ID，自動建立一個
+  if(!b){
+    try{
+      const res=await fetch(JSONBIN_BASE,{method:'POST',
+        headers:{'Content-Type':'application/json','X-Master-Key':k,'X-Bin-Name':'教育訓練系統'},
+        body:JSON.stringify({staff:STAFF,records:RECORDS,certs:CERTS,meta:META})});
+      const j=await res.json();
+      if(j.metadata&&j.metadata.id){
+        localStorage.setItem(JB_BIN_STORE,j.metadata.id);
+        document.getElementById('jbBinInput').value=j.metadata.id;
+        document.getElementById('jbStatus').innerHTML='<span style="color:var(--green)">✓ 已自動建立 Bin：'+j.metadata.id+'</span>';
+      }else{document.getElementById('jbStatus').innerHTML='<span style="color:var(--red)">建立失敗，請確認 Key 是否正確</span>';}
+    }catch(e){document.getElementById('jbStatus').innerHTML='<span style="color:var(--red)">連線錯誤：'+e.message+'</span>';}
+  }else{
+    document.getElementById('jbStatus').innerHTML='<span style="color:var(--green)">✓ 設定已儲存</span>';
+  }
+}
+
+async function testJbConfig(){
+  const k=document.getElementById('jbKeyInput').value.trim();
+  const b=document.getElementById('jbBinInput').value.trim();
+  if(!k||!b){document.getElementById('jbStatus').textContent='請先填入 Key 與 Bin ID';return;}
+  document.getElementById('jbStatus').textContent='測試中...';
+  try{
+    const res=await fetch(`${JSONBIN_BASE}/${b}/latest`,{headers:{'X-Master-Key':k}});
+    const j=await res.json();
+    if(j.record)document.getElementById('jbStatus').innerHTML='<span style="color:var(--green)">✓ 連線成功！雲端有資料</span>';
+    else document.getElementById('jbStatus').innerHTML='<span style="color:var(--yellow)">⚠ 連線成功，但 Bin 是空的</span>';
+  }catch(e){document.getElementById('jbStatus').innerHTML='<span style="color:var(--red)">✗ 連線失敗：'+e.message+'</span>';}
+}
+
+async function loadFromJb(){
+  await jsonbinLoad();
+  renderMain();
+}
+
+// 暴露雲端載入函數給登入 script 使用
+window.gasLoad = jsonbinLoad;
 
 // Init
 renderNav();
