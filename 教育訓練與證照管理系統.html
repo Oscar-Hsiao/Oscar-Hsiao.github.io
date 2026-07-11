@@ -183,6 +183,7 @@ input:focus,select:focus{outline:2px solid var(--blue);border-color:transparent}
       closeLoginModal();
       applyAdminState();
       if(window.gasLoad)await window.gasLoad();
+      if(window.renderNav)window.renderNav();
       if(window.renderMain)window.renderMain();
     }else{
       document.getElementById('loginErr').textContent='密碼錯誤，請再試一次';
@@ -194,6 +195,7 @@ input:focus,select:focus{outline:2px solid var(--blue);border-color:transparent}
     isAdmin=false;
     sessionStorage.removeItem(SK);
     applyAdminState();
+    if(window.renderNav)window.renderNav();
     if(window.renderMain)window.renderMain();
   }
 
@@ -467,7 +469,7 @@ const NAVS=[
   {id:'records',label:'訓練／證照紀錄'},
   {id:'certreq',label:'法定證照需求設定'},
   {id:'legal',label:'法規依據'},
-  {id:'system',label:'⚙ 雲端設定'},
+  {id:'system',label:'⚙ 雲端設定',adminOnly:true},
 ];
 let currentTab='dashboard';
 function toggleSidebar(){
@@ -479,6 +481,7 @@ if(localStorage.getItem('sidebarCollapsed')==='1')document.body.classList.add('s
 function renderNav(){
   const el=document.getElementById('nav');el.innerHTML='';
   NAVS.forEach(n=>{
+    if(n.adminOnly&&!isAdmin())return;
     const btn=document.createElement('button');
     btn.className='sb-btn'+(currentTab===n.id?' active':'');
     btn.title=n.label;
@@ -487,7 +490,9 @@ function renderNav(){
     el.appendChild(btn);
   });
 }
+window.renderNav=renderNav;
 function renderMain(){
+  if(currentTab==='system'&&!isAdmin()){currentTab='dashboard';renderNav();}
   if(currentTab==='dashboard')pageDashboard();
   else if(currentTab==='staff')pageStaff();
   else if(currentTab==='records')pageRecords();
