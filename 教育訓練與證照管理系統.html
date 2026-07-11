@@ -400,7 +400,10 @@ function jsonbinSave(){
   fetch(`${JSONBIN_BASE}/${bin}`,{method:'PUT',
     headers:{'Content-Type':'application/json','X-Master-Key':key},
     body:JSON.stringify({staff:STAFF,records:RECORDS,certs:CERTS,meta:META})
-  }).catch(e=>console.warn('JSONBin save error',e));
+  }).then(r=>r.json()).then(j=>{
+    if(j.metadata)toast('☁ 已同步至雲端','info');
+    else toast('⚠ 雲端同步失敗：'+JSON.stringify(j),'error');
+  }).catch(e=>toast('⚠ 雲端連線錯誤：'+e.message,'error'));
 }
 
 // ═══════════════════════════════════════════════
