@@ -1,0 +1,415 @@
+<title>教育訓練系統 — 客戶說明手冊</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root {
+  --bg:        #FAFAF8;
+  --surface:   #FFFFFF;
+  --surface2:  #F3F4F6;
+  --border:    #E2E4E9;
+  --ink:       #111827;
+  --ink2:      #4B5563;
+  --ink3:      #9CA3AF;
+  --blue:      #1E4D8C;
+  --blue-bg:   #EEF4FF;
+  --blue-mid:  #3B6FBA;
+  --green:     #16803C;
+  --green-bg:  #ECFDF5;
+  --yellow-bg: #FFFBEB;
+  --yellow:    #92400E;
+  --red:       #991B1B;
+  --red-bg:    #FEF2F2;
+  --font: -apple-system, "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", sans-serif;
+  --mono: "JetBrains Mono", "SF Mono", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:       #0F1219;
+    --surface:  #1A2030;
+    --surface2: #222A3A;
+    --border:   #2D3748;
+    --ink:      #F0F4FF;
+    --ink2:     #A0AEC0;
+    --ink3:     #4A5568;
+    --blue:     #6EA8FE;
+    --blue-bg:  #1A2A45;
+    --blue-mid: #5090E0;
+    --green:    #34D399;
+    --green-bg: #0D2D1F;
+    --yellow-bg:#2D2208;
+    --yellow:   #FCD34D;
+    --red:      #FC8181;
+    --red-bg:   #2D1212;
+  }
+}
+:root[data-theme="light"] {
+  --bg:#FAFAF8;--surface:#FFFFFF;--surface2:#F3F4F6;--border:#E2E4E9;
+  --ink:#111827;--ink2:#4B5563;--ink3:#9CA3AF;
+  --blue:#1E4D8C;--blue-bg:#EEF4FF;--blue-mid:#3B6FBA;
+  --green:#16803C;--green-bg:#ECFDF5;
+  --yellow-bg:#FFFBEB;--yellow:#92400E;--red:#991B1B;--red-bg:#FEF2F2;
+}
+:root[data-theme="dark"] {
+  --bg:#0F1219;--surface:#1A2030;--surface2:#222A3A;--border:#2D3748;
+  --ink:#F0F4FF;--ink2:#A0AEC0;--ink3:#4A5568;
+  --blue:#6EA8FE;--blue-bg:#1A2A45;--blue-mid:#5090E0;
+  --green:#34D399;--green-bg:#0D2D1F;
+  --yellow-bg:#2D2208;--yellow:#FCD34D;--red:#FC8181;--red-bg:#2D1212;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:var(--font);background:var(--bg);color:var(--ink);
+  font-size:16px;line-height:1.75;-webkit-font-smoothing:antialiased;
+}
+.page{max-width:760px;margin:0 auto;padding:48px 24px 80px}
+
+/* ── 頁首 ── */
+.doc-header{padding-bottom:32px;border-bottom:2px solid var(--blue);margin-bottom:40px}
+.doc-label{font-size:12px;font-weight:600;letter-spacing:.1em;color:var(--blue);text-transform:uppercase;margin-bottom:10px}
+.doc-title{font-size:clamp(22px,4vw,32px);font-weight:700;color:var(--ink);line-height:1.25;text-wrap:balance;margin-bottom:10px}
+.doc-sub{font-size:15px;color:var(--ink2)}
+.doc-meta{margin-top:16px;display:flex;gap:20px;flex-wrap:wrap;font-size:13px;color:var(--ink3)}
+.doc-meta span{display:flex;align-items:center;gap:5px}
+
+/* ── 區塊 ── */
+.section{margin-bottom:48px}
+.section-title{
+  font-size:18px;font-weight:700;color:var(--ink);
+  padding-bottom:8px;border-bottom:1px solid var(--border);
+  margin-bottom:24px;display:flex;align-items:center;gap:10px
+}
+.section-num{
+  width:28px;height:28px;border-radius:50%;background:var(--blue);color:#fff;
+  font-size:13px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0
+}
+p{color:var(--ink2);margin-bottom:12px}
+p:last-child{margin-bottom:0}
+
+/* ── 功能列表 ── */
+.feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.feature-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px}
+.feature-icon{font-size:22px;margin-bottom:8px}
+.feature-name{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:4px}
+.feature-desc{font-size:13px;color:var(--ink2);line-height:1.6}
+
+/* ── 架構圖 ── */
+.arch{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:16px}
+.arch-row{display:flex;align-items:stretch;gap:0;justify-content:center;flex-wrap:wrap}
+.arch-box{
+  background:var(--blue-bg);border:1.5px solid var(--blue-mid);
+  border-radius:10px;padding:14px 18px;text-align:center;min-width:140px;flex:1;max-width:180px
+}
+.arch-box.green{background:var(--green-bg);border-color:var(--green)}
+.arch-box-title{font-size:13px;font-weight:700;color:var(--blue);margin-bottom:4px}
+.arch-box.green .arch-box-title{color:var(--green)}
+.arch-box-desc{font-size:12px;color:var(--ink2);line-height:1.5}
+.arch-arrow{display:flex;align-items:center;padding:0 8px;color:var(--ink3);font-size:20px;flex-shrink:0}
+.arch-note{font-size:13px;color:var(--ink3);text-align:center;margin-top:12px}
+.iso-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.iso-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px 16px}
+.iso-label{font-size:12px;font-weight:700;color:var(--ink3);letter-spacing:.06em;margin-bottom:6px}
+.iso-name{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:2px}
+.iso-detail{font-size:12px;color:var(--ink3)}
+
+/* ── 步驟 ── */
+.steps{display:flex;flex-direction:column;gap:0}
+.step{display:flex;gap:16px;padding:20px 0;border-bottom:1px solid var(--border)}
+.step:last-child{border-bottom:none}
+.step-num{
+  width:32px;height:32px;border-radius:50%;background:var(--blue);color:#fff;
+  font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px
+}
+.step-body{}
+.step-title{font-size:15px;font-weight:600;color:var(--ink);margin-bottom:4px}
+.step-desc{font-size:14px;color:var(--ink2);line-height:1.65}
+.step-code{font-family:var(--mono);font-size:12px;background:var(--surface2);border:1px solid var(--border);
+  border-radius:6px;padding:8px 12px;color:var(--blue-mid);margin-top:8px;display:inline-block}
+
+/* ── Q&A ── */
+.qna-list{display:flex;flex-direction:column;gap:12px}
+.qna-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.qna-q{
+  display:flex;align-items:flex-start;gap:10px;padding:14px 18px;cursor:pointer;
+  background:var(--surface2);border-bottom:1px solid var(--border)
+}
+.qna-q-mark{font-size:13px;font-weight:700;color:var(--blue);flex-shrink:0;margin-top:1px}
+.qna-q-text{font-size:14px;font-weight:600;color:var(--ink);line-height:1.55;text-wrap:balance}
+.qna-a{padding:14px 18px;display:flex;gap:10px}
+.qna-a-mark{font-size:13px;font-weight:700;color:var(--green);flex-shrink:0;margin-top:1px}
+.qna-a-text{font-size:14px;color:var(--ink2);line-height:1.7}
+.tag{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px;margin-left:6px;vertical-align:middle}
+.tag-g{background:var(--green-bg);color:var(--green)}
+.tag-b{background:var(--blue-bg);color:var(--blue)}
+.tag-y{background:var(--yellow-bg);color:var(--yellow)}
+.tag-r{background:var(--red-bg);color:var(--red)}
+
+/* ── 費用區 ── */
+.pricing-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.price-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px}
+.price-card.highlight{border-color:var(--blue);background:var(--blue-bg)}
+.price-label{font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--ink3);margin-bottom:6px}
+.price-val{font-size:24px;font-weight:700;color:var(--ink);margin-bottom:4px}
+.price-desc{font-size:13px;color:var(--ink2);line-height:1.55}
+
+/* ── 底部 ── */
+.doc-footer{margin-top:56px;padding-top:24px;border-top:1px solid var(--border);font-size:13px;color:var(--ink3);text-align:center}
+
+@media(max-width:560px){
+  .iso-row{grid-template-columns:1fr}
+  .pricing-grid{grid-template-columns:1fr}
+  .arch-row{flex-direction:column;align-items:center}
+  .arch-arrow{transform:rotate(90deg);padding:4px 0}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="page">
+
+  <!-- 頁首 -->
+  <div class="doc-header">
+    <div class="doc-label">職安衛 AI 工具說明文件</div>
+    <h1 class="doc-title">教育訓練與證照管理系統<br>客戶完整說明手冊</h1>
+    <p class="doc-sub">本文件說明系統功能、資料管理方式與常見問題，適合提供給評估導入的主管或 HR 人員閱讀。</p>
+    <div class="doc-meta">
+      <span>📅 2026 年版本</span>
+      <span>🔒 資料各自獨立，不互通</span>
+      <span>☁️ 雲端備份，不怕電腦壞掉</span>
+    </div>
+  </div>
+
+  <!-- 1. 這個工具是什麼 -->
+  <div class="section">
+    <div class="section-title"><span class="section-num">1</span> 這個工具能做什麼</div>
+    <p>這是一套專為職業安全衛生人員設計的管理工具，協助追蹤全公司人員的教育訓練紀錄與法定證照狀態，讓你不再用 Excel 手動計算回訓到期日，也不會漏發通知。</p>
+    <div class="feature-grid" style="margin-top:20px">
+      <div class="feature-card">
+        <div class="feature-icon">👥</div>
+        <div class="feature-name">人員資料管理</div>
+        <div class="feature-desc">建立員工基本資料，含工號、處室、部門、職稱</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📋</div>
+        <div class="feature-name">訓練紀錄登記</div>
+        <div class="feature-desc">記錄每次訓練課程、時數、日期，自動計算下次回訓時間</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🏅</div>
+        <div class="feature-name">證照需求試算</div>
+        <div class="feature-desc">依公司人數與事業類別，自動列出法規要求的必備證照</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚠️</div>
+        <div class="feature-name">到期提醒</div>
+        <div class="feature-desc">自動標示即將到期與已逾期的訓練，一眼看出優先順序</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. 資料怎麼管理 -->
+  <div class="section">
+    <div class="section-title"><span class="section-num">2</span> 你的資料存在哪裡</div>
+    <p>每家公司有自己獨立的資料庫，資料存放在你自己的 Google 試算表，我無法看到你的資料，其他公司也看不到你的資料。</p>
+
+    <div class="arch">
+      <div class="arch-row">
+        <div class="arch-box">
+          <div class="arch-box-title">🖥️ 工具介面</div>
+          <div class="arch-box-desc">你使用的網頁<br>（教育訓練系統）</div>
+        </div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-box">
+          <div class="arch-box-title">⚙️ 資料中介層</div>
+          <div class="arch-box-desc">Google Apps Script<br>（你的專屬連線）</div>
+        </div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-box green">
+          <div class="arch-box-title">📊 你的資料庫</div>
+          <div class="arch-box-desc">Google 試算表<br>（只有你能看）</div>
+        </div>
+      </div>
+      <div class="arch-note">每次你在工具裡新增或修改資料，會即時同步到你的 Google 試算表</div>
+    </div>
+
+    <p style="margin-bottom:16px">不同公司的資料完全隔離，以下是兩家公司的示意：</p>
+    <div class="iso-row">
+      <div class="iso-card">
+        <div class="iso-label">A 公司</div>
+        <div class="iso-name">A 公司的 Google 試算表</div>
+        <div class="iso-detail">連線網址：script.google.com/…/A公司</div>
+      </div>
+      <div class="iso-card">
+        <div class="iso-label">B 公司</div>
+        <div class="iso-name">B 公司的 Google 試算表</div>
+        <div class="iso-detail">連線網址：script.google.com/…/B公司</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. 開始使用 -->
+  <div class="section">
+    <div class="section-title"><span class="section-num">3</span> 開始使用只需三步</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-title">建立你的 Google 試算表</div>
+          <div class="step-desc">我幫你新增一個 Google 試算表，並設定好後端連線程式。這個步驟由我處理，你不需要懂程式。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-title">取得你的專屬網址</div>
+          <div class="step-desc">設定完成後，你會拿到一個連線網址，這個網址就是你公司的資料庫入口，別人的工具連不進來。</div>
+          <div class="step-code">https://script.google.com/macros/s/你的專屬碼/exec</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <div class="step-title">開始使用，資料即時雲端備份</div>
+          <div class="step-desc">登入工具後，所有新增、修改的資料都會同步存入你的 Google 試算表。換電腦、重開瀏覽器都不影響，資料永遠在雲端。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. 費用 -->
+  <div class="section">
+    <div class="section-title"><span class="section-num">4</span> 費用說明</div>
+    <div class="pricing-grid">
+      <div class="price-card highlight">
+        <div class="price-label">工具本體</div>
+        <div class="price-val">依報價</div>
+        <div class="price-desc">一次性費用，含導入設定、教育訓練，以及首年維護</div>
+      </div>
+      <div class="price-card">
+        <div class="price-label">Google 費用</div>
+        <div class="price-val">$0</div>
+        <div class="price-desc">Google 試算表與 Apps Script 均為免費方案，無需額外付費給 Google</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Q&A -->
+  <div class="section">
+    <div class="section-title"><span class="section-num">5</span> 常見問題</div>
+    <div class="qna-list">
+
+      <div class="qna-card">
+        <div class="qna-q">
+          <div class="qna-q-mark">Q</div>
+          <div class="qna-q-text">我的資料安全嗎？會不會被其他人看到？<span class="tag tag-g">資安</span></div>
+        </div>
+        <div class="qna-a">
+          <div class="qna-a-mark">A</div>
+          <div class="qna-a-text">你的資料存在你自己的 Google 帳號下，只有擁有該 Google 帳號的人才能查看試算表。不同公司有各自獨立的試算表與連線，不會互通。我本人也無法查看你的資料內容。</div>
+        </div>
+      </div>
+
+      <div class="qna-card">
+        <div class="qna-q">
+          <div class="qna-q-mark">Q</div>
+          <div class="qna-q-text">如果電腦壞掉，資料會不會消失？<span class="tag tag-g">備份</span></div>
+        </div>
+        <div class="qna-a">
+          <div class="qna-a-mark">A</div>
+          <div class="qna-a-text">不會。資料即時儲存在 Google 雲端，與你的電腦完全無關。換台電腦、甚至出差用別人的電腦登入，資料都會自動載入，不需要任何匯入匯出操作。</div>
+        </div>
+      </div>
+
+      <div class="qna-card">
+        <div class="qna-q">
+          <div class="qna-q-mark">Q</div>
+          <div class="qna-q-text">可以多個人同時使用嗎？<span class="tag tag-b">多人</span></div>
+        </div>
+        <div class="qna-a">
+          <div class="qna-a-mark">A</div>
+          <div class="qna-a-text">可以。多人同時開啟工具並不會衝突。不過目前為同一個管理員帳號（共用密碼），若需要每人有獨立帳號與操作紀錄，可以在後續版本升級處理。</div>
+        </div>
+      </div>
+
+      <div class="qna-card">
+        <div class="qna-q">
+          <div class="qna-q-mark">Q</div>
+          <div class="qna-q-text">可以把資料匯出成 Excel 嗎？<span class="tag tag-b">匯出</span></div>
+        </div>
+        <div class="qna-a">
+          <div class="qna-a-mark">A</div>
+          <div class="qna-a-text">可以。你的資料同步存在 Google 試算表，隨時可以在試算表介面直接下載成 .xlsx 或 .csv 格式，提供給主管、稽核或政府機關皆可。</div>
+        </div>
+      </div>
+
+      <div class="qna-card">
+        <div class="qna-q">
+          <div class="qna-q-mark">Q</div>
+          <div class="qna-q-text">法規修改後，工具的內容會更新嗎？<span class="tag tag-y">維護</span></div>
+        </div>
+        <div class="qna-a">
+          <div class="qna-a-mark">A</div>
+          <div class="qna-a-text">工具本身的法規對照資料（例如各類證照所需時數、回訓週期）會隨重大法規修正更新，首年內修正免費。你的公司資料（員工名冊、訓練紀錄）不受影響。</div>
+        </div>
+      </div>
+
+      <div class="qna-card">
+        <div class="qna-q">
+          <div class="qna-q-mark">Q</div>
+          <div class="qna-q-text">需要 IT 人員協助安裝嗎？<span class="tag tag-g">技術</span></div>
+        </div>
+        <div class="qna-a">
+          <div class="qna-a-mark">A</div>
+          <div class="qna-a-text">不需要。工具是網頁形式，開啟瀏覽器就能用，沒有安裝檔、不用設定伺服器。初次設定由我遠端協助完成，過程約 30 分鐘，你只需要有 Google 帳號即可。</div>
+        </div>
+      </div>
+
+      <div class="qna-card">
+        <div class="qna-q">
+          <div class="qna-q-mark">Q</div>
+          <div class="qna-q-text">手機或平板可以使用嗎？<span class="tag tag-b">裝置</span></div>
+        </div>
+        <div class="qna-a">
+          <div class="qna-a-mark">A</div>
+          <div class="qna-a-text">可以開啟並瀏覽，但工具主要設計給電腦螢幕使用，手機上的操作體驗（特別是表格編輯部分）較不便。建議以電腦為主要操作裝置。</div>
+        </div>
+      </div>
+
+      <div class="qna-card">
+        <div class="qna-q">
+          <div class="qna-q-mark">Q</div>
+          <div class="qna-q-text">如果我們公司不想繼續使用，資料怎麼辦？<span class="tag tag-y">停用</span></div>
+        </div>
+        <div class="qna-a">
+          <div class="qna-a-mark">A</div>
+          <div class="qna-a-text">你的資料本來就在你自己的 Google 試算表裡，停用工具不影響資料。你可以繼續在試算表中查閱歷史紀錄，或下載後自行保存，資料完全屬於你。</div>
+        </div>
+      </div>
+
+      <div class="qna-card">
+        <div class="qna-q">
+          <div class="qna-q-mark">Q</div>
+          <div class="qna-q-text">密碼忘記了怎麼辦？<span class="tag tag-r">帳號</span></div>
+        </div>
+        <div class="qna-a">
+          <div class="qna-a-mark">A</div>
+          <div class="qna-a-text">聯絡我即可重設。目前為管理員單一密碼制，重設後由你設定新密碼，整個流程通常在 1 個工作天內完成。</div>
+        </div>
+      </div>
+
+      <div class="qna-card">
+        <div class="qna-q">
+          <div class="qna-q-mark">Q</div>
+          <div class="qna-q-text">現有的 Excel 資料可以匯入嗎？<span class="tag tag-b">匯入</span></div>
+        </div>
+        <div class="qna-a">
+          <div class="qna-a-mark">A</div>
+          <div class="qna-a-text">目前工具尚未內建批次匯入功能，需手動逐筆輸入。若你有大量既有資料（50 筆以上），可以討論客製化批次匯入方案，費用另計。</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="doc-footer">
+    本文件由 Oscar Hsiao 職安衛 AI 工具開發專案提供 &nbsp;·&nbsp; 如有其他問題歡迎直接詢問
+  </div>
+
+</div>
