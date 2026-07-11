@@ -182,6 +182,7 @@ input:focus,select:focus{outline:2px solid var(--blue);border-color:transparent}
       sessionStorage.setItem(SK,'1');
       closeLoginModal();
       applyAdminState();
+      if(window.gasLoad)await window.gasLoad();
       if(window.renderMain)window.renderMain();
     }else{
       document.getElementById('loginErr').textContent='密碼錯誤，請再試一次';
@@ -231,6 +232,7 @@ input:focus,select:focus{outline:2px solid var(--blue);border-color:transparent}
 // 資料
 // ═══════════════════════════════════════════════
 const STAFF_KEY='train_staff', RECORD_KEY='train_records', CERTREQ_KEY='train_certreq', META_KEY='train_meta';
+const GAS_URL=''; // 填入 Google Apps Script 部署網址（空白 = 純 localStorage 模式）
 
 // 法定 / 常見需回訓證照
 // 示範企業為「第一類事業單位（非營造業）」，勞工人數180人，落於100~300人區間：
@@ -335,7 +337,34 @@ let CERTS=loadJSON(CERTREQ_KEY,DEFAULT_CERT_TYPES);
 let META=loadJSON(META_KEY,{totalEmployees:180,category:1});
 if(!META.category)META.category=1;
 
-function saveAll(){META.lastUpdated=new Date().toISOString();saveJSON(STAFF_KEY,STAFF);saveJSON(RECORD_KEY,RECORDS);saveJSON(CERTREQ_KEY,CERTS);saveJSON(META_KEY,META);}
+function saveAll(){
+  META.lastUpdated=new Date().toISOString();
+  saveJSON(STAFF_KEY,STAFF);saveJSON(RECORD_KEY,RECORDS);saveJSON(CERTREQ_KEY,CERTS);saveJSON(META_KEY,META);
+  gasSave();
+}
+
+async function gasLoad(){
+  if(!GAS_URL)return;
+  try{
+    const res=await fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'load'})});
+    const j=await res.json();
+    if(j.ok&&j.data){
+      STAFF=j.data.staff||STAFF;RECORDS=j.data.records||RECORDS;
+      CERTS=j.data.certs||CERTS;META=Object.assign(META,j.data.meta||{});
+      saveJSON(STAFF_KEY,STAFF);saveJSON(RECORD_KEY,RECORDS);saveJSON(CERTREQ_KEY,CERTS);saveJSON(META_KEY,META);
+      toast('已從雲端載入最新資料','info');
+    }
+  }catch(e){console.warn('GAS load failed',e);}
+}
+
+function gasSave(){
+  if(!GAS_URL)return;
+  fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({action:'save',data:{staff:STAFF,records:RECORDS,certs:CERTS,meta:META}})
+  }).then(r=>r.json()).then(j=>{
+    if(!j.ok)console.warn('GAS save failed',j.error);
+  }).catch(e=>console.warn('GAS save error',e));
+}
 
 // ═══════════════════════════════════════════════
 // 共用工具
@@ -1083,6 +1112,9 @@ function pageLegal(){
       </div>
     </div>`;
 }
+
+// 暴露 GAS 函數給登入 script 使用
+window.gasLoad = gasLoad;
 
 // Init
 renderNav();
