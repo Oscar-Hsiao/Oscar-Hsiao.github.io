@@ -373,6 +373,13 @@ let CERTS=loadJSON(CERTREQ_KEY,DEFAULT_CERT_TYPES);
 let META=loadJSON(META_KEY,{totalEmployees:180,category:1});
 if(!META.category)META.category=1;
 
+function migrateCertNames(){
+  const lookup={};
+  CERT_CATALOG.forEach(c=>{lookup[c.id]=c.name;});
+  CERTS.forEach(c=>{if(lookup[c.id])c.name=lookup[c.id];});
+}
+migrateCertNames();
+
 function saveAll(){
   META.lastUpdated=new Date().toISOString();
   saveJSON(STAFF_KEY,STAFF);saveJSON(RECORD_KEY,RECORDS);saveJSON(CERTREQ_KEY,CERTS);saveJSON(META_KEY,META);
@@ -389,6 +396,7 @@ async function jsonbinLoad(){
       const d=j.record;
       STAFF=d.staff||STAFF;RECORDS=d.records||RECORDS;
       CERTS=d.certs||CERTS;META=Object.assign(META,d.meta||{});
+      migrateCertNames();
       saveJSON(STAFF_KEY,STAFF);saveJSON(RECORD_KEY,RECORDS);saveJSON(CERTREQ_KEY,CERTS);saveJSON(META_KEY,META);
       toast('已從雲端載入最新資料','info');
     }
