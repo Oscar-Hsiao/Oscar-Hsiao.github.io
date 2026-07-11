@@ -278,7 +278,8 @@ function categoryRequiredCerts(category,employees){
       {id:'osh_a',required:1,note:'30~100人，置甲級業務主管1人'});
     else if(employees<300) reqs.push(
       {id:'osh_b',required:1,note:'100~300人，置乙級業務主管1人（不須專職），並設一級管理單位'},
-      {id:'osh_a',required:1,note:'100~300人，置甲級業務主管1人（不須專職）'});
+      {id:'osh_a',required:1,note:'100~300人，置甲級業務主管1人（不須專職）'},
+      {id:'osh_mgr',required:1,note:'100~300人，一級管理單位應置管理員1人（職安法§23）'});
     else if(employees<500) reqs.push(
       {id:'osh_officer',required:1,note:'300~500人，置甲級安全衛生管理師1人'},
       {id:'osh_b',required:1,note:'300~500人，置乙級業務主管1人'},
@@ -313,16 +314,47 @@ function categoryRequiredCerts(category,employees){
 }
 
 const DEFAULT_STAFF=[
-  {id:'s1',no:'A0012',name:'王小明',div:'總管理處',dept:'總務部',title:'總務專員'},
-  {id:'s2',no:'A0035',name:'陳美玲',div:'總管理處',dept:'人資部',title:'人資主管'},
-  {id:'s3',no:'A0078',name:'李志偉',div:'製造處',dept:'生產一課',title:'課長'},
-  {id:'s4',no:'A0102',name:'張雅婷',div:'製造處',dept:'品保部',title:'品保工程師'},
+  {id:'s01',no:'A0011',name:'林建民',div:'管理處',dept:'職安環處',title:'職安環主任'},
+  {id:'s02',no:'A0023',name:'許文華',div:'管理處',dept:'職安環處',title:'職安衛員'},
+  {id:'s03',no:'A0038',name:'蔡明德',div:'管理處',dept:'總務部',title:'總務主任'},
+  {id:'s04',no:'A0062',name:'陳志豪',div:'製造處',dept:'生產一課',title:'領班'},
+  {id:'s05',no:'A0071',name:'吳淑慧',div:'製造處',dept:'生產二課',title:'班長'},
+  {id:'s06',no:'A0088',name:'黃建昌',div:'製造處',dept:'倉儲課',title:'倉管員'},
+  {id:'s07',no:'A0095',name:'林淑芬',div:'製造處',dept:'品保部',title:'品保員'},
+  {id:'s08',no:'A0103',name:'張明輝',div:'製造處',dept:'倉儲課',title:'倉儲員'},
+  {id:'s09',no:'A0115',name:'李維修',div:'製造處',dept:'設備課',title:'電工'},
+  {id:'s10',no:'A0128',name:'王美芳',div:'管理處',dept:'人資部',title:'人資專員'},
+  {id:'s11',no:'A0134',name:'洪志成',div:'製造處',dept:'生產三課',title:'課長'},
+  {id:'s12',no:'A0142',name:'劉秀蘭',div:'管理處',dept:'會計部',title:'會計'},
 ];
 
+// 訓練紀錄（刻意包含「已過期」「即將到期」「正常」三種狀態，供 Dashboard 驗證）
+// 今日基準：2026-07-11
 const DEFAULT_RECORDS=[
-  {id:'r1',staffId:'s2',certId:'osh_b',certName:'',certDate:'2023-05-10',hours:42,lastRefresh:'2023-05-10',cycle:2},
-  {id:'r2',staffId:'s1',certId:'first_aid',certName:'',certDate:'2024-03-01',hours:18,lastRefresh:'2024-03-01',cycle:3},
-  {id:'r3',staffId:'s3',certId:'forklift',certName:'',certDate:'2022-06-15',hours:18,lastRefresh:'2022-06-15',cycle:3},
+  // 林建民：甲業主管已過期(-177天)，管理員正常(到2027-05)
+  {id:'r01',staffId:'s01',certId:'osh_a',certName:'',certDate:'2024-01-15',hours:42,lastRefresh:'2024-01-15',cycle:2},
+  {id:'r02',staffId:'s01',certId:'osh_mgr',certName:'',certDate:'2025-05-20',hours:115,lastRefresh:'2025-05-20',cycle:2},
+  // 許文華：乙業主管即將到期(+40天)
+  {id:'r03',staffId:'s02',certId:'osh_b',certName:'',certDate:'2024-08-20',hours:35,lastRefresh:'2024-08-20',cycle:2},
+  // 蔡明德：防火管理人正常(到2027-02)
+  {id:'r04',staffId:'s03',certId:'fire_mgr',certName:'',certDate:'2025-02-10',hours:12,lastRefresh:'2025-02-10',cycle:2},
+  // 陳志豪：急救即將到期(+66天)，CPR已過期(-1天)
+  {id:'r05',staffId:'s04',certId:'first_aid',certName:'',certDate:'2023-09-15',hours:16,lastRefresh:'2023-09-15',cycle:3},
+  {id:'r06',staffId:'s04',certId:'first_aid_cpr',certName:'',certDate:'2025-07-10',hours:4,lastRefresh:'2025-07-10',cycle:1},
+  // 吳淑慧：急救正常(到2027-06)，CPR即將到期(+63天)
+  {id:'r07',staffId:'s05',certId:'first_aid',certName:'',certDate:'2024-06-01',hours:16,lastRefresh:'2024-06-01',cycle:3},
+  {id:'r08',staffId:'s05',certId:'first_aid_cpr',certName:'',certDate:'2025-09-12',hours:4,lastRefresh:'2025-09-12',cycle:1},
+  // 黃建昌：急救已過期(-335天)，CPR即將到期(+9天)，堆高機正常(到2027-03)
+  {id:'r09',staffId:'s06',certId:'first_aid',certName:'',certDate:'2022-08-10',hours:16,lastRefresh:'2022-08-10',cycle:3},
+  {id:'r10',staffId:'s06',certId:'first_aid_cpr',certName:'',certDate:'2025-07-20',hours:4,lastRefresh:'2025-07-20',cycle:1},
+  {id:'r11',staffId:'s06',certId:'forklift',certName:'',certDate:'2024-03-22',hours:18,lastRefresh:'2024-03-22',cycle:3},
+  // 林淑芬：急救正常(到2028-11)，CPR已過期(-3天)
+  {id:'r12',staffId:'s07',certId:'first_aid',certName:'',certDate:'2025-11-03',hours:16,lastRefresh:'2025-11-03',cycle:3},
+  {id:'r13',staffId:'s07',certId:'first_aid_cpr',certName:'',certDate:'2025-07-08',hours:4,lastRefresh:'2025-07-08',cycle:1},
+  // 張明輝：堆高機已過期(-62天)
+  {id:'r14',staffId:'s08',certId:'forklift',certName:'',certDate:'2023-05-10',hours:18,lastRefresh:'2023-05-10',cycle:3},
+  // 李維修：低壓電工正常(到2027-11)
+  {id:'r15',staffId:'s09',certId:'low_voltage',certName:'',certDate:'2024-11-20',hours:90,lastRefresh:'2024-11-20',cycle:3},
 ];
 
 function loadJSON(key,fallback){
