@@ -239,13 +239,13 @@ const JSONBIN_BASE='https://api.jsonbin.io/v3/b';
 
 // 法定 / 常見需回訓證照
 // 示範企業為「第一類事業單位（非營造業）」，勞工人數180人，落於100~300人區間：
-// 依「事業單位安全衛生人員配置」規定 → 乙級業務主管x1、甲級業務主管x1（不須專職），
+// 依「事業單位安全衛生人員配置」規定 → 乙種業務主管x1、甲種業務主管x1（不須專職），
 // 並設置直接隸屬雇主之一級管理單位（勞工人數100人以上即須設置）。
 // 因 < 200人，尚未達須建立 OSHMS（職業安全衛生管理系統）之門檻（第一類≥200人）。
 const DEFAULT_CERT_TYPES=[
-  {id:'osh_a',name:'職業安全衛生業務主管（甲級）',cycle:2,required:1,initHours:42,refreshHours:6,note:'第一類事業100~300人應置甲級業務主管1人（不須專職），初訓42小時，回訓週期2年6小時'},
-  {id:'osh_b',name:'職業安全衛生業務主管（乙級）',cycle:2,required:1,initHours:35,refreshHours:6,note:'第一類事業100~300人應置乙級業務主管1人，初訓35小時，回訓週期2年6小時'},
-  {id:'osh_mgr',name:'職業安全衛生管理員',cycle:2,required:1,initHours:115,refreshHours:12,note:'乙種職業安全管理員，初訓115小時，協助一級管理單位業務，回訓週期2年12小時'},
+  {id:'osh_a',name:'職業安全衛生業務主管（甲種）',cycle:2,required:1,initHours:42,refreshHours:6,note:'第一類事業100~300人應置甲種業務主管1人（不須專職），初訓42小時，回訓週期2年6小時'},
+  {id:'osh_b',name:'職業安全衛生業務主管（乙種）',cycle:2,required:1,initHours:35,refreshHours:6,note:'第一類事業100~300人應置乙種業務主管1人，初訓35小時，回訓週期2年6小時'},
+  {id:'osh_mgr',name:'職業安全管理員（乙級）',cycle:2,required:1,initHours:115,refreshHours:12,note:'職業安全管理員（乙級），初訓115小時，協助一級管理單位業務，回訓週期2年12小時'},
   {id:'first_aid',name:'急救人員',cycle:3,required:4,initHours:16,refreshHours:0,note:'勞工人數超過50人者，每50人應置1人（180人≈4人），初訓16小時'},
   {id:'fire_mgr',name:'防火管理人',cycle:2,required:1,initHours:12,refreshHours:0,note:'消防法規定一定規模建築物應置防火管理人，初訓12小時，回訓週期2年'},
   {id:'forklift',name:'堆高機操作人員',cycle:3,required:2,initHours:18,refreshHours:3,note:'如有使用堆高機之場域，依使用班次設置，初訓18小時，回訓週期3年3小時'},
@@ -257,11 +257,12 @@ const DEFAULT_CERT_TYPES=[
 
 // 各類證照／訓練之法規對照表（含未預設啟用的項目），供「依法規自動套用」使用
 const CERT_CATALOG=[
-  {id:'osh_a',name:'職業安全衛生業務主管（甲級）',cycle:2,initHours:42,refreshHours:6},
-  {id:'osh_b',name:'職業安全衛生業務主管（乙級）',cycle:2,initHours:35,refreshHours:6},
-  {id:'osh_c',name:'職業安全衛生業務主管（丙級）',cycle:2,initHours:21,refreshHours:6},
-  {id:'osh_mgr',name:'職業安全衛生管理員（乙級）',cycle:2,initHours:115,refreshHours:12},
-  {id:'osh_officer',name:'職業安全衛生管理師（甲級）',cycle:2,initHours:130,refreshHours:12},
+  {id:'osh_a',name:'職業安全衛生業務主管（甲種）',cycle:2,initHours:42,refreshHours:6},
+  {id:'osh_b',name:'職業安全衛生業務主管（乙種）',cycle:2,initHours:35,refreshHours:6},
+  {id:'osh_c',name:'職業安全衛生業務主管（丙種）',cycle:2,initHours:21,refreshHours:6},
+  {id:'osh_mgr',name:'職業安全管理員（乙級）',cycle:2,initHours:115,refreshHours:12},
+  {id:'osh_officer',name:'職業安全管理師（甲級）',cycle:2,initHours:130,refreshHours:12},
+  {id:'osh_health_officer',name:'職業衛生管理師（甲級）',cycle:2,initHours:130,refreshHours:12},
   {id:'first_aid',name:'急救人員',cycle:3,initHours:16,refreshHours:0},
   {id:'fire_mgr',name:'防火管理人',cycle:2,initHours:12,refreshHours:0},
   {id:'forklift',name:'堆高機操作人員',cycle:3,initHours:18,refreshHours:3},
@@ -275,41 +276,41 @@ const CERT_CATALOG=[
 function categoryRequiredCerts(category,employees){
   const reqs=[];
   if(category===1){ // 第一類事業（如製造業等高風險）
-    if(employees<30) reqs.push({id:'osh_c',required:1,note:'未滿30人，置丙級業務主管1人'});
+    if(employees<30) reqs.push({id:'osh_c',required:1,note:'未滿30人，置丙種業務主管1人'});
     else if(employees<100) reqs.push(
-      {id:'osh_b',required:1,note:'30~100人，置乙級業務主管1人'},
-      {id:'osh_a',required:1,note:'30~100人，置甲級業務主管1人'});
+      {id:'osh_b',required:1,note:'30~100人，置乙種業務主管1人'},
+      {id:'osh_a',required:1,note:'30~100人，置甲種業務主管1人'});
     else if(employees<300) reqs.push(
-      {id:'osh_b',required:1,note:'100~300人，置乙級業務主管1人（不須專職），並設一級管理單位'},
-      {id:'osh_a',required:1,note:'100~300人，置甲級業務主管1人（不須專職）'},
+      {id:'osh_b',required:1,note:'100~300人，置乙種業務主管1人（不須專職），並設一級管理單位'},
+      {id:'osh_a',required:1,note:'100~300人，置甲種業務主管1人（不須專職）'},
       {id:'osh_mgr',required:1,note:'100~300人，一級管理單位應置管理員1人（職安法§23）'});
     else if(employees<500) reqs.push(
       {id:'osh_officer',required:1,note:'300~500人，置甲級安全衛生管理師1人'},
-      {id:'osh_b',required:1,note:'300~500人，置乙級業務主管1人'},
-      {id:'osh_a',required:1,note:'300~500人，置甲級業務主管1人'});
+      {id:'osh_b',required:1,note:'300~500人，置乙種業務主管1人'},
+      {id:'osh_a',required:1,note:'300~500人，置甲種業務主管1人'});
     else if(employees<1000) reqs.push(
-      {id:'osh_b',required:1,note:'500~1000人，置專職乙級業務主管1人，並設專責一級管理單位'},
-      {id:'osh_a',required:1,note:'500~1000人，置專職甲級業務主管1人'});
+      {id:'osh_b',required:1,note:'500~1000人，置專職乙種業務主管1人，並設專責一級管理單位'},
+      {id:'osh_a',required:1,note:'500~1000人，置專職甲種業務主管1人'});
     else reqs.push(
       {id:'osh_officer',required:2,note:'1000人以上，置甲級安全衛生管理師2人'},
-      {id:'osh_b',required:2,note:'1000人以上，置乙級業務主管2人'},
-      {id:'osh_a',required:1,note:'1000人以上，置甲級業務主管1人'});
+      {id:'osh_b',required:2,note:'1000人以上，置乙種業務主管2人'},
+      {id:'osh_a',required:1,note:'1000人以上，置甲種業務主管1人'});
   }else if(category===2){ // 第二類事業（中等風險，如一般製造/批發等）
-    if(employees<100) reqs.push({id:'osh_c',required:1,note:'未滿100人，置丙級業務主管1人'});
-    else if(employees<300) reqs.push({id:'osh_b',required:1,note:'100~300人，置乙級業務主管1人'});
+    if(employees<100) reqs.push({id:'osh_c',required:1,note:'未滿100人，置丙種業務主管1人'});
+    else if(employees<300) reqs.push({id:'osh_b',required:1,note:'100~300人，置乙種業務主管1人'});
     else if(employees<500) reqs.push(
-      {id:'osh_b',required:1,note:'300~500人，置乙級業務主管1人'},
-      {id:'osh_a',required:1,note:'300~500人，置甲級業務主管1人'});
+      {id:'osh_b',required:1,note:'300~500人，置乙種業務主管1人'},
+      {id:'osh_a',required:1,note:'300~500人，置甲種業務主管1人'});
     else reqs.push(
       {id:'osh_officer',required:1,note:'500人以上，置甲級安全衛生管理師1人'},
-      {id:'osh_b',required:1,note:'500人以上，置乙級業務主管1人'},
-      {id:'osh_a',required:1,note:'500人以上，置甲級業務主管1人'});
+      {id:'osh_b',required:1,note:'500人以上，置乙種業務主管1人'},
+      {id:'osh_a',required:1,note:'500人以上，置甲種業務主管1人'});
   }else{ // 第三類事業（低風險，如金融保險、辦公室服務業）
-    if(employees<300) reqs.push({id:'osh_c',required:1,note:'未滿300人，置丙級業務主管1人'});
-    else if(employees<1000) reqs.push({id:'osh_b',required:1,note:'300~1000人，置乙級業務主管1人'});
+    if(employees<300) reqs.push({id:'osh_c',required:1,note:'未滿300人，置丙種業務主管1人'});
+    else if(employees<1000) reqs.push({id:'osh_b',required:1,note:'300~1000人，置乙種業務主管1人'});
     else reqs.push(
-      {id:'osh_b',required:1,note:'1000人以上，置乙級業務主管1人'},
-      {id:'osh_a',required:1,note:'1000人以上，置甲級業務主管1人'});
+      {id:'osh_b',required:1,note:'1000人以上，置乙種業務主管1人'},
+      {id:'osh_a',required:1,note:'1000人以上，置甲種業務主管1人'});
   }
   if(employees>=50) reqs.push({id:'first_aid',required:Math.ceil(employees/50),note:'勞工人數每50人應置急救人員1人（依現有人數推算）'});
   reqs.push({id:'general_edu',required:0,note:'全體勞工均應接受一般安全衛生教育訓練（依職類調整時數）'});
@@ -1103,7 +1104,7 @@ function pageLegal(){
         </tbody>
       </table></div>
       <div class="info-box" style="background:var(--yellow-bg);color:var(--yellow);margin-top:12px">
-        本公司 ${META.totalEmployees} 人，屬「100～300人」區間：應設置乙級職業安全衛生業務主管 1 人、甲級職業安全衛生業務主管 1 人（不須專職），並設置直接隸屬雇主之一級管理單位。
+        本公司 ${META.totalEmployees} 人，屬「100～300人」區間：應設置職業安全衛生業務主管（乙種）1 人、職業安全衛生業務主管（甲種）1 人（不須專職），並設置直接隸屬雇主之一級管理單位。
       </div>
     </div>
 
@@ -1131,6 +1132,7 @@ function pageLegal(){
           <tr><td>職業安全衛生業務主管（甲種）</td><td>42小時</td><td>2年 / 6小時</td></tr>
           <tr><td>職業安全衛生業務主管（乙種）</td><td>35小時</td><td>2年 / 6小時</td></tr>
           <tr><td>職業安全管理師（甲級） / 職業安全管理員（乙級）</td><td>130小時 / 115小時</td><td>2年 / 12小時</td></tr>
+          <tr><td>職業衛生管理師（甲級）</td><td>130小時</td><td>2年 / 12小時</td></tr>
           <tr><td>急救人員</td><td>16小時</td><td>建議定期複訓（CPR+AED每1～3年）</td></tr>
           <tr><td>防火管理人</td><td>依消防法規定時數</td><td>2年</td></tr>
           <tr><td>有害作業主管（有機溶劑／缺氧等）</td><td>18小時</td><td>3年 / 6小時</td></tr>
