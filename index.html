@@ -156,7 +156,7 @@ function renderMain(){
         <div class="metric-card"><div class="metric-label">文章篇數</div><div class="metric-value">${ARTICLES.length}</div><div class="metric-unit">篇</div></div>
       </div>
       <div class="section-title">最新文章</div>
-      <div class="article-list">${ARTICLES.map(articleCard).join('')}</div>
+      <div class="article-list">${[...ARTICLES].sort((a,b)=>b.date.localeCompare(a.date)).map(articleCard).join('')}</div>
       <div class="section-title">工具導覽</div>
       <div class="grid">${TOOLS.map(toolCard).join('')}</div>`;
     bindArticleClicks();
@@ -188,7 +188,7 @@ function renderMain(){
   if(currentSection.startsWith('articles-')){
     const tag=currentSection.replace('articles-','');
     const navItem=NAV.flatMap(g=>g.children||[]).find(i=>i.id===currentSection);
-    const filtered=ARTICLES.filter(a=>a.tags.includes(tag));
+    const filtered=ARTICLES.filter(a=>a.tags.includes(tag)).sort((a,b)=>b.date.localeCompare(a.date));
     if(currentArticle){
       const a=ARTICLES.find(x=>x.id===currentArticle);
       const rs=readStats(a);
