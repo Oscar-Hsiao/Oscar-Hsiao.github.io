@@ -238,5 +238,142 @@ const ARTICLES=[
    <h4>四、自動化不是偷懶，是把腦力留給真正需要判斷的事</h4>
    <p>這套轉變最讓我有感的地方，其實不是「省了多少時間」，而是發現自己終於不用把腦容量耗在「記得要去查表」這件事上。法規條文怎麼解讀、員工的個案怎麼處理，這些才是真正需要人去判斷的事；至於「這個人的證照還有幾天到期」，本來就不該占用人腦的記憶體。</p>
 
-   <p style="margin-top:24px">這也是本作品集所有工具背後共同的設計理念：把「規則」寫進系統，把「重複的計算與比對」交給工具，人力留下來處理真正需要判斷與溝通的事情。法規不會自己變簡單，但至少對表這件事，可以不用再靠人腦了。</p>`}
+   <p style="margin-top:24px">這也是本作品集所有工具背後共同的設計理念：把「規則」寫進系統，把「重複的計算與比對」交給工具，人力留下來處理真正需要判斷與溝通的事情。法規不會自己變簡單，但至少對表這件事，可以不用再靠人腦了。</p>`},
+  {id:'a5',date:'2026-07-14',cover:'images/a5-cover-godzilla.webp',tags:['AI'],title:'從認識到打造：手把手教你做出屬於自己的 Claude Skill',
+   excerpt:'很多人以為「跟 AI 一直重複貼一樣的指令」就是極限，其實不用。這篇整理 Claude Skills 的觀念與建立方法，從「這是什麼」到「動手做一個」，5 個步驟帶你打造屬於自己的 AI 工作技能包。',
+   body:`<img src="images/a5-cover-godzilla.webp" alt="從認識到打造：手把手教你做出屬於自己的 Claude Skill">
+   <div class="notion-asset-caption">從「認識 Skills」到「打造第一個 Skill」的完整路徑</div>
+
+   <div class="summary-box"><div class="summary-title">🎯 這篇文章帶你搞懂</div>
+   <ul>
+     <li>Skill 到底是什麼、跟你平常「複製貼上同一段指令」有什麼本質上的不同</li>
+     <li>一個 Skill 資料夾長怎樣、SKILL.md 裡最重要的幾個欄位是什麼</li>
+     <li>從零開始，5 個步驟做出你自己的第一個 Skill</li>
+     <li>個人 / 專案 / 外掛三種存放位置怎麼選</li>
+     <li>一個貼近職安衛場景的實戰範例，以及新手最常踩的雷</li>
+   </ul></div>
+
+   <p>我自己每天用 Claude Code 做的事很雜：早上拉 Notion 行程、整理會議紀錄、分析股票、把學習內容存成 Obsidian 知識卡。這些事情如果每次都要重新打一次落落長的指令，光打字就先累了。後來全部改用 Skills 處理——現在只要說一句「今天行程」，背後一整套「去哪個資料庫抓資料、怎麼分類、怎麼寫回去」的流程就自動跑完。這篇文章想把「認識 Skills」到「自己動手做一個」的完整路徑整理出來，不需要寫程式背景也能跟著做。</p>
+
+   <hr style="border:none;border-top:1px solid var(--border);margin:24px 0">
+
+   <h4>一、Skill 到底是什麼？跟「貼一樣的指令」差在哪</h4>
+   <p>最直覺的理解：<b>Skill 就是把你重複交代 AI 的做事方法，寫成一份說明書存起來</b>。之後 AI 遇到符合情境的請求，會自己去把這份說明書叫出來讀一遍再開始做事，你不用每次重新解釋一遍「要注意什麼、順序是什麼、格式要長怎樣」。</p>
+   <p>官方文件給的判斷標準很實用：<b>當你發現自己一直把同一段指令、checklist 或流程貼進對話框，或是專案說明檔裡有一整段其實是「流程」而不是「事實」，那就是該做成 Skill 的時候了。</b></p>
+   <table>
+     <thead><tr><th>比較項目</th><th>一直複製貼上指令</th><th>做成 Skill</th></tr></thead>
+     <tbody>
+       <tr><td>存放位置</td><td>散落在對話紀錄、備忘錄裡，事後很難找</td><td>固定存成資料夾裡的一份檔案，隨時可查、可改</td></tr>
+       <tr><td>觸發方式</td><td>每次都要自己想起來、自己貼</td><td>AI 讀到相關請求時「自動」想到並套用</td></tr>
+       <tr><td>耗費資源</td><td>每次對話都要重打一次，佔用當次輸入</td><td>不用的時候完全不佔資源，要用才載入（progressive disclosure）</td></tr>
+       <tr><td>可攜性</td><td>只活在你腦子或某個人的習慣裡</td><td>可以整包分享給別人、放進專案跟團隊共用</td></tr>
+     </tbody>
+   </table>
+   <div class="tip">💡 用一句話記住差別：Prompt 是「這一次」的臨時指令，Skill 是「以後每一次」都能重複使用的能力包。</div>
+
+   <h4>二、一個 Skill 長什麼樣子：資料夾結構與關鍵欄位</h4>
+   <p>每個 Skill 其實就是一個資料夾，裡面至少要有一份 <code>SKILL.md</code>，其他檔案都是選配：</p>
+   <pre style="background:var(--bg3);padding:14px;border-radius:10px;overflow-x:auto;font-family:var(--mono);font-size:.85rem;line-height:1.7">my-skill/
+├── SKILL.md          ← 必要，主要說明書
+├── template.md        ← 選配，要填的範本
+├── scripts/
+│   └── build.py        ← 選配，AI 可以直接執行的腳本
+└── reference.md        ← 選配，較長的參考資料，需要時才載入</pre>
+   <p><code>SKILL.md</code> 檔案本身分兩段：最上面用 <code>---</code> 包起來的是 YAML 設定區（frontmatter），下面才是實際要 AI 遵守的說明文字。新手先記住這幾個欄位就夠用：</p>
+   <table>
+     <thead><tr><th>欄位</th><th>用途</th><th>新手建議</th></tr></thead>
+     <tbody>
+       <tr><td><b>name</b></td><td>顯示名稱，不填就用資料夾名稱</td><td>可以先不填</td></tr>
+       <tr><td><b>description</b></td><td>AI 判斷「什麼時候該用這個 Skill」的依據</td><td>一定要寫，而且要具體，寫清楚適用情境與關鍵字</td></tr>
+       <tr><td><b>disable-model-invocation</b></td><td>設 true 代表 AI 不會自己觸發，只有你打指令才會跑</td><td>會寄信、部署、刪東西這類有副作用的動作，一定要設 true</td></tr>
+       <tr><td><b>allowed-tools</b></td><td>這個 Skill 執行時可以免詢問直接使用的工具</td><td>不確定就先不填，讓系統照預設權限詢問</td></tr>
+       <tr><td><b>argument-hint</b></td><td>輸入指令時顯示的提示文字，例如 [issue-number]</td><td>需要帶參數的 Skill 才需要</td></tr>
+     </tbody>
+   </table>
+   <div class="tip-box tip-info">💡 唯一真正建議一定要寫的欄位只有 <code>description</code>。它會常駐在 AI 的判斷依據裡，寫得越具體、越貼近你平常會講的話，AI 越容易在對的時機自動叫出這個 Skill。</div>
+
+   <h4>三、動手做：5 個步驟打造你的第一個 Skill</h4>
+   <img src="images/a5-5steps-godzilla.webp" alt="從重複到自動化的 5 步驟" style="max-width:100%;border-radius:12px;margin:12px 0 20px">
+
+   <div class="step-block"><div class="step-title"><span class="step-num">STEP 1</span>想清楚要解決哪個「重複性工作」</div>
+   <p>不是所有事情都值得做成 Skill。先問自己：這件事我是不是一個月內至少重複做了 3 次以上，而且每次的步驟、格式、注意事項都差不多？例如「整理會議紀錄成固定格式」「查行程並更新進度表」都很適合；但只做一次的事，直接對話講清楚就好，不用特地包裝成 Skill。</p>
+   <div class="step-done">✅ 完成：你已經有一個明確、會反覆發生的目標任務</div></div>
+
+   <div class="step-block"><div class="step-title"><span class="step-num">STEP 2</span>建立 Skill 資料夾</div>
+   <p>個人使用最簡單的做法，是放在個人資料夾裡，所有專案都能共用：</p>
+   <pre style="background:var(--bg3);padding:14px;border-radius:10px;overflow-x:auto;font-family:var(--mono);font-size:.85rem">mkdir -p ~/.claude/skills/我的skill名稱</pre>
+   <div class="step-done">✅ 完成：資料夾已經建好，等著放進說明書</div></div>
+
+   <div class="step-block"><div class="step-title"><span class="step-num">STEP 3</span>寫 SKILL.md：把你的做事方法交代清楚</div>
+   <p>在資料夾裡新增 <code>SKILL.md</code>，上半段填 frontmatter，下半段用條列的方式，把「遇到這種情境時，該照什麼順序做、格式要長怎樣」寫下來，就像在教一位新來的同事做事一樣：</p>
+   <pre style="background:var(--bg3);padding:14px;border-radius:10px;overflow-x:auto;font-family:var(--mono);font-size:.85rem;line-height:1.7">---
+description: 整理會議逐字稿成結構化紀錄。當使用者貼上會議內容
+  或說「幫我整理會議」時使用。
+---
+
+## 你的任務
+把使用者貼上來的會議內容，整理成以下格式：
+
+1. 會議主題與日期
+2. 決議事項（條列）
+3. 待辦事項（含負責人、截止日）
+4. 需要追蹤的風險或未決議事項
+
+語氣簡潔，不要逐字翻譯，抓重點就好。</pre>
+   <div class="step-done">✅ 完成：AI 現在知道「遇到這種情境該怎麼做」</div></div>
+
+   <div class="step-block"><div class="step-title"><span class="step-num">STEP 4</span>實際測試觸發</div>
+   <p>寫完之後，用兩種方式驗證都可以正常運作：</p>
+   <ul>
+     <li><b>讓 AI 自動判斷</b>：直接講一句符合情境的話，例如「幫我整理這份會議紀錄」，看 AI 會不會自己叫出這個 Skill</li>
+     <li><b>直接手動指定</b>：輸入 <code>/我的skill名稱</code> 直接觸發，確認內容跑起來沒問題</li>
+   </ul>
+   <div class="step-done">✅ 完成：確認 Skill 真的能被叫出來，而且輸出符合你要的格式</div></div>
+
+   <div class="step-block"><div class="step-title"><span class="step-num">STEP 5</span>依實際使用情況微調</div>
+   <p>第一版通常不會一次到位。如果發現該觸發的時候沒觸發，通常是 <code>description</code> 寫得不夠具體，補上你平常真的會講的關鍵字就好；如果內容跑出來的格式不對，就直接回去改 SKILL.md 的說明文字，不需要重啟，改完馬上生效。</p>
+   <div class="step-done">✅ 完成：你已經走完一輪「建立 → 測試 → 調整」，這個 Skill 正式可以長期使用了</div></div>
+
+   <h4>四、存放位置怎麼選？</h4>
+   <p>同一份 Skill 放的位置不同，能用的範圍也不同：</p>
+   <table>
+     <thead><tr><th>存放位置</th><th>路徑</th><th>誰能用</th></tr></thead>
+     <tbody>
+       <tr><td><b>個人</b></td><td><code>~/.claude/skills/</code></td><td>你自己所有專案都能用，最適合個人日常工作流程</td></tr>
+       <tr><td><b>專案</b></td><td><code>.claude/skills/</code>（放在專案資料夾裡）</td><td>只有這個專案能用，適合跟團隊一起共用、一起進版控</td></tr>
+       <tr><td><b>外掛（Plugin）</b></td><td>打包成 plugin 分享</td><td>可以發布出去讓其他人安裝使用</td></tr>
+     </tbody>
+   </table>
+   <div class="tip">💡 剛開始不用想太多，先全部放個人資料夾練手感；等到某個 Skill 已經穩定、而且是團隊共用的流程，再考慮搬進專案資料夾一起進版控。</div>
+
+   <h4>五、實戰範例：做一個「職安衛週報」Skill</h4>
+   <p>用一個貼近職安衛工作的例子收尾。假設你每週都要把「本週稽核結果、教育訓練進度、待改善事項」彙整成固定格式的週報，可以這樣寫：</p>
+   <pre style="background:var(--bg3);padding:14px;border-radius:10px;overflow-x:auto;font-family:var(--mono);font-size:.85rem;line-height:1.7">---
+description: 產出職安衛週報。當使用者說「幫我做這週的職安衛週報」
+  或「整理本週稽核與訓練進度」時使用。
+disable-model-invocation: true
+---
+
+## 你的任務
+向使用者索取以下三項本週資料（若使用者已提供則直接使用）：
+1. 稽核結果（含缺失項目與改善期限）
+2. 教育訓練完成進度
+3. 待改善事項與負責人
+
+整理成以下固定格式的週報：
+- 標題：{年月日} 職安衛週報
+- 一、本週稽核重點
+- 二、教育訓練進度
+- 三、待改善事項追蹤表（負責人／期限／狀態）
+- 四、下週工作重點
+
+語氣正式，適合直接寄給主管。</pre>
+   <p>特別注意這裡把 <code>disable-model-invocation</code> 設成 <code>true</code>——週報通常是要主動觸發、確認資料沒問題才送出的動作，不太適合讓 AI 自己「覺得時機到了」就自動生成，這也是下一段要提醒的重點。</p>
+
+   <h4>六、新手最常踩的雷</h4>
+   <div class="tip-box tip-warn">⚠️ <b>有副作用的動作，一定要設 disable-model-invocation: true。</b>寄信、部署、刪除資料這類做了就很難復原的事，不要讓 AI 自己判斷「時機到了」就觸發，一定要改成你手動打指令才會跑，才不會在你還沒確認資料的時候就搶先送出去。</div>
+   <div class="tip-box tip-warn">⚠️ <b>description 寫得太籠統，AI 根本不會想到要用它。</b>「這是一個很好用的工具」這種描述沒有任何幫助，要具體寫出「什麼情境」「使用者可能會怎麼講」，關鍵字要跟你平常說話的方式一致。</div>
+   <div class="tip">💡 內容不用一次寫到完美，SKILL.md 本來就是「用著改、改著用」的東西，先求有再求好，用個兩三次之後再回頭優化最快。</div>
+
+   <p style="margin-top:24px">把重複的工作流程寫成 Skill，本質上跟本作品集其他工具背後的想法是同一件事：<b>把「規則」與「流程」交給系統記住，人力留給真正需要判斷的事</b>。之前在〈用 AI 協助職安衛文件管理〉那篇提過，職安衛最耗時間的從來不是懂法規，而是重複對表；Skills 則是把這個邏輯往前推一步——連「怎麼對表」這個做事方法本身，都可以直接寫成一份說明書交給 AI 記住。從今天開始，找一件你這週已經重複做第三次的事，把它寫成你的第一個 Skill 吧。</p>`}
 ];
