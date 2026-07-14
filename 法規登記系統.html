@@ -209,6 +209,9 @@ tr:hover td{background:var(--bg3)}
     <button class="btn btn-r" onclick="resetAll()">
       ↺ 還原預設
     </button>
+    <button class="btn btn-g" onclick="openJbSettings()">
+      ☁ 雲端設定
+    </button>
   </div>
 
   <!-- 一般使用者：只能匯出 -->
@@ -354,11 +357,39 @@ tr:hover td{background:var(--bg3)}
   </div>
 </div>
 
+<!-- ═══ 雲端設定 MODAL ═══ -->
+<div class="overlay" id="jb-modal">
+  <div class="modal" style="width:480px">
+    <h2>☁ JSONBin 雲端設定</h2>
+    <p>輸入你的 JSONBin API Key 與 Bin ID，資料會自動同步至雲端，任何裝置登入管理者後即可載入最新資料。</p>
+    <label>X-Master-Key</label>
+    <input type="password" id="jb-key-input" placeholder="$2a$10$..." style="width:100%;padding:10px 14px;border:1.5px solid var(--border2);border-radius:8px;font-size:14px;font-family:var(--mono);outline:none;margin-bottom:14px">
+    <label>Bin ID</label>
+    <input type="text" id="jb-bin-input" placeholder="6xxxxxxxxxxxxxxxxxxxxxxx" style="width:100%;padding:10px 14px;border:1.5px solid var(--border2);border-radius:8px;font-size:14px;font-family:var(--mono);outline:none;margin-bottom:6px">
+    <div style="font-size:12px;color:var(--text3);margin-bottom:18px">Key 與 Bin ID 只存在你的瀏覽器 localStorage，不會上傳到原始碼。</div>
+    <div class="btn-row">
+      <button class="btn btn-g" onclick="document.getElementById('jb-modal').classList.remove('show')">取消</button>
+      <button class="btn btn-teal" onclick="testJbConfig()">測試連線</button>
+      <button class="btn btn-p" onclick="saveJbConfig()">儲存設定</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ═══════════════════════════════════════════════════════
 // 設定：GAS 後端網址（部署後填入）
 // ═══════════════════════════════════════════════════════
 const GAS_URL = ''; // 示範版未串接後端 API，請填入你自己的 GAS Web App 網址
+
+// ═══════════════════════════════════════════════════════
+// JSONBin 雲端設定
+// ═══════════════════════════════════════════════════════
+const JSONBIN_BASE = 'https://api.jsonbin.io/v3/b';
+const JB_KEY_STORE = 'law_jb_master_key';
+const JB_BIN_STORE = 'law_jb_bin_id';
+const LAW_DATA_KEY = 'law_data_v1';
+function jbKey(){return localStorage.getItem(JB_KEY_STORE)||'';}
+function jbBin(){return localStorage.getItem(JB_BIN_STORE)||'';}
 
 // ═══════════════════════════════════════════════════════
 // 管理者密碼 Hash（SHA-256）
@@ -458,6 +489,14 @@ const DATA = {
   ]}
 };
 
+// 從 localStorage 還原已儲存的資料列（覆蓋 DEFAULT DATA）
+(function(){
+  try{
+    const saved=JSON.parse(localStorage.getItem(LAW_DATA_KEY)||'null');
+    if(saved){Object.keys(saved).forEach(k=>{if(DATA[k])DATA[k].rows=saved[k];});}
+  }catch(e){}
+})();
+
 // ═══════════════════════════════════════════════════════
 // 狀態
 // ═══════════════════════════════════════════════════════
@@ -471,6 +510,74 @@ const lawUrl = p => `https://law.moj.gov.tw/LawClass/LawAll.aspx?PCode=${p}`;
 async function sha256(str) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
   return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+// 資料持久化：localStorage + JSONBin 雲端
+// ═══════════════════════════════════════════════════════
+function saveLocal(){
+  const toSave={};
+  Object.keys(DATA).forEach(k=>{toSave[k]=DATA[k].rows;});
+  try{localStorage.setItem(LAW_DATA_KEY,JSON.stringify(toSave));}catch(e){}
+}
+
+function jsonbinSave(){
+  const key=jbKey(),bin=jbBin();
+  if(!key||!bin)return;
+  const toSave={};
+  Object.keys(DATA).forEach(k=>{toSave[k]=DATA[k].rows;});
+  fetch(`${JSONBIN_BASE}/${bin}`,{
+    method:'PUT',
+    headers:{'Content-Type':'application/json','X-Master-Key':key},
+    body:JSON.stringify(toSave)
+  }).then(r=>r.json()).then(j=>{
+    if(j.metadata)toast('☁ 已同步至雲端');
+    else toast('⚠ 雲端同步失敗：'+JSON.stringify(j));
+  }).catch(e=>toast('⚠ 雲端連線錯誤：'+e.message));
+}
+
+function saveAll(){saveLocal();jsonbinSave();}
+
+async function jsonbinLoad(){
+  const key=jbKey(),bin=jbBin();
+  if(!key||!bin)return;
+  try{
+    const res=await fetch(`${JSONBIN_BASE}/${bin}/latest`,{headers:{'X-Master-Key':key}});
+    const j=await res.json();
+    if(j.record){
+      Object.keys(j.record).forEach(k=>{if(DATA[k])DATA[k].rows=j.record[k];});
+      saveLocal();
+      toast('已從雲端載入最新資料');
+      render();
+    }
+  }catch(e){toast('⚠ 雲端連線錯誤：'+e.message);}
+}
+
+function saveJbConfig(){
+  const k=document.getElementById('jb-key-input').value.trim();
+  const b=document.getElementById('jb-bin-input').value.trim();
+  if(k)localStorage.setItem(JB_KEY_STORE,k);
+  if(b)localStorage.setItem(JB_BIN_STORE,b);
+  document.getElementById('jb-modal').classList.remove('show');
+  toast('⚙ 雲端設定已儲存');
+}
+
+async function testJbConfig(){
+  const key=document.getElementById('jb-key-input').value.trim();
+  const bin=document.getElementById('jb-bin-input').value.trim();
+  if(!key||!bin){toast('⚠ 請先填入 Key 與 Bin ID');return;}
+  try{
+    const res=await fetch(`${JSONBIN_BASE}/${bin}/latest`,{headers:{'X-Master-Key':key}});
+    const j=await res.json();
+    if(j.record||j.metadata)toast('✅ 連線成功！');
+    else toast('⚠ 連線失敗：'+JSON.stringify(j));
+  }catch(e){toast('⚠ 連線錯誤：'+e.message);}
+}
+
+function openJbSettings(){
+  document.getElementById('jb-key-input').value=jbKey();
+  document.getElementById('jb-bin-input').value=jbBin();
+  document.getElementById('jb-modal').classList.add('show');
 }
 
 function toast(msg, ms=3500) {
@@ -541,6 +648,7 @@ function cycleStatus(idx) {
   const i = STATUS_CYCLE.indexOf(r.status);
   r.status = STATUS_CYCLE[(i + 1 + STATUS_CYCLE.length) % STATUS_CYCLE.length] || STATUS_CYCLE[0];
   render();
+  saveAll();
 }
 
 // ═══════════════════════════════════════════════════════
@@ -587,6 +695,7 @@ async function doLogin() {
     document.getElementById('login-modal').classList.remove('show');
     applyAdminUI();
     toast('🔓 管理者模式已啟用');
+    jsonbinLoad();
   } else {
     document.getElementById('pw-err').style.display = 'block';
     document.getElementById('pw-input').select();
@@ -710,6 +819,7 @@ function saveEdit() {
   r.reason = document.getElementById('ef-reason').value.trim();
   closeEdit();
   render();
+  saveAll();
   toast('✅ 已儲存');
 }
 
@@ -750,6 +860,7 @@ function resetAll() {
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     closeLogin(); closeEdit();
+    document.getElementById('jb-modal').classList.remove('show');
   }
 });
 
@@ -759,6 +870,9 @@ document.getElementById('login-modal').addEventListener('click', e => {
 });
 document.getElementById('edit-modal').addEventListener('click', e => {
   if (e.target === e.currentTarget) closeEdit();
+});
+document.getElementById('jb-modal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) document.getElementById('jb-modal').classList.remove('show');
 });
 
 // 初始化
