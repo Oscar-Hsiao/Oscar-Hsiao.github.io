@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>示範股份有限公司 — 法規白話文轉換工具</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;600&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#FBFBFA;--bg2:#fff;--bg3:#F7F6F3;
+  --border:#EAEAEA;--border2:#DDDBD6;
+  --text:#2F3437;--text2:#787774;--text3:#A8A29E;
+  --blue:#1F6C9F;--blue-bg:#E1F3FE;
+  --green:#346538;--green-bg:#EDF3EC;
+  --yellow:#956400;--yellow-bg:#FBF3DB;
+  --red:#AF4040;--red-bg:#FCEAEA;
+  --purple:#6B4FA0;--purple-bg:#EFEAF7;
+  --gold:#C9A24B;--sidebar:#4E565C;
+  --font:'Noto Sans TC',-apple-system,BlinkMacSystemFont,'Segoe UI','Microsoft JhengHei',sans-serif;
+  --font-serif:'Noto Serif TC',-apple-system,serif;
+  --mono:'JetBrains Mono','Courier New',monospace;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+
+/* ── HEADER ── */
+.hdr{background:var(--bg2);color:var(--text);position:sticky;top:0;z-index:100;border-bottom:1px solid var(--border)}
+.hdr-top{display:flex;justify-content:space-between;align-items:flex-start;padding:18px 0 12px;margin:0 2cm;flex-wrap:wrap;gap:8px}
+.logo-wrap{display:flex;align-items:center;gap:12px}
+.logo-icon{height:44px;width:44px;border-radius:8px;background:var(--blue-bg);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+.logo-t h1{font-size:21px;font-weight:600;color:var(--text);line-height:1.3;font-family:var(--font-serif)}
+.logo-t p{font-size:13px;color:var(--text3);margin-top:3px}
+.hdr-meta{text-align:right;font-size:13px;color:var(--text2);line-height:2;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.badge-rule{background:var(--blue-bg);color:var(--blue);font-size:12px;font-weight:600;padding:3px 9px;border-radius:10px}
+.back-btn{font-size:13px;padding:5px 12px;border-radius:8px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);cursor:pointer;font-family:var(--font);display:inline-flex;align-items:center;gap:5px;transition:all .15s;text-decoration:none}
+.back-btn:hover{background:var(--bg);color:var(--text)}
+
+/* ── LOGIN ── */
+#loginWrap{position:fixed;inset:0;background:rgba(251,251,250,.95);display:flex;align-items:center;justify-content:center;z-index:999}
+.login-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:40px 48px;width:360px;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,.06)}
+.login-card h2{font-size:20px;font-weight:600;margin-bottom:6px;font-family:var(--font-serif)}
+.login-card p{font-size:14px;color:var(--text2);margin-bottom:24px}
+.login-card input{width:100%;padding:10px 14px;border:1px solid var(--border2);border-radius:8px;font-size:15px;font-family:var(--font);color:var(--text);background:var(--bg3);outline:none;margin-bottom:12px}
+.login-card input:focus{border-color:var(--blue)}
+.login-card button{width:100%;padding:10px;font-size:15px;font-weight:600;border-radius:8px;border:none;background:var(--text);color:#fff;cursor:pointer;font-family:var(--font)}
+.login-card button:hover{background:#4a4f52}
+.login-err{color:var(--red);font-size:13px;margin-top:8px;min-height:20px}
+
+/* ── COMPANY INFO BAR ── */
+.info-bar{background:var(--blue-bg);border-bottom:2px solid #C9E4F4;padding:12px 0;margin:0}
+.info-bar-inner{margin:0 2cm;display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.info-group{display:flex;flex-direction:column;gap:3px;min-width:140px}
+.info-group label{font-size:12px;color:var(--blue);font-weight:600;letter-spacing:.03em}
+.info-group input,.info-group select{font-size:14px;padding:5px 10px;border:1px solid #C9E4F4;border-radius:6px;background:#fff;color:var(--text);font-family:var(--font);outline:none;min-width:120px}
+.info-group input:focus,.info-group select:focus{border-color:var(--blue)}
+
+/* ── TABS ── */
+.tabs{display:flex;border-bottom:1px solid var(--border);margin:0 2cm;background:var(--bg2);gap:0;overflow-x:auto}
+.tab{padding:11px 20px;font-size:15px;cursor:pointer;border:none;border-bottom:3px solid transparent;color:var(--text2);background:none;font-family:var(--font);display:flex;align-items:center;gap:7px;transition:all .15s;font-weight:500;white-space:nowrap}
+.tab.on{color:var(--text);border-bottom-color:var(--text)}
+.tab:hover:not(.on){color:var(--text);background:var(--bg3)}
+
+/* ── SECTION ── */
+.main{margin:0 2cm;padding:32px 0 60px}
+.section{display:none}
+.section.on{display:block}
+
+/* ── PANEL ── */
+.panel{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:20px}
+.panel-hdr{padding:14px 20px;background:var(--bg3);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.panel-title{font-size:15px;font-weight:600;font-family:var(--font-serif);display:flex;align-items:center;gap:8px}
+.panel-body{padding:20px}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;font-size:14px;border-radius:8px;border:1px solid var(--border2);cursor:pointer;font-family:var(--font);white-space:nowrap;transition:all .15s;font-weight:500}
+.btn:hover{opacity:.85}
+.btn-p{background:var(--text);color:#fff;border-color:var(--text)}
+.btn-p:hover{background:#4a4f52;opacity:1}
+.btn-g{background:var(--bg3);color:var(--text)}
+.btn-blue{background:var(--blue-bg);color:var(--blue);border-color:#C9E4F4}
+.btn-yellow{background:var(--yellow-bg);color:var(--yellow);border-color:#F4E4B8}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn-sm{padding:4px 10px;font-size:12px;border-radius:6px}
+
+/* ── LAW BADGE ── */
+.law-tag{display:inline-block;font-size:12px;padding:2px 8px;border-radius:4px;font-weight:600;background:var(--blue-bg);color:var(--blue);font-family:var(--mono)}
+.cat-chip{display:inline-flex;align-items:center;font-size:12px;padding:3px 10px;border-radius:14px;font-weight:600;cursor:pointer;border:1px solid transparent;background:var(--bg3);color:var(--text2)}
+.cat-chip.on{background:var(--text);color:#fff}
+.cat-職安法{background:var(--blue-bg);color:var(--blue)}
+.cat-施行細則{background:var(--purple-bg);color:var(--purple)}
+.cat-勞基法{background:var(--green-bg);color:var(--green)}
+.cat-性平法{background:var(--yellow-bg);color:var(--yellow)}
+.cat-管理辦法{background:var(--red-bg);color:var(--red)}
+
+/* ── SEARCH ── */
+.search-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.search-row input{flex:1;min-width:200px;font-size:14px;padding:9px 14px;border:1px solid var(--border2);border-radius:8px;background:var(--bg3);color:var(--text);font-family:var(--font);outline:none}
+.search-row input:focus{border-color:var(--blue);background:#fff}
+.chip-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+
+/* ── LAW CARD ── */
+.law-card{border:1px solid var(--border);border-radius:10px;margin-bottom:12px;overflow:hidden;background:var(--bg2)}
+.law-card-hdr{padding:14px 18px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.law-card-hdr:hover{background:var(--bg3)}
+.law-card-h-left{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.law-card-title{font-weight:600;font-size:15px}
+.law-card-num{font-size:12px;color:var(--text3);font-family:var(--mono)}
+.law-card-arrow{color:var(--text3);font-size:13px;transition:transform .15s}
+.law-card.open .law-card-arrow{transform:rotate(90deg)}
+.law-card-body{display:none;padding:0 18px 18px;border-top:1px solid var(--border)}
+.law-card.open .law-card-body{display:block;padding-top:14px}
+.law-block{margin-bottom:12px}
+.law-block-label{font-size:12px;font-weight:700;color:var(--text2);margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.law-block-text{font-size:14px;line-height:1.85;color:var(--text)}
+.law-block.original .law-block-text{background:var(--bg3);border:1px solid var(--border2);padding:10px 14px;border-radius:8px;font-family:var(--mono);font-size:13px;color:var(--text2)}
+.law-block.plain .law-block-text{background:var(--blue-bg);border:1px solid #C9E4F4;padding:10px 14px;border-radius:8px}
+.law-block.case .law-block-text{background:var(--green-bg);border:1px solid #C5DBC6;padding:10px 14px;border-radius:8px}
+.law-block.myth .law-block-text{background:var(--yellow-bg);border:1px solid #F4E4B8;padding:10px 14px;border-radius:8px}
+.no-result{text-align:center;padding:40px 0;color:var(--text3);font-size:14px}
+
+/* ── FORM GRID ── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-grid.col3{grid-template-columns:1fr 1fr 1fr}
+.form-field{display:flex;flex-direction:column;gap:4px}
+.form-field.span2{grid-column:span 2}
+.form-field label{font-size:13px;color:var(--text2);font-weight:500}
+.form-field input,.form-field select,.form-field textarea{font-size:14px;padding:8px 12px;border:1px solid var(--border2);border-radius:8px;background:var(--bg3);color:var(--text);font-family:var(--font);outline:none;transition:border .15s}
+.form-field input:focus,.form-field select:focus,.form-field textarea:focus{border-color:var(--blue);background:#fff}
+.form-field textarea{resize:vertical;min-height:110px;line-height:1.7}
+.hint{font-size:12px;color:var(--text3);margin-top:2px}
+
+/* ── DOCUMENT OUTPUT ── */
+.doc-output{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:24px;font-size:14px;line-height:1.9;color:var(--text);min-height:160px;white-space:pre-wrap;word-break:break-word;font-family:var(--font)}
+.doc-output h3{font-size:16px;font-weight:700;margin:16px 0 8px;color:var(--text);font-family:var(--font-serif)}
+.doc-output h3:first-child{margin-top:0}
+.doc-output p{margin-bottom:10px}
+.doc-output ul,.doc-output ol{padding-left:22px;margin-bottom:10px}
+.doc-output li{margin-bottom:4px}
+.doc-output .doc-title{font-size:20px;font-weight:700;text-align:center;margin-bottom:6px;font-family:var(--font-serif)}
+.doc-output .doc-sub{font-size:14px;text-align:center;color:var(--text2);margin-bottom:24px}
+.doc-output hr{border:none;border-top:1px solid var(--border2);margin:20px 0}
+.doc-output .tag-line{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.doc-placeholder{color:var(--text3);text-align:center;padding:40px 0;font-size:15px}
+
+/* ── PRINT ── */
+@media print{
+  .hdr,.info-bar,.tabs,.btn-row{display:none!important}
+  body{background:#fff}
+  .main{margin:0;padding:0}
+  .panel{border:none;border-radius:0}
+  .panel-hdr .btn-row{display:none!important}
+  .law-card-body{display:block!important;padding-top:14px}
+  .law-card-arrow{display:none}
+}
+@media(max-width:900px){
+  .hdr-top,.info-bar-inner,.main{margin:0 16px}
+  .tabs{margin:0 16px}
+  .form-grid,.form-grid.col3{grid-template-columns:1fr}
+  .form-field.span2{grid-column:span 1}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginWrap">
+  <div class="login-card">
+    <div style="font-size:36px;margin-bottom:12px">📖</div>
+    <h2>法規白話文轉換工具</h2>
+    <p>請輸入管理員密碼以繼續</p>
+    <input type="password" id="pwInput" placeholder="輸入密碼" onkeydown="if(event.key==='Enter')doLogin()">
+    <button onclick="doLogin()">登入</button>
+    <div class="login-err" id="loginErr"></div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-top">
+    <div class="logo-wrap">
+      <a href="/" class="back-btn">← 回首頁</a>
+      <div class="logo-icon">📖</div>
+      <div class="logo-t">
+        <h1>法規白話文轉換工具</h1>
+        <p>示範股份有限公司｜安全衛生室</p>
+      </div>
+    </div>
+    <div class="hdr-meta">
+      <span class="badge-rule">法規白話解釋＋案例</span>
+      <span style="font-size:13px;color:var(--text3)">職安衛／勞動法規快速查詢與拆解</span>
+    </div>
+  </div>
+</div>
+
+<!-- COMPANY INFO BAR -->
+<div class="info-bar">
+  <div class="info-bar-inner">
+    <div class="info-group">
+      <label>事業單位名稱</label>
+      <input id="companyName" value="示範股份有限公司" oninput="cacheInfo()">
+    </div>
+    <div class="info-group">
+      <label>產業類型</label>
+      <select id="industry" onchange="cacheInfo()">
+        <option value="製造業">製造業</option>
+        <option value="服務業">服務業</option>
+        <option value="金融業">金融業</option>
+        <option value="醫療業">醫療業</option>
+        <option value="零售業">零售業</option>
+        <option value="建築業">建築業</option>
+        <option value="其他">其他</option>
+      </select>
+    </div>
+    <div class="info-group">
+      <label>事業單位規模</label>
+      <select id="companySize" onchange="cacheInfo()">
+        <option value="30人以下">30人以下</option>
+        <option value="30-99人" selected>30–99人</option>
+        <option value="100-299人">100–299人</option>
+        <option value="300人以上">300人以上</option>
+      </select>
+    </div>
+    <div class="info-group">
+      <label>承辦人</label>
+      <input id="oshContact" placeholder="姓名" oninput="cacheInfo()">
+    </div>
+    <div class="info-group">
+      <label>查詢日期</label>
+      <input id="queryDate" type="date" oninput="cacheInfo()">
+    </div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab on" onclick="switchTab(0)">📚 法規白話查詢庫</button>
+  <button class="tab" onclick="switchTab(1)">✍️ 自訂法規白話轉換</button>
+  <button class="tab" onclick="switchTab(2)">🧩 情境案例產生器</button>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- ── TAB 0: 法規白話查詢庫 ── -->
+  <div class="section on" id="tab0">
+    <div class="panel">
+      <div class="panel-hdr">
+        <div class="panel-title">📚 常用法規白話對照庫（{{COUNT}} 條）</div>
+        <div class="btn-row">
+          <button class="btn btn-g" onclick="window.print()">🖨 列印目前清單</button>
+        </div>
+      </div>
+      <div class="panel-body">
+        <p style="font-size:13px;color:var(--text2);margin-bottom:16px">
+          精選職安衛人員最常需要查詢、解釋給同仁聽的法規條文。每條都拆成「原文節錄」「白話解釋」「實際案例」「常見誤解」四個區塊。<br>
+          內容為節錄與簡化說明，僅供內部教育訓練參考，正式適用請以法規原文及最新公告為準。
+        </p>
+        <div class="search-row">
+          <input id="lawSearch" placeholder="搜尋條號、關鍵字，如：通報、退避、罰鍰、承攬…" oninput="renderLawList()">
+        </div>
+        <div class="chip-row" id="catChips"></div>
+        <div id="lawList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TAB 1: 自訂法規白話轉換 ── -->
+  <div class="section" id="tab1">
+    <div class="panel">
+      <div class="panel-hdr">
+        <div class="panel-title">⚙️ 貼上法規原文</div>
+      </div>
+      <div class="panel-body">
+        <p style="font-size:13px;color:var(--text2);margin-bottom:16px">
+          把要解釋給同仁聽的法規原文貼進來，工具會自動抓出條號、期限天數、罰鍰金額等關鍵資訊，拆解成好理解的白話重點。適合用來準備教育訓練教材或內部公告。
+        </p>
+        <div class="form-grid">
+          <div class="form-field span2">
+            <label>法規原文（可整段貼上）</label>
+            <textarea id="rawLaw" placeholder="例如：雇主使勞工從事高處作業，未依規定設置符合標準之防護具者，處新臺幣三萬元以上三十萬元以下罰鍰，並令其於30日內完成改善…">雇主於事業單位工作場所發生死亡災害，應於8小時內通報勞動檢查機構，未依規定通報者，處新臺幣三萬元以上十五萬元以下罰鍰。</textarea>
+          </div>
+          <div class="form-field">
+            <label>這條規定主要對誰說的？</label>
+            <select id="rawSubject">
+              <option value="雇主">雇主</option>
+              <option value="雇主代理人／主管">雇主代理人／主管</option>
+              <option value="勞工">勞工</option>
+              <option value="承攬商">承攬商</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>要用在什麼情境？</label>
+            <select id="rawContext">
+              <option value="教育訓練教材">教育訓練教材</option>
+              <option value="內部公告">內部公告</option>
+              <option value="稽核前自我檢查">稽核前自我檢查</option>
+              <option value="新人到職說明">新人到職說明</option>
+            </select>
+          </div>
+        </div>
+        <div class="btn-row" style="margin-top:16px">
+          <button class="btn btn-p" onclick="generateRawExplain()">⚡ 產生白話拆解</button>
+          <button class="btn btn-g" onclick="window.print()">🖨 列印</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-hdr">
+        <div class="panel-title">📃 白話拆解結果</div>
+        <div class="btn-row">
+          <button class="btn btn-yellow" onclick="copyDoc('rawOut')">📋 複製全文</button>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div id="rawOut" class="doc-output">
+          <div class="doc-placeholder">貼上法規原文後，按「產生白話拆解」查看結果</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TAB 2: 情境案例產生器 ── -->
+  <div class="section" id="tab2">
+    <div class="panel">
+      <div class="panel-hdr">
+        <div class="panel-title">🧩 案例設定</div>
+      </div>
+      <div class="panel-body">
+        <p style="font-size:13px;color:var(--text2);margin-bottom:16px">
+          選擇法規類別與情境，快速產生一則可用於教育訓練、內部宣導的示範案例（違規情境或合規範例），會自動代入上方填寫的事業單位資訊。
+        </p>
+        <div class="form-grid col3">
+          <div class="form-field">
+            <label>法規類別</label>
+            <select id="caseCat">
+              <option value="職安法">職業安全衛生法</option>
+              <option value="施行細則">施行細則（不法侵害）</option>
+              <option value="勞基法">勞動基準法</option>
+              <option value="性平法">性別平等工作法</option>
+              <option value="管理辦法">職業安全衛生管理辦法</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>案例類型</label>
+            <select id="caseType">
+              <option value="violation">違規情境（警惕用）</option>
+              <option value="compliant">合規範例（示範用）</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>用途</label>
+            <select id="caseUse">
+              <option value="教育訓練">教育訓練簡報</option>
+              <option value="內部宣導">內部宣導公告</option>
+              <option value="主管會議">主管會議報告</option>
+            </select>
+          </div>
+        </div>
+        <div class="btn-row" style="margin-top:16px">
+          <button class="btn btn-p" onclick="generateCase()">⚡ 產生情境案例</button>
+          <button class="btn btn-g" onclick="window.print()">🖨 列印</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-hdr">
+        <div class="panel-title">📃 情境案例</div>
+        <div class="btn-row">
+          <button class="btn btn-yellow" onclick="copyDoc('caseOut')">📋 複製全文</button>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div id="caseOut" class="doc-output">
+          <div class="doc-placeholder">設定好上方選項後，按「產生情境案例」查看結果</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ── AUTH ── */
+const ADMIN_HASH='0ead2060b65992dca4769af601a1b3a35ef38cfad2c2c465bb160ea764157c5d';
+async function sha256(str){const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');}
+async function doLogin(){
+  const v=document.getElementById('pwInput').value;
+  const hash=await sha256(v);
+  if(hash===ADMIN_HASH){
+    document.getElementById('loginWrap').style.display='none';
+    loadInfo();
+  } else {
+    document.getElementById('loginErr').textContent='密碼錯誤，請再試一次。';
+  }
+}
+
+/* ── TAB SWITCH ── */
+function switchTab(i){
+  document.querySelectorAll('.tab').forEach((t,idx)=>t.classList.toggle('on',idx===i));
+  document.querySelectorAll('.section').forEach((s,idx)=>s.classList.toggle('on',idx===i));
+}
+
+/* ── COMPANY INFO CACHE ── */
+function cacheInfo(){
+  const d={companyName:v('companyName'),industry:v('industry'),companySize:v('companySize'),
+    oshContact:v('oshContact'),queryDate:v('queryDate')};
+  localStorage.setItem('lawconv_info',JSON.stringify(d));
+}
+function loadInfo(){
+  try{
+    const d=JSON.parse(localStorage.getItem('lawconv_info')||'{}');
+    Object.keys(d).forEach(k=>{const el=document.getElementById(k);if(el)el.value=d[k];});
+  }catch(e){}
+  if(!document.getElementById('queryDate').value){
+    document.getElementById('queryDate').value=new Date().toISOString().slice(0,10);
+  }
+}
+function v(id){return document.getElementById(id)?.value||'';}
+function copyDoc(id){
+  const el=document.getElementById(id);
+  const text=el.innerText||el.textContent;
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn=event.target;const old=btn.textContent;btn.textContent='✅ 已複製';setTimeout(()=>{btn.textContent=old;},1500);
+  });
+}
+
+/* ══════════════════════════════════════════════════════
+   TAB 0 — 法規白話查詢庫
+   ══════════════════════════════════════════════════════ */
+const LAW_DB=[
+  {id:'osh6',cat:'職安法',num:'職業安全衛生法 §6 Ⅰ',title:'雇主的安全衛生設備義務',
+    original:'雇主對下列事項應有符合規定之必要安全衛生設備及措施：一、防止機械、設備或器具等引起之危害。二、防止爆炸性、發火性等物質引起之危害。三、防止電、熱及其他之能引起之危害。四、防止採石、採掘、裝卸、搬運、堆積及採伐等作業中引起之危害……（節錄）',
+    plain:'只要公司有機器、危險物質、噪音、高溫、缺氧或其他可能傷害員工的作業條件，雇主就有法定義務「事先」做好防護（護欄、通風、個人防護具等），不是等出事才處理。這是職安衛規定的母條款，後面很多細則都是從這條展開的。',
+    ex:'某加工廠員工操作沖床時未裝設安全護罩，手指遭夾傷。勞動檢查機構認定雇主違反§6未提供符合規定的機械防護，除罰鍰外，若符合§37要件（1人以上住院）還須於8小時內通報。',
+    myth:'「員工自己不小心，不關公司的事」——雇主的預防義務是事前性質，即使員工操作有疏失，只要防護設備不合規，雇主仍須負責。'},
+  {id:'osh23',cat:'職安法',num:'職業安全衛生法 §23 Ⅰ',title:'安全衛生管理計畫與自動檢查',
+    original:'雇主應依其事業規模、性質，訂定職業安全衛生管理計畫；並設置安全衛生組織、人員，實施安全衛生管理及自動檢查。',
+    plain:'公司不能只有「口頭上」重視安全，要有具體的管理計畫（誰負責、多久檢查一次、怎麼記錄），而且要定期自主檢查機械設備與作業環境，不是等勞動檢查來了才臨時準備。規模越大、風險越高的行業，要求的組織人力（如職安管理師、護理人員）也越完整。',
+    ex:'某營造工地從未執行自動檢查紀錄，勞動檢查時發現施工架未定期檢查即倒塌，雇主除罰鍰外，還可能因未落實管理計畫被要求限期改善或停工。',
+    myth:'「有請一位職安人員就等於合規」——法規要求的是制度運作，人員只是其中一環，沒有落實檢查紀錄，仍算未依規定辦理。'},
+  {id:'osh32',cat:'職安法',num:'職業安全衛生法 §32',title:'安全衛生教育訓練義務',
+    original:'雇主對勞工應施以從事工作與預防災變所必要之安全衛生教育、訓練。',
+    plain:'新人到職、換工作內容、或使用新設備前，公司都要先提供教育訓練，讓員工知道怎麼安全操作、遇到危險怎麼應變，不是發一份文件簽名就算數。',
+    ex:'新進作業員未受配電作業訓練即被指派維修機台，觸電受傷。事後查核發現公司無訓練紀錄，除民事賠償外，也被認定違反§32。',
+    myth:'「訓練簽到表有簽名就沒事」——如果訓練內容與實際作業無關、或時數不足，仍可能被認定訓練不具實質效力。'},
+  {id:'osh37',cat:'職安法',num:'職業安全衛生法 §37 Ⅱ',title:'重大職災8小時通報義務',
+    original:'事業單位工作場所發生下列職業災害之一者，雇主應於8小時內通報勞動檢查機構：一、發生死亡災害。二、發生災害之罹災人數在3人以上。三、發生災害之罹災人數在1人以上，且需住院治療。四、其他經中央主管機關指定公告之災害。',
+    plain:'只要出人命、一次傷3人以上、或1人以上需住院，公司必須在「知道的那一刻起8小時內」通報勞動檢查機構，不能先私下處理再決定要不要報。',
+    ex:'倉儲人員從高處墜落骨折需住院，公司隔天才通報，勞動檢查機構認定逾期通報，另處罰鍰；若現場未經同意即移動，還可能有妨礙調查的問題。',
+    myth:'「先送醫、之後再補通報就好」——8小時是硬性期限，從「知悉」的當下開始起算，跟有沒有送醫無關。'},
+  {id:'osh18',cat:'職安法',num:'職業安全衛生法 §18',title:'工作者的退避權／停工權',
+    original:'工作場所有立即發生危險之虞時，雇主或工作場所負責人應即令停止作業，並使勞工退避至安全場所。勞工執行職務發現有立即發生危險之虞時，得在不危及其他工作者安全情形下，自行停止作業及退避至安全場所，並立即向直屬主管報告。',
+    plain:'如果現場真的很危險（例如地基龜裂、有毒氣體外洩），不只雇主要下令停工，員工自己發現危險也有權「先撤離再說」，不必等主管同意，也不能因此被處罰。',
+    ex:'地下室施工聞到刺鼻氣味，工人自行撤離未完成當日進度，遭工地主任扣薪。經勞動檢查機構認定屬合法退避權行使，扣薪違法，須補發。',
+    myth:'「員工擅自離開工作崗位算曠職」——只要是基於立即危險的合理判斷退避，法律明文保障，公司不能以曠職或扣薪處理。'},
+  {id:'細則11-1',cat:'施行細則',num:'職業安全衛生法施行細則 §11-1',title:'職場不法侵害的定義',
+    original:'本法第六條第二項第三款所定執行職務因他人行為致遭受身體或精神上不法侵害，指勞工因執行職務，遭受雇主、主管、同事、客戶、其他相關人士等之肢體攻擊、言語侮辱、恐嚇、威脅、跟蹤、糾纏、性騷擾等不法侵害行為，致發生身體或精神傷害。',
+    plain:'「不法侵害」不只是打人，罵人、威脅、跟蹤、性騷擾都算，而且不限於主管對下屬，同事之間、甚至外部客戶都可能是加害人。',
+    ex:'客服人員長期遭受客戶電話辱罵，出現焦慮症狀就醫。公司若未依防治計畫處理（如更換服務窗口、提供心理協助），可能被認定未盡雇主保護義務。',
+    myth:'「這是同事之間的私人恩怨」——只要與執行職務有關，即使是同事間衝突，雇主仍有調查與處理的法定義務（可搭配本站「職場不法侵害防治工具」使用）。'},
+  {id:'osh45',cat:'職安法',num:'職業安全衛生法 §45',title:'一般違規罰鍰區間',
+    original:'有下列情形之一者，處新臺幣三萬元以上三十萬元以下罰鍰：一、違反第六條第一項……（節錄，實際適用條文請以最新公告為準）',
+    plain:'大部分職安衛的行政違規（沒做風險評估、沒訓練、沒自動檢查等），罰鍰區間大致落在3萬到30萬元，實際金額看違規情節、公司規模、有沒有累犯來決定，不是固定金額。',
+    ex:'小型工廠首次被查獲未訂定管理計畫，勞動檢查機構審酌規模小、當場承諾改善，從輕開罰3萬元；同一違規若累犯，罰鍰會逐次往上調整。',
+    myth:'「反正罰鍰不高，不理它也沒差」——除了罰鍰，未改善還可能被連續處罰、限期停工，甚至影響政府標案資格。'},
+  {id:'labor59',cat:'勞基法',num:'勞動基準法 §59',title:'職業災害補償',
+    original:'勞工因遭遇職業災害而致死亡、殘廢、傷害或疾病時，雇主應依左列規定予以補償：醫療費用補償、原領工資補償、殘廢補償、死亡補償……（節錄）',
+    plain:'只要被認定是職業災害（不管是不是雇主的錯），公司都要先負責醫療費、原本薪水（原領工資補償），如果致殘或死亡還有殘廢/死亡補償。這是「無過失責任」，跟員工自己有沒有疏失無關。',
+    ex:'員工上班途中發生交通事故，若屬職災範圍，公司仍須負擔醫療與工資補償，不能以「員工自己不小心」為由拒絕。',
+    myth:'「有幫員工保勞保就不用再補償」——勞保給付與雇主補償是兩回事，勞基法§59雖有抵充機制，但雇主補償義務不會因為有保勞保就完全免除。'},
+  {id:'gender21',cat:'性平法',num:'性別平等工作法 §21 ／ 職安法 §30-31',title:'妊娠與哺乳期間的危險工作限制',
+    original:'雇主不得使妊娠或哺乳期間之女性勞工從事重體力勞動或有害胎兒、母體健康之工作。',
+    plain:'懷孕或哺乳中的員工，公司必須主動調整工作內容（例如避免搬重物、接觸化學品、輪值大夜班），不是等員工自己申請才處理，也不能藉此調降薪資或降職。',
+    ex:'某女性作業員告知懷孕後仍被排定夜班且未調整重物搬運工作，經檢舉後公司被要求限期改善並補償。',
+    myth:'「員工沒主動反映就沒關係」——只要雇主知悉懷孕事實，就有主動調整義務，不能以「她沒說要調整」作為抗辯。'},
+  {id:'mgmt12-2',cat:'管理辦法',num:'職業安全衛生管理辦法 §12-2',title:'承攬管理與共同作業告知義務',
+    original:'事業單位以其事業之全部或一部分交付承攬時，應於事前告知該承攬人有關其事業工作環境、危害因素暨本法及有關安全衛生規定應採取之措施。',
+    plain:'把工程或業務外包給承攬商時，原事業單位不能「外包了就沒責任」，必須事先告知現場的危害因子（例如高處作業、有限空間、化學品），若多個承攬商同時同地作業，還要指定專人統一協調。',
+    ex:'工廠將設備維修外包，未告知承攬商該區域有局限空間缺氧風險，承攬商人員進入受困，原事業單位仍須負連帶管理責任。',
+    myth:'「承攬商自己的工人受傷，是承攬商的責任」——原事業單位若未落實告知與協調義務，仍須負法律責任，不會因為簽了承攬合約就完全免責。'}
+];
+
+const CATS=['全部','職安法','施行細則','勞基法','性平法','管理辦法'];
+let activeCat='全部';
+
+function initCats(){
+  document.title=document.title; // no-op, keeps title stable
+  const wrap=document.getElementById('catChips');
+  wrap.innerHTML=CATS.map(c=>`<span class="cat-chip${c===activeCat?' on':''}" data-cat="${c}" onclick="setCat('${c}')">${c}</span>`).join('');
+  document.querySelector('.panel-title').textContent=`📚 常用法規白話對照庫（${LAW_DB.length} 條）`;
+}
+function setCat(c){
+  activeCat=c;
+  document.querySelectorAll('.cat-chip').forEach(el=>el.classList.toggle('on',el.dataset.cat===c));
+  renderLawList();
+}
+function renderLawList(){
+  const q=(document.getElementById('lawSearch').value||'').trim();
+  const list=LAW_DB.filter(item=>{
+    const matchCat=activeCat==='全部'||item.cat===activeCat;
+    const hay=(item.num+item.title+item.original+item.plain+item.ex+item.myth).toLowerCase();
+    const matchQ=!q||hay.includes(q.toLowerCase());
+    return matchCat&&matchQ;
+  });
+  const wrap=document.getElementById('lawList');
+  if(list.length===0){
+    wrap.innerHTML='<div class="no-result">沒有符合條件的法規，換個關鍵字試試看</div>';
+    return;
+  }
+  wrap.innerHTML=list.map(item=>`
+    <div class="law-card" id="card-${item.id}">
+      <div class="law-card-hdr" onclick="toggleCard('${item.id}')">
+        <div class="law-card-h-left">
+          <span class="cat-chip cat-${item.cat}">${item.cat}</span>
+          <span class="law-card-title">${item.title}</span>
+          <span class="law-card-num">${item.num}</span>
+        </div>
+        <span class="law-card-arrow">▶</span>
+      </div>
+      <div class="law-card-body">
+        <div class="law-block original">
+          <div class="law-block-label">📜 原文節錄</div>
+          <div class="law-block-text">${item.original}</div>
+        </div>
+        <div class="law-block plain">
+          <div class="law-block-label">💬 白話解釋</div>
+          <div class="law-block-text">${item.plain}</div>
+        </div>
+        <div class="law-block case">
+          <div class="law-block-label">🧾 實際案例</div>
+          <div class="law-block-text">${item.ex}</div>
+        </div>
+        <div class="law-block myth">
+          <div class="law-block-label">⚠️ 常見誤解</div>
+          <div class="law-block-text">${item.myth}</div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+function toggleCard(id){
+  document.getElementById('card-'+id).classList.toggle('open');
+}
+
+/* ══════════════════════════════════════════════════════
+   TAB 1 — 自訂法規白話轉換（規則式抽取，非真人 AI）
+   ══════════════════════════════════════════════════════ */
+const ACTION_LIB={
+  '通報':['立即建立「發生即通報」的內部流程，不要等傷勢確認再決定通報與否','指定專人保管8小時通報話術與勞動檢查機構聯絡方式','事故現場非必要不移動，保留供後續調查'],
+  '訓練':['建立教育訓練台帳，記錄對象、時數、內容與到期日','新職務、新設備上線前先安排對應訓練，再上工','訓練簽到表要對應實際授課內容，避免流於形式'],
+  '檢查':['依規模訂定自動檢查週期表，指派負責人與紀錄表單','檢查紀錄至少保存3年以備查核','發現異常立即停用並標示，直到改善完成'],
+  '罰鍰':['把罰鍰區間視為「最低合規門檻」，優先做到不被開罰的基本動作','同一缺失若重複發生，罰鍰會累加，務必列入追蹤改善清單'],
+  '退避':['明確告知員工「有立即危險可自行退避」是法定權利，不會被究責','建立退避後的通報與復工評估流程'],
+  '告知':['交付承攬前先完成書面危害告知，並留存簽收紀錄','多承攬商同場作業時指定協調人統一管理'],
+  '補償':['職災發生後主動確認原領工資與醫療費用補償期限，不要等員工提出','留意勞保給付與雇主補償之間的抵充關係，避免少付或重複計算'],
+  'default':['先確認條文適用的對象與門檻條件','把條文轉成checklist，逐項核對公司現況是否已符合','如涉及罰則，記錄改善期限並指派追蹤負責人']
+};
+function pickActions(text){
+  for(const key of Object.keys(ACTION_LIB)){
+    if(key!=='default'&&text.includes(key))return ACTION_LIB[key];
+  }
+  return ACTION_LIB.default;
+}
+function generateRawExplain(){
+  const raw=(document.getElementById('rawLaw').value||'').trim();
+  if(!raw){
+    document.getElementById('rawOut').innerHTML='<div class="doc-placeholder">請先貼上法規原文</div>';
+    return;
+  }
+  const subject=v('rawSubject');
+  const context=v('rawContext');
+  const co=v('companyName')||'（事業單位名稱）';
+  const date=v('queryDate')||new Date().toISOString().slice(0,10);
+
+  const artMatch=raw.match(/第\s*[0-90-9〇一二三四五六七八九十百千\-]+\s*條(之[0-9一二三四五六七八九十]+)?/);
+  const article=artMatch?artMatch[0]:'（原文中未偵測到明確條號，請自行標註）';
+
+  const fineMatches=[...raw.matchAll(/(新臺幣)?\s*([0-90-9〇一二三四五六七八九十百千萬,，]+)\s*元/g)].map(m=>m[0]);
+  const fineText=fineMatches.length?fineMatches.join('～'):'（原文中未偵測到罰鍰金額，可能屬於義務性條文而非罰則條文）';
+
+  const dayMatch=raw.match(/([0-90-9〇一二三四五六七八九十百]+)\s*(個)?\s*(工作)?(天|日|小時)/);
+  const dayText=dayMatch?dayMatch[0]:'（原文中未偵測到明確期限，建議依內部規定另訂改善期限）';
+
+  const actions=pickActions(raw);
+
+  const html=`<div class="doc-title">法規白話拆解</div>
+<div class="doc-sub">${co}　｜　用途：${context}　｜　查詢日期：${date}</div>
+<div class="tag-line"><span class="law-tag">${article}</span><span class="cat-chip cat-職安法">主要對象：${subject}</span></div>
+<hr>
+<h3>一、原文</h3>
+<p style="background:var(--bg2);border:1px solid var(--border2);border-radius:8px;padding:12px 16px;font-family:var(--mono);font-size:13px;color:var(--text2)">${raw}</p>
+
+<h3>二、這條在說什麼（白話）</h3>
+<p>這條規定主要是要求「<strong>${subject}</strong>」在特定情況下必須採取行動或負擔責任。條文中提到的條號為 <strong>${article}</strong>，屬於 ${fineMatches.length?'有明確罰則的強制性規定':'偏向義務性／程序性的規定'}。閱讀原文時可以先問自己三個問題：誰要遵守？要做到什麼程度？沒做到會怎樣？</p>
+
+<h3>三、關鍵門檻與期限</h3>
+<ul>
+<li><strong>條號：</strong>${article}</li>
+<li><strong>期限／時限：</strong>${dayText}</li>
+<li><strong>罰則金額：</strong>${fineText}</li>
+</ul>
+
+<h3>四、沒做到會怎樣</h3>
+<p>${fineMatches.length?`若未依規定辦理，主管機關可依本條裁處 ${fineText} 罰鍰，情節重大或逾期未改善者，可能面臨按次處罰或其他行政處分。`:'原文未包含明確罰則金額，但仍可能構成違反職安衛法令的行政責任，或於發生職災時作為雇主未盡義務的重要佐證。'}</p>
+
+<h3>五、建議行動（可直接放入 checklist）</h3>
+<ol>
+${actions.map(a=>`<li>${a}</li>`).join('')}
+</ol>
+<hr>
+<p style="text-align:right;color:#aaa;font-size:13px">本拆解為規則式白話說明，非正式法律意見，正式適用請以法規原文及最新公告為準。</p>`;
+
+  document.getElementById('rawOut').innerHTML=html;
+}
+
+/* ══════════════════════════════════════════════════════
+   TAB 2 — 情境案例產生器
+   ══════════════════════════════════════════════════════ */
+const CASE_LIB={
+  '職安法':{
+    violation:{issue:'未提供符合規定之機械防護，且新進人員未完成安全衛生教育訓練即被指派操作設備',basis:'職業安全衛生法 §6、§32'},
+    compliant:{issue:'落實機械防護盤點與定期教育訓練，新職務上線前均完成對應課程並留存紀錄',basis:'職業安全衛生法 §6、§32'}
+  },
+  '施行細則':{
+    violation:{issue:'未依規定建立職場不法侵害申訴管道，客戶辱罵員工事件未於合理期限內處理',basis:'職業安全衛生法施行細則 §11-1'},
+    compliant:{issue:'建立即時的職場不法侵害申訴與處理機制，事件發生後24小時內受理並啟動保護措施',basis:'職業安全衛生法施行細則 §11-1'}
+  },
+  '勞基法':{
+    violation:{issue:'員工發生職業災害後，原領工資補償逾期未依規定給付',basis:'勞動基準法 §59'},
+    compliant:{issue:'職災發生後主動確認補償項目與期限，於期限內完成原領工資與醫療費用補償並協助復工',basis:'勞動基準法 §59'}
+  },
+  '性平法':{
+    violation:{issue:'未主動調整妊娠員工之工作內容與班別，仍安排重體力勞動及大夜班',basis:'性別平等工作法 §21、職業安全衛生法 §30-31'},
+    compliant:{issue:'主動掌握員工妊娠狀況，及時調整工作內容、班別並安排哺乳空間',basis:'性別平等工作法 §21、職業安全衛生法 §30-31'}
+  },
+  '管理辦法':{
+    violation:{issue:'交付承攬前未告知承攬人工作環境危害因素，多承攬商同場作業未指定協調人',basis:'職業安全衛生管理辦法 §12-2'},
+    compliant:{issue:'承攬前完整說明危害因素並簽署書面告知紀錄，同場作業指定專人統一協調',basis:'職業安全衛生管理辦法 §12-2'}
+  }
+};
+function fineBySize(size){
+  if(size==='30人以下')return'新臺幣3萬元至10萬元';
+  if(size==='100-299人')return'新臺幣10萬元至20萬元';
+  if(size==='300人以上')return'新臺幣15萬元至30萬元';
+  return'新臺幣3萬元至15萬元';
+}
+function generateCase(){
+  const cat=v('caseCat');
+  const type=v('caseType');
+  const use=v('caseUse');
+  const co=v('companyName')||'（事業單位名稱）';
+  const industry=v('industry')||'（產業類型）';
+  const size=v('companySize')||'（事業單位規模）';
+  const date=v('queryDate')||new Date().toISOString().slice(0,10);
+  const item=CASE_LIB[cat][type];
+  const isViolation=type==='violation';
+
+  const narrative=isViolation
+    ?`『${co}』（${industry}，${size}）於例行勞動檢查／內部稽核中被發現：${item.issue}。經檢查機構／內部稽核人員認定不符合${item.basis}相關規定。裁處或建議結果：處${fineBySize(size)}罰鍰（實際金額依情節而定），並要求於30日內完成改善，屆期未改善者得按次處罰。`
+    :`『${co}』（${industry}，${size}）於安全衛生管理上做到：${item.issue}。此作法符合${item.basis}之規範精神，於年度勞動檢查／內部稽核中未發現相關缺失，可作為同仁教育訓練與制度設計的參考範例。`;
+
+  const takeaway=isViolation
+    ?['檢查公司目前是否有相同的缺口，優先補上高風險項目','把本案例的裁處依據整理成一頁式提醒，於相關部門會議說明','設定改善期限與追蹤負責人，避免同類缺失重複發生']
+    :['把具體做法轉成標準作業流程（SOP），讓其他部門可以複製','列入新人到職教育訓練或主管在職訓練教材','定期回顧成效，確保制度不因人員異動而中斷'];
+
+  const html=`<div class="doc-title">${isViolation?'⚠️ 違規情境案例':'✅ 合規範例案例'}</div>
+<div class="doc-sub">${co}　｜　法規類別：${cat}　｜　用途：${use}　｜　日期：${date}</div>
+<div class="tag-line"><span class="cat-chip cat-${cat}">${cat}</span><span class="law-tag">${item.basis}</span></div>
+<hr>
+<h3>一、情境描述</h3>
+<p>${narrative}</p>
+
+<h3>二、法規依據</h3>
+<p>${item.basis}</p>
+
+<h3>三、可以怎麼運用這個案例</h3>
+<ol>
+${takeaway.map(t=>`<li>${t}</li>`).join('')}
+</ol>
+<hr>
+<p style="text-align:right;color:#aaa;font-size:13px">本案例為情境示範，非真實個案，僅供內部教育訓練與宣導使用。</p>`;
+
+  document.getElementById('caseOut').innerHTML=html;
+}
+
+/* ── INIT ── */
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('pwInput').focus();
+  initCats();
+  renderLawList();
+});
+</script>
+</body>
+</html>
