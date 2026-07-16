@@ -173,7 +173,7 @@ tr:hover td{background:var(--bg3)}
     </div>
   </div>
   <div class="prog-bar" id="prog-bar"><div class="prog-fill" id="prog"></div></div>
-  <div class="hdr-status">
+  <div class="hdr-status" style="display:none">
     <span class="dot dot-g" id="stat-dot"></span>
     <span id="stat-msg">✅ 所有法規連結與修正日期已查核完畢（115/06/11）</span>
     <span style="margin-left:auto;font-size:13px;opacity:.6" id="last-upd">上次查核：115/06/11</span>
@@ -963,20 +963,29 @@ async function syncOfficialDates() {
     const res = await fetch('law-registry-sync.json', { cache: 'no-store' });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const sync = await res.json();
+    const u = new Date(sync.updated);
+    const roc = isNaN(u) ? sync.updated : `${u.getFullYear() - 1911}/${String(u.getMonth() + 1).padStart(2, '0')}/${String(u.getDate()).padStart(2, '0')}`;
+
     let changed = 0;
     Object.values(DATA).forEach(cat => {
       cat.rows.forEach(r => {
         const hit = r.p && sync.records && sync.records[r.p.toUpperCase()];
-        if (!hit) return;
-        if (hit.mod && hit.mod !== r.mod) {
+        if (hit && hit.mod && hit.mod !== r.mod) {
           r.mod = hit.mod;
           r.status = '待複核';
           changed++;
         }
+        r.c = roc; // 清點日期＝這次官方資料同步日期，每部法規都一起更新
       });
     });
-    const u = new Date(sync.updated);
-    const roc = isNaN(u) ? sync.updated : `${u.getFullYear() - 1911}/${String(u.getMonth() + 1).padStart(2, '0')}/${String(u.getDate()).padStart(2, '0')}`;
+
+    ['hdr-chk', 'ft-chk', 'sig-chk'].forEach(id => {
+      const chkEl = document.getElementById(id);
+      if (chkEl) chkEl.textContent = roc;
+    });
+    const secInfo = document.getElementById('sec-info');
+    if (secInfo) secInfo.textContent = `清點日期：${roc}　｜　修正日期資料截至 ${roc}`;
+
     el.textContent = `✅ 官方資料同步於 ${roc}（每週一自動更新，本次有 ${changed} 筆修正日期異動）`;
     render();
   } catch (e) {
