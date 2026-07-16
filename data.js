@@ -10,8 +10,7 @@ const NAV=[
     {id:'tool-meeting',label:'會議追蹤工具',href:'會議追蹤工具.html'},
     {id:'tool-training',label:'教育訓練與證照管理',href:'教育訓練與證照管理系統.html'},
     {id:'tool-ghg',label:'溫室氣體盤查系統',href:'溫室氣體盤查系統.html'},
-    {id:'tool-bully',label:'職場不法侵害防治工具',href:'職場霸凌防治因應工具.html'},
-    {id:'tool-lawconv',label:'法規白話文轉換工具',href:'法規白話文轉換工具.html'}
+    {id:'tool-bully',label:'職場不法侵害防治工具',href:'職場霸凌防治因應工具.html'}
   ]},
   {id:'about',label:'關於我',icon:'ⓘ',type:'link'}
 ];
@@ -31,10 +30,7 @@ const TOOLS=[
     href:'溫室氣體盤查系統.html',category:'esg'},
   {id:'tool-bully',title:'職場不法侵害防治工具',tags:[['職安衛','tag-blue'],['2026修法','tag-red']],
     desc:'依職安法§36快速生成防治計畫書、申訴處理流程圖與懲處規範草案，涵蓋2026修法第三方騷擾新規。',
-    href:'職場霸凌防治因應工具.html',category:'osh'},
-  {id:'tool-lawconv',title:'法規白話文轉換工具',tags:[['職安衛','tag-blue'],['法規','tag-yellow']],
-    desc:'常用職安衛／勞動法規白話對照庫，並可貼上原文自動拆解重點、產生教育訓練用情境案例。',
-    href:'法規白話文轉換工具.html',category:'osh'}
+    href:'職場霸凌防治因應工具.html',category:'osh'}
 ];
 
 const ARTICLES=[
