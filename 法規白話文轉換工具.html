@@ -264,6 +264,61 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:16
         <div id="lawList"></div>
       </div>
     </div>
+
+    <div class="panel">
+      <div class="panel-hdr">
+        <div class="panel-title">🗂 法規登記系統清單（依產業別自動帶出）</div>
+        <div class="btn-row">
+          <button class="btn btn-g" onclick="toggleAddReg()">＋ 新增法規</button>
+        </div>
+      </div>
+      <div class="panel-body">
+        <p style="font-size:13px;color:var(--text2);margin-bottom:16px">
+          直接讀取「法規登記系統」目前登記的法規清單（同一份瀏覽器資料），依產業別篩選後可展開查看已收錄的逐條條文；點條號可看白話解釋、情境分析與罰則。清單裡沒有的法規可以在下面手動加入。
+        </p>
+        <div class="search-row">
+          <select id="regIndFilter" onchange="renderRegistry()" style="min-width:140px">
+            <option value="">產業別 全部</option>
+            <option value="mfg">製造業</option>
+            <option value="svc">服務業</option>
+            <option value="fin">金融業</option>
+            <option value="med">醫療業</option>
+            <option value="retail">零售業</option>
+            <option value="constr">建築業</option>
+            <option value="other">其他</option>
+          </select>
+          <input id="regSearch" placeholder="搜尋法規名稱..." oninput="renderRegistry()">
+        </div>
+        <div id="addRegForm" style="display:none;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:16px;margin-bottom:16px">
+          <div class="form-grid col3">
+            <div class="form-field"><label>法規名稱</label><input id="reg-new-name" placeholder="如：勞動基準法"></div>
+            <div class="form-field"><label>PCode（全國法規資料庫）</label><input id="reg-new-pcode" placeholder="如：N0030001"></div>
+            <div class="form-field"><label>適用產業</label>
+              <select id="reg-new-ind"><option value="all">全部</option><option value="mfg">製造業</option><option value="svc">服務業</option><option value="fin">金融業</option><option value="med">醫療業</option><option value="retail">零售業</option><option value="constr">建築業</option><option value="other">其他</option></select>
+            </div>
+          </div>
+          <div class="hint" style="margin-top:6px">PCode 可在<a href="https://law.moj.gov.tw/" target="_blank" rel="noopener">全國法規資料庫</a>搜尋該法規後，從網址列的 pcode= 參數取得。加入後會自動呼叫後端抓取條文全文。</div>
+          <div class="btn-row" style="margin-top:12px">
+            <button class="btn btn-p" onclick="addRegistryLaw()">加入並抓取條文</button>
+            <button class="btn btn-g" onclick="toggleAddReg()">取消</button>
+          </div>
+        </div>
+        <div id="regList"></div>
+      </div>
+    </div>
+
+    <div class="panel" id="artDetailPanel" style="display:none">
+      <div class="panel-hdr">
+        <div class="panel-title" id="artDetailTitle">📃 條文解析</div>
+        <div class="btn-row">
+          <button class="btn btn-yellow" onclick="copyDoc('artDetailOut')">📋 複製全文</button>
+          <button class="btn btn-g" onclick="document.getElementById('artDetailPanel').style.display='none'">收合</button>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div id="artDetailOut" class="doc-output"></div>
+      </div>
+    </div>
   </div>
 
   <!-- ── TAB 1: 自訂法規白話轉換 ── -->
@@ -546,6 +601,177 @@ function toggleCard(id){
 }
 
 /* ══════════════════════════════════════════════════════
+   TAB 0（續）— 法規登記系統清單（共用 localStorage，依產業別自動帶出）
+   部署 gas/法規全文查詢_Code.gs 後，把同一個網址填到這裡跟
+   法規登記系統.html 的 GAS_URL（兩邊要一樣，才會抓到同一份條文）。
+   ══════════════════════════════════════════════════════ */
+const LAW_API_URL='';
+const LAW_DATA_KEY='law_data_v1'; // 跟法規登記系統.html 共用同一把 localStorage key
+const REG_IND_LABELS={all:'全部',mfg:'製造業',svc:'服務業',fin:'金融業',med:'醫療業',retail:'零售業',constr:'建築業',other:'其他'};
+
+// 精選逐條解析（上面的 LAW_DB）對照到真實 pcode／條號，瀏覽登記系統條文時會疊加顯示
+const CURATED_OVERRIDE={
+  'N0060001|6':'osh6','N0060001|23':'osh23','N0060001|32':'osh32','N0060001|37':'osh37',
+  'N0060001|18':'osh18','N0060002|11-1':'細則11-1','N0060001|45':'osh45',
+  'N0030001|59':'labor59','N0030014|21':'gender21','N0060027|12-2':'mgmt12-2'
+};
+function findCurated(id){return LAW_DB.find(x=>x.id===id);}
+
+let REGISTRY=[];
+function loadRegistry(){
+  let data;
+  try{data=JSON.parse(localStorage.getItem(LAW_DATA_KEY)||'null');}catch(e){data=null;}
+  REGISTRY=[];
+  if(!data)return;
+  const seen=new Set();
+  Object.keys(data).forEach(cat=>{
+    (data[cat]||[]).forEach(r=>{
+      const key=r.p||r.n;
+      if(seen.has(key))return; // 三個分類常重複列同一部法規，只取第一次
+      seen.add(key);
+      REGISTRY.push({cat,n:r.n,p:r.p,mod:r.mod,ind:r.ind||[],articles:r.articles||[]});
+    });
+  });
+}
+
+function regToast(msg){
+  const wrap=document.getElementById('regList');
+  const el=document.createElement('div');
+  el.style.cssText='font-size:13px;color:var(--blue);background:var(--blue-bg);border-radius:8px;padding:8px 12px;margin-bottom:10px';
+  el.textContent=msg;
+  wrap.parentNode.insertBefore(el,wrap);
+  setTimeout(()=>el.remove(),4000);
+}
+
+function renderRegistry(){
+  loadRegistry();
+  const indf=document.getElementById('regIndFilter').value;
+  const q=(document.getElementById('regSearch').value||'').trim();
+  const list=REGISTRY.filter(r=>{
+    const matchInd=!indf||r.ind.includes('all')||r.ind.includes(indf);
+    const matchQ=!q||r.n.includes(q);
+    return matchInd&&matchQ;
+  });
+  const wrap=document.getElementById('regList');
+  if(!REGISTRY.length){
+    wrap.innerHTML='<div class="no-result">還沒讀到「法規登記系統」的資料。請先開啟該工具登入一次（資料會存進瀏覽器），或直接在上面手動加入法規。</div>';
+    return;
+  }
+  if(!list.length){
+    wrap.innerHTML='<div class="no-result">沒有符合條件的法規</div>';
+    return;
+  }
+  wrap.innerHTML=list.map(r=>{
+    const badges=(r.ind.length?r.ind:['未標記']).map(k=>`<span class="cat-chip" style="background:var(--bg3);color:var(--text2)">${REG_IND_LABELS[k]||k}</span>`).join(' ');
+    const n=r.articles.length;
+    const artArea=n
+      ?`<div class="chip-row" style="margin-top:10px">${r.articles.map(a=>`<span class="cat-chip cat-職安法" style="cursor:pointer" onclick="openArticle('${r.p}','${a.no}')">第 ${a.no} 條</span>`).join('')}</div>`
+      :`<div style="margin-top:10px"><button class="btn btn-g btn-sm" onclick="fetchRegistryArticles('${r.p}')">抓取條文全文</button></div>`;
+    return `<div class="law-card open">
+      <div class="law-card-hdr" style="cursor:default">
+        <div class="law-card-h-left">
+          <span class="law-card-title">${r.n}</span>
+          <span class="law-card-num">${r.p||'（未填PCode）'}　修正：${r.mod||'—'}</span>
+        </div>
+        <div>${badges}</div>
+      </div>
+      <div class="law-card-body" style="display:block">
+        ${n?`<div class="hint">已收錄 ${n} 條，點條號查看白話解析</div>`:''}
+        ${artArea}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleAddReg(){
+  const el=document.getElementById('addRegForm');
+  el.style.display=el.style.display==='none'?'block':'none';
+}
+
+async function addRegistryLaw(){
+  const name=document.getElementById('reg-new-name').value.trim();
+  const pcode=document.getElementById('reg-new-pcode').value.trim();
+  const ind=document.getElementById('reg-new-ind').value;
+  if(!name||!pcode){regToast('請填法規名稱與 PCode');return;}
+  if(!LAW_API_URL){regToast('⚠️ 請先在程式碼中填入 LAW_API_URL（見 gas/法規全文查詢_Code.gs）');return;}
+  let data;
+  try{data=JSON.parse(localStorage.getItem(LAW_DATA_KEY)||'null');}catch(e){data=null;}
+  if(!data){regToast('⚠️ 請先開啟一次「法規登記系統」讓瀏覽器建立好清單資料');return;}
+  try{
+    const res=await fetch(`${LAW_API_URL}?pcode=${encodeURIComponent(pcode)}`);
+    const d=await res.json();
+    if(!d.ok){regToast('抓取失敗：'+d.error);return;}
+    const today=new Date().toISOString().slice(0,10);
+    const newRow={n:name||d.name,p:pcode,pub:'',mod:d.mod||'',r:today,c:today,a:'Y',status:'待複核',reason:'從法規白話文轉換工具新增',ind:[ind],articles:d.articles||[]};
+    data.ohs=data.ohs||[];
+    data.ohs.push(newRow);
+    localStorage.setItem(LAW_DATA_KEY,JSON.stringify(data));
+    toggleAddReg();
+    renderRegistry();
+    regToast(`✅ 已加入「${newRow.n}」，共 ${newRow.articles.length} 條`);
+  }catch(e){regToast('連線錯誤：'+e.message);}
+}
+
+async function fetchRegistryArticles(pcode){
+  if(!LAW_API_URL){regToast('⚠️ 請先在程式碼中填入 LAW_API_URL');return;}
+  let data;
+  try{data=JSON.parse(localStorage.getItem(LAW_DATA_KEY)||'null');}catch(e){data=null;}
+  if(!data)return;
+  try{
+    const res=await fetch(`${LAW_API_URL}?pcode=${encodeURIComponent(pcode)}`);
+    const d=await res.json();
+    if(!d.ok){regToast('抓取失敗：'+d.error);return;}
+    Object.keys(data).forEach(cat=>{
+      (data[cat]||[]).forEach(r=>{
+        if(r.p===pcode){r.articles=d.articles||[];if(d.mod)r.mod=d.mod;}
+      });
+    });
+    localStorage.setItem(LAW_DATA_KEY,JSON.stringify(data));
+    renderRegistry();
+    regToast(`✅ 已抓取，共 ${d.articles.length} 條`);
+  }catch(e){regToast('連線錯誤：'+e.message);}
+}
+
+function openArticle(pcode,no){
+  const law=REGISTRY.find(r=>r.p===pcode);
+  const art=law&&law.articles.find(a=>String(a.no)===String(no));
+  if(!art)return;
+  const overrideId=CURATED_OVERRIDE[pcode+'|'+no];
+  const curated=overrideId?findCurated(overrideId):null;
+
+  let plain,ex,myth,actions;
+  if(curated){
+    plain=curated.plain;ex=curated.ex;myth=curated.myth;actions=null;
+  }else{
+    plain='這條規定的原文如上。閱讀時可以先抓「誰要遵守、要做到什麼、沒做到會怎樣」三個重點；需要更完整的拆解，可以到「自訂法規白話轉換」分頁貼上這段原文，工具會自動抓期限、罰鍰等關鍵資訊。';
+    actions=pickActions(art.text);
+  }
+
+  const fineMatches=[...art.text.matchAll(/(新臺幣)?\s*[0-90-9〇一二三四五六七八九十百千萬,，]+\s*元/g)].map(m=>m[0]);
+  const dayMatch=art.text.match(/([0-90-9〇一二三四五六七八九十百]+)\s*(個)?\s*(工作)?(天|日|小時)/);
+
+  const html=`<div class="doc-title">${law.n}　第 ${no} 條</div>
+<div class="doc-sub">${curated?'⭐ 精選逐條解析':'規則式自動拆解'}　｜　PCode：${pcode}　｜　修正日期：${law.mod||'—'}</div>
+<hr>
+<h3>原文</h3>
+<p style="background:var(--bg2);border:1px solid var(--border2);border-radius:8px;padding:12px 16px;font-family:var(--mono);font-size:13px;color:var(--text2);white-space:pre-wrap">${art.text}</p>
+<h3>💬 白話解釋</h3>
+<p>${plain}</p>
+${ex?`<h3>🧾 實際案例</h3><p>${ex}</p>`:''}
+${myth?`<h3>⚠️ 常見誤解</h3><p>${myth}</p>`:''}
+${fineMatches.length?`<h3>⚖️ 罰則／金額</h3><p>${fineMatches.join('～')}</p>`:''}
+${dayMatch?`<h3>⏱ 期限</h3><p>${dayMatch[0]}</p>`:''}
+${actions?`<h3>✅ 建議行動</h3><ol>${actions.map(a=>`<li>${a}</li>`).join('')}</ol>`:''}
+<hr>
+<p style="text-align:right;color:#aaa;font-size:13px">資料來源：全國法規資料庫（修正日期 ${law.mod||'—'}）　｜　${curated?'精選內容為人工撰寫':'白話拆解為規則式自動產生，非正式法律意見'}</p>`;
+
+  document.getElementById('artDetailTitle').textContent=`📃 ${law.n} 第 ${no} 條`;
+  document.getElementById('artDetailOut').innerHTML=html;
+  document.getElementById('artDetailPanel').style.display='block';
+  document.getElementById('artDetailPanel').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+/* ══════════════════════════════════════════════════════
    TAB 1 — 自訂法規白話轉換（規則式抽取，非真人 AI）
    ══════════════════════════════════════════════════════ */
 const ACTION_LIB={
@@ -691,6 +917,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('pwInput').focus();
   initCats();
   renderLawList();
+  renderRegistry();
 });
 </script>
 </body>
