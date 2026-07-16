@@ -363,15 +363,15 @@ tr:hover td{background:var(--bg3)}
       </div>
       <div class="edit-field full">
         <label>產業別（可複選，「全部」會覆蓋其他選項）</label>
-        <div id="ef-ind" style="display:flex;flex-wrap:wrap;gap:10px 16px;font-size:14px;color:var(--text)">
-          <label style="display:flex;align-items:center;gap:5px;font-weight:600"><input type="checkbox" value="all">全部</label>
-          <label style="display:flex;align-items:center;gap:5px"><input type="checkbox" value="mfg">製造業</label>
-          <label style="display:flex;align-items:center;gap:5px"><input type="checkbox" value="svc">服務業</label>
-          <label style="display:flex;align-items:center;gap:5px"><input type="checkbox" value="fin">金融業</label>
-          <label style="display:flex;align-items:center;gap:5px"><input type="checkbox" value="med">醫療業</label>
-          <label style="display:flex;align-items:center;gap:5px"><input type="checkbox" value="retail">零售業</label>
-          <label style="display:flex;align-items:center;gap:5px"><input type="checkbox" value="constr">建築業</label>
-          <label style="display:flex;align-items:center;gap:5px"><input type="checkbox" value="other">其他</label>
+        <div id="ef-ind" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px 12px;font-size:13.5px;color:var(--text)">
+          <label style="display:flex;align-items:center;gap:5px;font-weight:600;white-space:nowrap"><input type="checkbox" value="all">全部</label>
+          <label style="display:flex;align-items:center;gap:5px;white-space:nowrap"><input type="checkbox" value="mfg">製造業</label>
+          <label style="display:flex;align-items:center;gap:5px;white-space:nowrap"><input type="checkbox" value="svc">服務業</label>
+          <label style="display:flex;align-items:center;gap:5px;white-space:nowrap"><input type="checkbox" value="fin">金融業</label>
+          <label style="display:flex;align-items:center;gap:5px;white-space:nowrap"><input type="checkbox" value="med">醫療業</label>
+          <label style="display:flex;align-items:center;gap:5px;white-space:nowrap"><input type="checkbox" value="retail">零售業</label>
+          <label style="display:flex;align-items:center;gap:5px;white-space:nowrap"><input type="checkbox" value="constr">建築業</label>
+          <label style="display:flex;align-items:center;gap:5px;white-space:nowrap"><input type="checkbox" value="other">其他</label>
         </div>
       </div>
     </div>
