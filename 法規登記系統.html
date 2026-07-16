@@ -787,6 +787,7 @@ function applyAdminUI() {
   const adminBtns = document.getElementById('admin-btns');
   const pubExport = document.getElementById('btn-export-pub');
   const adminBadge = document.getElementById('admin-badge');
+  const colEdit = document.getElementById('col-edit');
 
   if (isAdmin) {
     btnAdmin.textContent = '🔓 管理者登出';
@@ -797,6 +798,7 @@ function applyAdminUI() {
     pubExport.style.display = 'none';
     adminBadge.textContent = '👤 管理者模式';
     adminBadge.style.cssText = 'background:#E1F3FE;color:#1F6C9F;padding:2px 8px;border-radius:8px;font-size:13px';
+    colEdit.style.display = 'table-cell';
   } else {
     btnAdmin.textContent = '🔒 管理者登入';
     btnAdmin.style.background = '';
@@ -805,6 +807,7 @@ function applyAdminUI() {
     adminBtns.style.display = 'none';
     pubExport.style.display = '';
     adminBadge.textContent = '';
+    colEdit.style.display = 'none';
   }
   render();
 }
