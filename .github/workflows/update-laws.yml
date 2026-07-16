@@ -1,4 +1,4 @@
-name: 每週同步職安法子法異動日期
+name: 每週同步法規異動日期（職安法子法地圖＋法規登記系統）
 
 on:
   schedule:
@@ -19,7 +19,7 @@ jobs:
         with:
           node-version: "20"
 
-      - name: 下載全國法規資料庫「命令」層級全庫 JSON
+      - name: 下載全國法規資料庫「命令」層級全庫 JSON（子法／辦法／規則／標準）
         run: |
           curl -sL --retry 3 --retry-delay 10 \
             -A "Mozilla/5.0 (blog-project weekly law sync; contact via repo issues)" \
@@ -29,20 +29,33 @@ jobs:
           echo "CHORDER_FILE=$CHORDER" >> "$GITHUB_ENV"
           echo "解壓得到：$CHORDER"
 
-      - name: 比對並更新異動日期
+      - name: 下載全國法規資料庫「法律」層級全庫 JSON（法規登記系統含母法）
+        run: |
+          curl -sL --retry 3 --retry-delay 10 \
+            -A "Mozilla/5.0 (blog-project weekly law sync; contact via repo issues)" \
+            -o chlaw.zip "https://law.moj.gov.tw/api/ch/law/json"
+          unzip -o chlaw.zip
+          CHLAW=$(ls -1 | grep -i '^chlaw.*\.json$' | head -n 1)
+          echo "CHLAW_FILE=$CHLAW" >> "$GITHUB_ENV"
+          echo "解壓得到：$CHLAW"
+
+      - name: 比對並更新「職安法子法地圖」異動日期
         run: node scripts/update-laws.mjs "$CHORDER_FILE"
 
+      - name: 比對並更新「法規登記系統」異動日期
+        run: node scripts/update-law-registry.mjs "$CHLAW_FILE" "$CHORDER_FILE"
+
       - name: 清理暫存檔
-        run: rm -f chorder.zip "$CHORDER_FILE" manifest.csv schema.csv
+        run: rm -f chorder.zip chlaw.zip "$CHORDER_FILE" "$CHLAW_FILE" manifest.csv schema.csv
 
       - name: 提交變更（有異動才 commit）
         run: |
           git config user.name "law-sync-bot"
           git config user.email "actions@github.com"
-          git add laws.json
+          git add laws.json law-registry-sync.json
           if git diff --cached --quiet; then
             echo "本週無異動，不建立 commit"
           else
-            git commit -m "chore: 同步職安法子法異動日期 $(date +%Y-%m-%d)"
+            git commit -m "chore: 同步法規異動日期 $(date +%Y-%m-%d)"
             git push
           fi

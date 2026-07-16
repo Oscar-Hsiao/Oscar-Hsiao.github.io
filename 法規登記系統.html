@@ -179,7 +179,7 @@ tr:hover td{background:var(--bg3)}
     <span style="margin-left:auto;font-size:13px;opacity:.6" id="last-upd">上次查核：115/06/11</span>
   </div>
   <div class="api-bar">
-    官方 API：<a href="https://law.moj.gov.tw/api/ch/law/json" target="_blank">https://law.moj.gov.tw/api/ch/law/json</a>
+    <span id="registry-sync-status">⏳ 正在載入官方法規異動日期…</span>
     <span style="margin-left:auto" id="admin-badge"></span>
   </div>
 </header>
@@ -537,9 +537,9 @@ const DATA = {
     {n:'空氣污染防制法',p:'O0040011',pub:'064/05/23',mod:'107/08/01',r:'113/08/15',c:'115/06/11',a:'Y',ind:['mfg','constr']},
     {n:'空氣污染防制法施行細則',p:'O0040012',pub:'065/10/20',mod:'109/09/18',r:'081/04/10',c:'115/06/11',a:'Y',ind:['mfg','constr']},
     {n:'空氣品質標準',p:'O0040015',pub:'063/04/16',mod:'113/09/30',r:'113/08/15',c:'115/06/11',a:'Y',ind:['mfg','constr']},
-    {n:'室內空氣品質管理法',p:'O0040020',pub:'100/11/23',mod:'無',r:'113/08/15',c:'115/06/11',a:'Y',ind:['all']},
-    {n:'室內空氣品質管理法施行細則',p:'O0040021',pub:'101/11/23',mod:'無',r:'113/08/15',c:'115/06/11',a:'Y',ind:['all']},
-    {n:'室內空氣品質標準',p:'O0040022',pub:'101/11/23',mod:'無',r:'113/08/15',c:'115/06/11',a:'Y',ind:['all']},
+    {n:'室內空氣品質管理法',p:'O0130001',pub:'100/11/23',mod:'無',r:'113/08/15',c:'115/06/11',a:'Y',ind:['all']},
+    {n:'室內空氣品質管理法施行細則',p:'O0130002',pub:'101/11/23',mod:'無',r:'113/08/15',c:'115/06/11',a:'Y',ind:['all']},
+    {n:'室內空氣品質標準',p:'O0130005',pub:'101/11/23',mod:'無',r:'113/08/15',c:'115/06/11',a:'Y',ind:['all']},
     {n:'氣候變遷因應法',p:'O0040031',pub:'104/07/01',mod:'112/02/15',r:'113/08/15',c:'115/06/11',a:'Y',ind:['all']},
     {n:'溫室氣體減量及管理法施行細則',p:'O0040032',pub:'105/01/06',mod:'112/12/29',r:'113/08/15',c:'115/06/11',a:'Y',ind:['all']},
     {n:'水污染防治法',p:'O0040016',pub:'063/07/11',mod:'107/06/13',r:'113/08/15',c:'115/06/11',a:'Y',ind:['mfg','constr']},
@@ -553,8 +553,8 @@ const DATA = {
     {n:'廢棄物清理法施行細則',p:'O0050036',pub:'090/05/30',mod:'108/11/06',r:'113/08/15',c:'115/06/11',a:'Y',ind:['all']},
     {n:'毒性及關注化學物質管理法',p:'O0060012',pub:'075/11/26',mod:'108/01/16',r:'113/08/15',c:'115/06/11',a:'Y',ind:['mfg','constr','med']},
     {n:'毒性及關注化學物質管理法施行細則',p:'O0060013',pub:'078/08/02',mod:'108/09/03',r:'113/08/15',c:'115/06/11',a:'Y',ind:['mfg','constr','med']},
-    {n:'噪音管制法',p:'O0040023',pub:'072/05/13',mod:'110/01/20',r:'113/08/15',c:'115/06/11',a:'Y',ind:['mfg','constr']},
-    {n:'噪音管制法施行細則',p:'O0040024',pub:'073/12/20',mod:'099/03/11',r:'113/08/15',c:'115/06/11',a:'Y',ind:['mfg','constr']},
+    {n:'噪音管制法',p:'O0030001',pub:'072/05/13',mod:'110/01/20',r:'113/08/15',c:'115/06/11',a:'Y',ind:['mfg','constr']},
+    {n:'噪音管制法施行細則',p:'O0030002',pub:'073/12/20',mod:'099/03/11',r:'113/08/15',c:'115/06/11',a:'Y',ind:['mfg','constr']},
   ]}
 };
 
@@ -952,8 +952,41 @@ document.getElementById('jb-modal').addEventListener('click', e => {
   if (e.target === e.currentTarget) document.getElementById('jb-modal').classList.remove('show');
 });
 
+// ═══════════════════════════════════════════════════════
+// 官方異動日期同步（law-registry-sync.json，由 GitHub Actions 每週產生，
+// 跟「職安法子法地圖」共用同一套 workflow）。只更新 mod／abolished／status，
+// 不覆蓋管理者在 localStorage 裡自行維護的合規狀態理由、產業別等欄位。
+// ═══════════════════════════════════════════════════════
+async function syncOfficialDates() {
+  const el = document.getElementById('registry-sync-status');
+  try {
+    const res = await fetch('law-registry-sync.json', { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const sync = await res.json();
+    let changed = 0;
+    Object.values(DATA).forEach(cat => {
+      cat.rows.forEach(r => {
+        const hit = r.p && sync.records && sync.records[r.p.toUpperCase()];
+        if (!hit) return;
+        if (hit.mod && hit.mod !== r.mod) {
+          r.mod = hit.mod;
+          r.status = '待複核';
+          changed++;
+        }
+      });
+    });
+    const u = new Date(sync.updated);
+    const roc = isNaN(u) ? sync.updated : `${u.getFullYear() - 1911}/${String(u.getMonth() + 1).padStart(2, '0')}/${String(u.getDate()).padStart(2, '0')}`;
+    el.textContent = `✅ 官方資料同步於 ${roc}（每週一自動更新，本次有 ${changed} 筆修正日期異動）`;
+    render();
+  } catch (e) {
+    el.textContent = '⚠️ 官方異動日期尚未同步（law-registry-sync.json 無法讀取）';
+  }
+}
+
 // 初始化
 render();
+syncOfficialDates();
 </script>
 </body>
 </html>
