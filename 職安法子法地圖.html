@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>職安法子法地圖（5M）— 法規異動自動追蹤</title>
+<meta name="description" content="以人機料法環五大面向整理職安法體系子法，異動日期每週自動同步全國法規資料庫。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;600&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#FBFBFA;--bg2:#fff;--bg3:#F7F6F3;
+  --border:#EAEAEA;--border2:#DDDBD6;
+  --text:#2F3437;--text2:#787774;--text3:#A8A29E;
+  --blue:#1F6C9F;--blue-bg:#E1F3FE;
+  --green:#346538;--green-bg:#EDF3EC;
+  --yellow:#956400;--yellow-bg:#FBF3DB;
+  --red:#AF4040;--red-bg:#FCEAEA;
+  --purple:#6B4FA0;--purple-bg:#EFEAF7;
+  --gold:#C9A24B;--sidebar:#4E565C;
+  --font:'Noto Sans TC',-apple-system,BlinkMacSystemFont,'Segoe UI','Microsoft JhengHei',sans-serif;
+  --font-serif:'Noto Serif TC',-apple-system,serif;
+  --mono:'JetBrains Mono','Courier New',monospace;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+
+/* ── HEADER ── */
+.hdr{background:var(--bg2);color:var(--text);position:sticky;top:0;z-index:100;border-bottom:1px solid var(--border)}
+.hdr-top{display:flex;justify-content:space-between;align-items:flex-start;padding:18px 0 12px;margin:0 2cm;flex-wrap:wrap;gap:8px}
+.logo-wrap{display:flex;align-items:center;gap:12px}
+.logo-icon{height:44px;width:44px;border-radius:8px;background:var(--yellow-bg);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+.logo-t h1{font-size:21px;font-weight:600;color:var(--text);line-height:1.3;font-family:var(--font-serif)}
+.logo-t p{font-size:13px;color:var(--text3);margin-top:3px}
+.hdr-meta{text-align:right;font-size:13px;color:var(--text2);line-height:2}
+.badge-sync{background:var(--green-bg);color:var(--green);font-size:12px;font-weight:600;padding:3px 9px;border-radius:10px}
+.back-btn{font-size:13px;padding:5px 12px;border-radius:8px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);cursor:pointer;font-family:var(--font);display:inline-flex;align-items:center;gap:5px;transition:all .15s;text-decoration:none}
+.back-btn:hover{background:var(--bg);color:var(--text)}
+
+/* ── STATS BAR ── */
+.stats-bar{background:var(--yellow-bg);border-bottom:2px solid #F4E4B8;padding:12px 0;margin:0}
+.stats-inner{margin:0 2cm;display:flex;gap:22px;flex-wrap:wrap;align-items:center}
+.stat-item{font-size:13px;color:var(--text2)}
+.stat-item b{font-size:17px;color:var(--text);font-weight:700;margin-right:3px;font-family:var(--mono)}
+.stat-item.hot b{color:var(--red)}
+.stat-item.sync b{color:var(--green)}
+.stats-search{margin-left:auto;display:flex;align-items:center;gap:8px;border:1px solid #F4E4B8;border-radius:8px;padding:6px 12px;background:#fff;min-width:220px}
+.stats-search input{border:none;outline:none;background:none;font-size:14px;color:var(--text);width:100%;font-family:var(--font)}
+
+/* ── MAIN ── */
+.main{margin:0 2cm;padding:24px 0 60px}
+
+/* ── PANEL ── */
+.panel{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:20px}
+.panel-hdr{padding:14px 20px;background:var(--bg3);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.panel-title{font-size:15px;font-weight:600;font-family:var(--font-serif);display:flex;align-items:center;gap:8px}
+.panel-body{padding:16px 20px}
+
+/* ── 異動雷達 ── */
+.pulse-dot{width:8px;height:8px;border-radius:50%;background:var(--red);position:relative;flex-shrink:0}
+.pulse-dot::after{content:"";position:absolute;inset:-5px;border-radius:50%;border:1.5px solid var(--red);animation:ping 1.8s ease-out infinite;opacity:.7}
+@keyframes ping{0%{transform:scale(.5);opacity:.8}100%{transform:scale(1.6);opacity:0}}
+.panel-sub{font-size:12px;color:var(--text3);font-weight:400}
+.radar-scroll{display:flex;gap:0;overflow-x:auto;margin:0 -20px;padding:0 20px}
+.radar-item{flex:none;min-width:220px;padding:12px 16px;border-right:1px solid var(--border);text-decoration:none;color:inherit;display:block}
+.radar-item:hover{background:var(--bg3)}
+.radar-item .rname{font-size:13.5px;font-weight:500;display:block;margin-bottom:4px;color:var(--text)}
+.radar-item .rdate{font-family:var(--mono);font-size:12px;color:var(--red);font-weight:600}
+.radar-item .rcat{font-family:var(--mono);font-size:11px;color:var(--text3);margin-left:8px}
+.empty-note{color:var(--text3);font-size:13.5px;padding:8px 0}
+
+/* ── PILLAR GRID ── */
+.pillar-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+@media(max-width:1200px){.pillar-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:800px){.pillar-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.pillar-grid{grid-template-columns:1fr}}
+.pillar{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+.pillar-hdr{padding:14px 16px 12px;border-bottom:1px solid var(--border)}
+.pillar-glyph{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:8px;font-family:var(--font-serif);font-weight:700;font-size:17px;margin-bottom:8px}
+.pillar-title{font-size:15px;font-weight:700;font-family:var(--font-serif)}
+.pillar-title small{font-family:var(--mono);font-weight:400;font-size:11px;color:var(--text3);margin-left:5px}
+.pillar-desc{font-size:12px;color:var(--text2);margin-top:3px}
+.pillar-count{font-family:var(--mono);font-size:11px;color:var(--text3);margin-top:6px}
+.pillar-body{padding:4px 0 6px;flex:1}
+.grp-label{font-size:11px;letter-spacing:.06em;padding:8px 16px 3px;font-weight:700;font-family:var(--mono)}
+.law-row{display:block;padding:7px 16px;text-decoration:none;color:inherit}
+a.law-row:hover{background:var(--bg3)}
+.law-row .lname{font-size:13px;font-weight:500;color:var(--text);display:block}
+.law-row .lmeta{display:flex;align-items:center;gap:6px;margin-top:3px;flex-wrap:wrap}
+.ldate{font-family:var(--mono);font-size:11.5px;color:var(--text3)}
+.ldate.d-hot{color:var(--red);font-weight:600}
+.ldate.d-warm{color:var(--yellow);font-weight:600}
+.mini-badge{font-family:var(--mono);font-size:10.5px;padding:1px 6px;border-radius:4px;font-weight:600}
+.b-new{background:var(--red-bg);color:var(--red)}
+.b-grp{background:var(--bg3);color:var(--text3);border:1px solid var(--border2)}
+.b-wait{background:var(--bg3);color:var(--text3)}
+.b-abo{background:var(--text3);color:#fff}
+.law-row.hidden,.grp-label.hidden{display:none}
+.pillar-foot{border-top:1px dashed var(--border2);padding:9px 16px;font-size:11.5px;color:var(--text3)}
+
+/* ── FLOW ── */
+.flow-box{background:var(--text);color:#EDEBE4;border-radius:12px;padding:14px 20px;display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;font-size:13px}
+.flow-box .ft{font-family:var(--font-serif);font-weight:600;font-size:14px;margin-right:4px}
+.flow-box .step{font-family:var(--mono);font-size:12px;opacity:.92}
+.flow-box .arr{opacity:.45}
+
+/* ── FOOTER ── */
+.foot-note{font-size:12px;color:var(--text3);line-height:1.8;padding-top:8px}
+.foot-note a{color:var(--text3)}
+
+@media(max-width:900px){
+  .hdr-top,.stats-inner,.main{margin:0 16px}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-top">
+    <div class="logo-wrap">
+      <a href="/" class="back-btn">← 回首頁</a>
+      <div class="logo-icon">🗺️</div>
+      <div class="logo-t">
+        <h1>職安法子法地圖 <span style="color:var(--red)">5M</span></h1>
+        <p>以「人・機・料・法・環」整理職安法體系子法</p>
+      </div>
+    </div>
+    <div class="hdr-meta">
+      <span class="badge-sync" id="syncBadge">同步中…</span><br>
+      <span style="font-size:12px;color:var(--text3)">每週一自動同步全國法規資料庫</span>
+    </div>
+  </div>
+</div>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stats-inner">
+    <span class="stat-item"><b id="stTotal">–</b>部收錄</span>
+    <span class="stat-item hot"><b id="stHot">–</b>部 90 天內異動</span>
+    <span class="stat-item sync">同步於 <b id="stSync">尚未同步</b></span>
+    <div class="stats-search">
+      <span style="color:var(--text3);font-size:13px">🔍</span>
+      <input id="q" type="search" placeholder="搜尋法規名稱…">
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <div class="panel">
+    <div class="panel-hdr">
+      <span class="pulse-dot"></span>
+      <div class="panel-title">異動雷達 <span class="panel-sub">最近 365 天內修正發布，由新至舊</span></div>
+    </div>
+    <div class="panel-body">
+      <div class="radar-scroll" id="radar"></div>
+    </div>
+  </div>
+
+  <div class="pillar-grid" id="grid"></div>
+
+  <div class="panel" style="margin-top:6px">
+    <div class="panel-body">
+      <div class="flow-box">
+        <span class="ft">5M 整合管理・持續改善</span>
+        <span class="step">辨識危害</span><span class="arr">→</span>
+        <span class="step">評估風險</span><span class="arr">→</span>
+        <span class="step">控制風險</span><span class="arr">→</span>
+        <span class="step">執行與運作</span><span class="arr">→</span>
+        <span class="step">檢查與評估</span><span class="arr">→</span>
+        <span class="step">改善與精進</span>
+      </div>
+      <div class="foot-note">
+        資料來源：<a href="https://law.moj.gov.tw/" target="_blank" rel="noopener">全國法規資料庫</a>（法務部）。本頁為職安法主要子法之彙整地圖，「彙整」標記者為相關規定之類別統稱；實際法規名稱、數量及效力以勞動部職業安全衛生署及全國法規資料庫公告為準。異動日期由排程自動更新，僅供快速參考，不構成法律意見。
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const CAT = {
+  man:     {zh:'人', en:'Man',      desc:'人的管理與保護',     goal:'提升人員能力、促進身心健康、預防不法侵害', color:'blue'},
+  machine: {zh:'機', en:'Machine',  desc:'機械設備與器具安全', goal:'確保機械設備本質安全、預防機械災害',       color:'green'},
+  material:{zh:'料', en:'Material', desc:'化學品與危害物管理', goal:'掌握化學品危害、預防中毒火災與爆炸',       color:'purple'},
+  method:  {zh:'法', en:'Method',   desc:'管理制度與作業方法', goal:'建立制度、落實管理、以系統方法控制風險',   color:'yellow'},
+  medium:  {zh:'環', en:'Medium',   desc:'作業環境與外部條件', goal:'提供安全健康的作業環境、預防環境性危害',   color:'red'}
+};
+const ORDER = ['man','machine','material','method','medium'];
+const DAY = 86400000;
+
+function parseDate(s){
+  if(!s) return null;
+  s = String(s).replace(/-/g,'');
+  let y,m,d;
+  if(s.length===7){ y=+s.slice(0,3)+1911; m=+s.slice(3,5); d=+s.slice(5,7); }
+  else if(s.length===8){ y=+s.slice(0,4); m=+s.slice(4,6); d=+s.slice(6,8); }
+  else return null;
+  const dt = new Date(y, m-1, d);
+  return isNaN(dt) ? null : dt;
+}
+function rocFmt(dt){ return (dt.getFullYear()-1911)+'.'+String(dt.getMonth()+1).padStart(2,'0')+'.'+String(dt.getDate()).padStart(2,'0'); }
+function daysAgo(dt){ return Math.floor((Date.now()-dt.getTime())/DAY); }
+function esc(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+
+function render(data){
+  const laws = data.laws || [];
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+  let hotCount = 0;
+
+  ORDER.forEach(cat=>{
+    const items = laws.filter(l=>l.category===cat);
+    if(!items.length) return;
+    const c = CAT[cat];
+    const pillar = document.createElement('section');
+    pillar.className = 'pillar';
+    let html = `<div class="pillar-hdr">
+      <div class="pillar-glyph" style="background:var(--${c.color}-bg);color:var(--${c.color})">${c.zh}</div>
+      <div class="pillar-title">${c.zh} <small>${c.en}</small></div>
+      <div class="pillar-desc">${c.desc}</div>
+      <div class="pillar-count">${items.length} 部</div>
+    </div><div class="pillar-body">`;
+    let lastGrp = null, idx = 0;
+    items.forEach(l=>{
+      if(l.group && l.group!==lastGrp){
+        html += `<div class="grp-label" style="color:var(--${c.color})" data-grp="1">${esc(l.group)}</div>`;
+        lastGrp = l.group;
+      }
+      idx++;
+      const dt = parseDate(l.amendDate);
+      let meta = '';
+      if(l.abolished){ meta = '<span class="mini-badge b-abo">已廢止</span>'; }
+      else if(l.matchType==='grouping'){ meta = '<span class="mini-badge b-grp">彙整</span>'; }
+      else if(dt){
+        const ago = daysAgo(dt);
+        if(ago<=90){ hotCount++; meta = `<span class="ldate d-hot">${rocFmt(dt)} 修正</span><span class="mini-badge b-new">新</span>`; }
+        else if(ago<=365){ meta = `<span class="ldate d-warm">${rocFmt(dt)} 修正</span>`; }
+        else{ meta = `<span class="ldate">${rocFmt(dt)} 修正</span>`; }
+      } else { meta = '<span class="mini-badge b-wait">待同步</span>'; }
+      const tag = l.url ? 'a' : 'div';
+      html += `<${tag} class="law-row"${l.url?` href="${esc(l.url)}" target="_blank" rel="noopener"`:''} data-name="${esc(l.name)}">
+        <span class="lname">${idx}. ${esc(l.name)}</span>
+        <span class="lmeta">${meta}</span></${tag}>`;
+    });
+    html += `</div><div class="pillar-foot">目的：<strong style="color:var(--${c.color})">${c.goal}</strong></div>`;
+    pillar.innerHTML = html;
+    grid.appendChild(pillar);
+  });
+
+  document.getElementById('stTotal').textContent = laws.length;
+  document.getElementById('stHot').textContent = hotCount;
+  if(data.updated){
+    const u = new Date(data.updated);
+    const txt = isNaN(u) ? data.updated : rocFmt(u);
+    document.getElementById('stSync').textContent = txt;
+    document.getElementById('syncBadge').textContent = '已同步 ' + txt;
+  }
+
+  const radar = document.getElementById('radar');
+  const recent = laws
+    .map(l=>({l, dt:parseDate(l.amendDate)}))
+    .filter(x=>x.dt && !x.l.abolished && daysAgo(x.dt)<=365)
+    .sort((a,b)=>b.dt-a.dt)
+    .slice(0,12);
+  if(recent.length){
+    radar.innerHTML = recent.map(x=>{
+      const tag = x.l.url ? 'a' : 'div';
+      return `<${tag} class="radar-item"${x.l.url?` href="${esc(x.l.url)}" target="_blank" rel="noopener"`:''}>
+        <span class="rname">${esc(x.l.name)}</span>
+        <span class="rdate">${rocFmt(x.dt)} 修正發布</span>
+        <span class="rcat">${CAT[x.l.category].zh}</span></${tag}>`;
+    }).join('');
+  } else {
+    radar.innerHTML = '<div class="empty-note">尚無同步資料。首次排程執行後，近一年內修正的法規會顯示在這裡。</div>';
+  }
+}
+
+document.getElementById('q').addEventListener('input', function(){
+  const q = this.value.trim();
+  document.querySelectorAll('.law-row').forEach(el=>{
+    el.classList.toggle('hidden', q!=='' && el.dataset.name.indexOf(q)===-1);
+  });
+  document.querySelectorAll('.pillar').forEach(p=>{
+    p.querySelectorAll('.grp-label').forEach(g=>{
+      let sib = g.nextElementSibling, any=false;
+      while(sib && !sib.dataset.grp){ if(sib.classList.contains('law-row') && !sib.classList.contains('hidden')) any=true; sib=sib.nextElementSibling; }
+      g.classList.toggle('hidden', !any);
+    });
+  });
+});
+
+fetch('laws.json', {cache:'no-store'})
+  .then(r=>{ if(!r.ok) throw 0; return r.json(); })
+  .then(render)
+  .catch(()=>{
+    document.getElementById('syncBadge').textContent = '載入失敗';
+    document.getElementById('radar').innerHTML = '<div class="empty-note">無法載入法規資料，請稍後重新整理。</div>';
+  });
+</script>
+</body>
+</html>

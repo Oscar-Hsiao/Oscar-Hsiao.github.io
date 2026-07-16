@@ -1,0 +1,567 @@
+{
+  "updated": "2026-07-16T14:50:57.773Z",
+  "source": "全國法規資料庫（https://law.moj.gov.tw/）",
+  "note": "日期由 GitHub Actions 每週自動同步；matchType=grouping 為彙整類別，不比對單一法規",
+  "laws": [
+    {
+      "id": "man-01",
+      "category": "man",
+      "group": "教育與能力",
+      "name": "職業安全衛生教育訓練規則",
+      "matchType": "exact",
+      "amendDate": "20260625",
+      "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060010",
+      "abolished": false
+    },
+    {
+      "id": "man-02",
+      "category": "man",
+      "group": "教育與能力",
+      "name": "特定對象及特定作業主管安全衛生教育訓練相關規定",
+      "matchType": "grouping",
+      "amendDate": null,
+      "url": null,
+      "abolished": false
+    },
+    {
+      "id": "man-03",
+      "category": "man",
+      "group": "健康與福祉",
+      "name": "勞工健康保護規則",
+      "matchType": "exact",
+      "amendDate": "20260626",
+      "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060022",
+      "abolished": false
+    },
+    {
+      "id": "man-04",
+      "category": "man",
+      "group": "健康與福祉",
+      "name": "勞工健康服務專業機構管理規則",
+      "matchType": "exact",
+      "amendDate": "20260626",
+      "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060087",
+      "abolished": false
+    },
+    {
+      "id": "man-05",
+      "category": "man",
+      "group": "健康與福祉",
+      "name": "勞工體格及健康檢查相關規定",
+      "matchType": "grouping",
+      "amendDate": null,
+      "url": null,
+      "abolished": false
+    },
+    {
+      "id": "man-06",
+      "category": "man",
+      "group": "健康與福祉",
+      "name": "女性勞工母性健康保護實施辦法",
+      "matchType": "exact",
+      "amendDate": "20240531",
+      "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060065",
+      "abolished": false
+    },
+    {
+      "id": "man-07",
+      "category": "man",
+      "group": "職場友善",
+      "name": "職場霸凌防治措施準則",
+      "matchType": "exact",
+      "amendDate": "20260623",
+      "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060085",
+      "abolished": false
+    },
+    {
+      "id": "man-08",
+      "category": "man",
+      "group": "職場友善",
+      "name": "地方主管機關受理最高負責人職場霸凌事件申訴處理辦法",
+      "matchType": "exact",
+      "amendDate": "20260623",
+      "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060086",
+      "abolished": false
+    },
+    {
+      "id": "mac-01",
+      "category": "machine",
+      "group": null,
+      "name": "機械設備器具監督管理辦法",
+      "matchType": "exact",
+      "amendDate": "20260625",
+      "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060063",
+      "abolished": false
+    },
+    {
+      "id": "mac-02",
+      "category": "machine",
+      "group": null,
+      "name": "機械設備器具安全標準",
+      "matchType": "exact",
+      "amendDate": "20220511",
+      "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060034",
+      "abolished": false
+    },
+    {
+      "id": "mac-03",
+      "category": "machine",
+      "group": null,
+      "name": "固定式起重機安全檢查構造標準",
+      "matchType": "exact",
+      "amendDate": "20140627",
+      "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0070022",
+      "abolished": false
+    },
+    {
+      "id": "mac-04",
+      "category": "machine",
+      "group": null,
+      "name": "移動式起重機安全檢查構造標準",
+      "matchType": "exact",
+      "amendDate": "20140627",
+      "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0070021",
+      "abolished": false
+    },
+    {
+      "id": "mac-05",
+      "category": "machine",
+      "group": null,
+      "name": "升降機安全檢查構造標準",
+      "matchType": "exact",
+      "amendDate": "20140627",
+      "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0070017",
+      "abolished": false
+    },
+    {
+      "id": "mac-06",
+      "category": "machine",
+      "group": null,
+      "name": "鍋爐及壓力容器安全相關規定",
+      "matchType": "grouping",
+      "amendDate": null,
+      "url": null,
+      "abolished": false
+    },
+    {
+      "id": "mac-07",
+      "category": "machine",
+      "group": null,
+      "name": "高壓氣體勞工安全規則",
+      "matchType": "exact",
+      "amendDate": "20220914",
+      "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060030",
+      "abolished": false
+    },
+    {
+      "id": "mac-08",
+      "category": "machine",
+      "group": null,
+      "name": "危險性機械及設備安全管理相關規定",
+      "matchType": "grouping",
+      "amendDate": null,
+      "url": null,
+      "abolished": false
+    },
+    {
+      "id": "mac-09",
+      "category": "machine",
+      "group": null,
+      "name": "動力衝剪機械安全規則",
+      "matchType": "exact",
+      "amendDate": null,
+      "url": null,
+      "abolished": false
+    },
+    {
+      "id": "mac-10",
+      "category": "machine",
+      "group": null,
+      "name": "手推刨床安全規則",
+      "matchType": "exact",
+      "amendDate": null,
+      "url": null,
+      "abolished": false
+    },
+    {
+      "id": "mac-11",
+      "category": "machine",
+      "group": null,
+      "name": "木材加工用圓盤鋸安全規則",
+      "matchType": "exact",
+      "amendDate": null,
+      "url": null,
+      "abolished": false
+    },
+    {
+      "id": "mac-12",
+      "category": "machine",
+      "group": null,
+      "name": "工業用機器人危害預防標準",
+      "matchType": "exact",
+      "amendDate": "20180214",
+      "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060025",
+      "abolished": false
+    },
+    {
+      "id": "mat-01",
+      "category": "material",
+      "group": null,
+      "name": "危害性化學品標示及通識規則",
+      "matchType": "exact",
+      "amendDate": "20181109",
+      "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060054",
+      "abolished": false
+    },
+    {
+      "id": "mat-02",
+      "category": "material",
+      "group": null,
+      "name": "優先管理化學品之指定及運作管理辦法",
+      "matchType": "exact",
+      "amendDate": "20240606",
+      "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060064",
+      "abolished": false
+    },
+    {
+      "id": "mat-03",
+      "category": "material",
+      "group": null,
+      "name": "危害性化學品評估及分級管理辦法",
+      "matchType": "exact",
+      "amendDate": "20141231",
+      "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060070",
+      "abolished": false
+    },
+    {
+      "id": "mat-04",
+      "category": "material",
+      "group": null,
+      "name": "新化學物質登記管理辦法",
+      "matchType": "exact",
+      "amendDate": "20250808",
+      "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060069",
+      "abolished": false
+    },
+    {
+      "id": "mat-05",
+      "category": "material",
+      "group": null,
+      "name": "特定化學物質危害預防標準",
+      "matchType": "exact",
+      "amendDate": "20210916",
+      "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060015",
+      "abolished": false
+    },
+    {
+      "id": "mat-06",
+      "category": "material",
+      "group": null,
+      "name": "有機溶劑中毒預防規則",
+      "matchType": "exact",
+      "amendDate": "20250514",
+      "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060017",
+      "abolished": false
+    },
+    {
+      "id": "mat-07",
+      "category": "material",
+      "group": null,
+      "name": "鉛中毒預防規則",
+      "matchType": "exact",
+      "amendDate": "20240613",
+      "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060018",
+      "abolished": false
+    },
+    {
+      "id": "mat-08",
+      "category": "material",
+      "group": null,
+      "name": "四烷基鉛中毒預防規則",
+      "matchType": "exact",
+      "amendDate": "20220629",
+      "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060019",
+      "abolished": false
+    },
+    {
+      "id": "mat-09",
+      "category": "material",
+      "group": null,
+      "name": "粉塵危害預防標準",
+      "matchType": "exact",
+      "amendDate": "20140625",
+      "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060021",
+      "abolished": false
+    },
+    {
+      "id": "mat-10",
+      "category": "material",
+      "group": null,
+      "name": "石綿危害預防標準",
+      "matchType": "exact",
+      "amendDate": null,
+      "url": null,
+      "abolished": false
+    },
+    {
+      "id": "mat-11",
+      "category": "material",
+      "group": null,
+      "name": "管制性化學品之指定及運作許可管理辦法",
+      "matchType": "exact",
+      "amendDate": "20141231",
+      "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060068",
+      "abolished": false
+    },
+    {
+      "id": "met-01",
+      "category": "method",
+      "group": "管理制度",
+      "name": "職業安全衛生法施行細則",
+      "matchType": "exact",
+      "amendDate": "20260626",
+      "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060002",
+      "abolished": false
+    },
+    {
+      "id": "met-02",
+      "category": "method",
+      "group": "管理制度",
+      "name": "職業安全衛生管理辦法",
+      "matchType": "exact",
+      "amendDate": "20260629",
+      "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060027",
+      "abolished": false
+    },
+    {
+      "id": "met-03",
+      "category": "method",
+      "group": "管理制度",
+      "name": "職業安全衛生設施規則",
+      "matchType": "exact",
+      "amendDate": "20260630",
+      "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009",
+      "abolished": false
+    },
+    {
+      "id": "met-04",
+      "category": "method",
+      "group": "工程與承攬管理",
+      "name": "工程安全設計及整體工程統合管理辦法",
+      "matchType": "exact",
+      "amendDate": "20260630",
+      "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060088",
+      "abolished": false
+    },
+    {
+      "id": "met-05",
+      "category": "method",
+      "group": "工程與承攬管理",
+      "name": "營造安全衛生設施標準",
+      "matchType": "exact",
+      "amendDate": "20260630",
+      "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060014",
+      "abolished": false
+    },
+    {
+      "id": "met-06",
+      "category": "method",
+      "group": "工程與承攬管理",
+      "name": "承攬管理相關規定",
+      "matchType": "grouping",
+      "amendDate": null,
+      "url": null,
+      "abolished": false
+    },
+    {
+      "id": "met-07",
+      "category": "method",
+      "group": "風險管理與其他",
+      "name": "風險評估相關規定",
+      "matchType": "grouping",
+      "amendDate": null,
+      "url": null,
+      "abolished": false
+    },
+    {
+      "id": "met-08",
+      "category": "method",
+      "group": "風險管理與其他",
+      "name": "危險性工作場所審查及檢查辦法",
+      "matchType": "exact",
+      "amendDate": "20200717",
+      "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0070019",
+      "abolished": false
+    },
+    {
+      "id": "met-09",
+      "category": "method",
+      "group": "風險管理與其他",
+      "name": "事故通報及調查相關辦法",
+      "matchType": "grouping",
+      "amendDate": null,
+      "url": null,
+      "abolished": false
+    },
+    {
+      "id": "met-10",
+      "category": "method",
+      "group": "風險管理與其他",
+      "name": "職業安全衛生管理計畫相關規定",
+      "matchType": "grouping",
+      "amendDate": null,
+      "url": null,
+      "abolished": false
+    },
+    {
+      "id": "met-11",
+      "category": "method",
+      "group": "風險管理與其他",
+      "name": "製程安全評估定期實施辦法",
+      "matchType": "exact",
+      "amendDate": "20200717",
+      "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060071",
+      "abolished": false
+    },
+    {
+      "id": "met-12",
+      "category": "method",
+      "group": "風險管理與其他",
+      "name": "變更管理相關規定",
+      "matchType": "grouping",
+      "amendDate": null,
+      "url": null,
+      "abolished": false
+    },
+    {
+      "id": "med-01",
+      "category": "medium",
+      "group": null,
+      "name": "勞工作業環境監測實施辦法",
+      "matchType": "exact",
+      "amendDate": "20260612",
+      "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060033",
+      "abolished": false
+    },
+    {
+      "id": "med-02",
+      "category": "medium",
+      "group": null,
+      "name": "職業安全衛生設施規則",
+      "matchType": "exact",
+      "amendDate": "20260630",
+      "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009",
+      "abolished": false
+    },
+    {
+      "id": "med-03",
+      "category": "medium",
+      "group": null,
+      "name": "缺氧症預防規則",
+      "matchType": "exact",
+      "amendDate": "20140626",
+      "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060020",
+      "abolished": false
+    },
+    {
+      "id": "med-04",
+      "category": "medium",
+      "group": null,
+      "name": "高壓氣體勞工安全規則",
+      "matchType": "exact",
+      "amendDate": "20220914",
+      "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060030",
+      "abolished": false
+    },
+    {
+      "id": "med-05",
+      "category": "medium",
+      "group": null,
+      "name": "高溫作業勞工作息時間標準",
+      "matchType": "exact",
+      "amendDate": "20140701",
+      "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060007",
+      "abolished": false
+    },
+    {
+      "id": "med-06",
+      "category": "medium",
+      "group": null,
+      "name": "異常氣壓危害預防標準",
+      "matchType": "exact",
+      "amendDate": "20140625",
+      "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060026",
+      "abolished": false
+    },
+    {
+      "id": "med-07",
+      "category": "medium",
+      "group": null,
+      "name": "噪音危害防制相關規定",
+      "matchType": "grouping",
+      "amendDate": null,
+      "url": null,
+      "abolished": false
+    },
+    {
+      "id": "med-08",
+      "category": "medium",
+      "group": null,
+      "name": "照明及採光相關規定",
+      "matchType": "grouping",
+      "amendDate": null,
+      "url": null,
+      "abolished": false
+    },
+    {
+      "id": "med-09",
+      "category": "medium",
+      "group": null,
+      "name": "通風換氣相關規定",
+      "matchType": "grouping",
+      "amendDate": null,
+      "url": null,
+      "abolished": false
+    },
+    {
+      "id": "med-10",
+      "category": "medium",
+      "group": null,
+      "name": "局限空間作業相關規定",
+      "matchType": "grouping",
+      "amendDate": null,
+      "url": null,
+      "abolished": false
+    },
+    {
+      "id": "med-11",
+      "category": "medium",
+      "group": null,
+      "name": "人因性危害預防相關規定",
+      "matchType": "grouping",
+      "amendDate": null,
+      "url": null,
+      "abolished": false
+    },
+    {
+      "id": "med-12",
+      "category": "medium",
+      "group": null,
+      "name": "工作場所危害因素暴露評估相關規定",
+      "matchType": "grouping",
+      "amendDate": null,
+      "url": null,
+      "abolished": false
+    },
+    {
+      "id": "med-13",
+      "category": "medium",
+      "group": null,
+      "name": "高架作業勞工保護措施標準",
+      "matchType": "exact",
+      "amendDate": "20140625",
+      "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060029",
+      "abolished": false
+    }
+  ]
+}

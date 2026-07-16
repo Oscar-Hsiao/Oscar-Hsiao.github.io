@@ -1,0 +1,48 @@
+name: 每週同步職安法子法異動日期
+
+on:
+  schedule:
+    # 每週一 台灣時間 08:00（UTC 00:00）
+    - cron: "0 0 * * 1"
+  workflow_dispatch: {}   # 允許手動觸發
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: 下載全國法規資料庫「命令」層級全庫 JSON
+        run: |
+          curl -sL --retry 3 --retry-delay 10 \
+            -A "Mozilla/5.0 (blog-project weekly law sync; contact via repo issues)" \
+            -o chorder.zip "https://law.moj.gov.tw/api/ch/order/json"
+          unzip -o chorder.zip
+          CHORDER=$(ls -1 | grep -i '^chorder.*\.json$' | head -n 1)
+          echo "CHORDER_FILE=$CHORDER" >> "$GITHUB_ENV"
+          echo "解壓得到：$CHORDER"
+
+      - name: 比對並更新異動日期
+        run: node scripts/update-laws.mjs "$CHORDER_FILE"
+
+      - name: 清理暫存檔
+        run: rm -f chorder.zip "$CHORDER_FILE" manifest.csv schema.csv
+
+      - name: 提交變更（有異動才 commit）
+        run: |
+          git config user.name "law-sync-bot"
+          git config user.email "actions@github.com"
+          git add laws.json
+          if git diff --cached --quiet; then
+            echo "本週無異動，不建立 commit"
+          else
+            git commit -m "chore: 同步職安法子法異動日期 $(date +%Y-%m-%d)"
+            git push
+          fi
