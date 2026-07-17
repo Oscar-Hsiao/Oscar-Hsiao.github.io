@@ -274,7 +274,7 @@ tr:hover td{background:var(--bg3)}
     <th class="ns" style="width:96px">合規狀態</th>
     <th class="ns" style="width:90px">條文</th>
     <th class="ns" style="width:44px">連結</th>
-    <th class="ns admin-only" style="width:52px" id="col-edit">編輯</th>
+    <th class="ns admin-only" style="width:64px" id="col-edit">編輯</th>
     <th class="ns" style="width:16px"></th>
   </tr></thead>
   <tbody id="tb"></tbody>
@@ -689,7 +689,7 @@ function render() {
   }
   document.getElementById('tot').textContent = rows.length;
   const statusCls = {'符合':'status-ok','部分符合':'status-partial','不符合':'status-bad','待改善':'status-todo','待複核':'status-review'};
-  const editCol = isAdmin ? `<th class="ns admin-only" style="width:52px" id="col-edit">編輯</th>` : '';
+  const editCol = isAdmin ? `<th class="ns admin-only" style="width:64px" id="col-edit">編輯</th>` : '';
   document.getElementById('tb').innerHTML = rows.map((r, i) => {
     if (!r.status) r.status = '符合';
     if (!r.reason) r.reason = '';
