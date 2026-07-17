@@ -273,7 +273,6 @@ tr:hover td{background:var(--bg3)}
     <th class="ns" style="width:52px">適用性</th>
     <th class="ns" style="width:96px">合規狀態</th>
     <th class="ns" style="width:90px">條文</th>
-    <th class="ns" style="width:44px">連結</th>
     <th class="ns admin-only" style="width:64px" id="col-edit">編輯</th>
     <th class="ns" style="width:16px"></th>
   </tr></thead>
@@ -710,11 +709,6 @@ function render() {
       <td style="text-align:center"><span class="badge-y"${reasonAttr}>${r.a}</span></td>
       <td style="text-align:center">${statusCell}</td>
       <td style="text-align:center">${articlesCell(r)}</td>
-      <td style="text-align:center">
-        <a class="ext-link" href="${lawUrl(r.p)}" target="_blank" rel="noopener" title="前往全國法規資料庫">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15,3 21,3 21,9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-        </a>
-      </td>
       ${isAdmin ? `<td style="text-align:center"><button class="edit-btn" onclick="openEdit(${r._idx})">編輯</button></td>` : ''}
       <td></td>
     </tr>`;
