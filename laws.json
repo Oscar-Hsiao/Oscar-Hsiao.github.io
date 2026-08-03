@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-27T03:18:11.868Z",
+  "updated": "2026-08-03T02:53:20.683Z",
   "source": "全國法規資料庫（https://law.moj.gov.tw/）",
   "note": "日期由 GitHub Actions 每週自動同步；matchType=grouping 為彙整類別，不比對單一法規",
   "laws": [
