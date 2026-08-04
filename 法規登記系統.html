@@ -409,6 +409,11 @@ const ADMIN_HASH = '0ead2060b65992dca4769af601a1b3a35ef38cfad2c2c465bb160ea76415
 // 注意：上方是示範密碼 demo1234 的 hash，正式使用請替換為你自己密碼的 SHA-256 值
 
 // ═══════════════════════════════════════════════════════
+// GAS 寫入代理（Write Proxy）— 寫入時不直接用 anon key
+// ═══════════════════════════════════════════════════════
+const WRITE_PROXY_URL = 'https://script.google.com/macros/s/AKfycbxtmGvbH_bWaO_r93l8BDXs-R4EmFKyLDLiP-2Z14yCIZjaedJSdNNMb6bsH6KijcjO/exec';
+
+// ═══════════════════════════════════════════════════════
 // 產業別標籤（跟法規白話文轉換工具共用同一套代碼）
 // ═══════════════════════════════════════════════════════
 const IND_LABELS = {all:'全部',mfg:'製造業',svc:'服務業',fin:'金融業',med:'醫療業',retail:'零售業',constr:'建築業',other:'其他'};
@@ -572,12 +577,6 @@ function saveLocal(){
 }
 
 async function supabaseSave(){
-  const sbHeaders={
-    'apikey':SUPABASE_KEY,
-    'Authorization':'Bearer '+SUPABASE_KEY,
-    'Content-Type':'application/json',
-    'Prefer':'resolution=merge-duplicates'
-  };
   const records=[];
   Object.keys(DATA).forEach(cat=>{
     DATA[cat].rows.forEach(row=>{
@@ -599,9 +598,14 @@ async function supabaseSave(){
     });
   });
   try{
-    const res=await fetch(`${SUPABASE_URL}/rest/v1/law_records?on_conflict=company_id,category,law_code`,{method:'POST',headers:sbHeaders,body:JSON.stringify(records)});
-    if(res.ok)toast('☁ 已同步至雲端');
-    else{const err=await res.text();toast('⚠ 雲端同步失敗：'+err);}
+    const res=await fetch(WRITE_PROXY_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({hash:ADMIN_HASH,company_id:COMPANY_ID,records})
+    });
+    const json=await res.json();
+    if(json.ok)toast('☁ 已同步至雲端');
+    else toast('⚠ 雲端同步失敗：'+json.error);
   }catch(e){toast('⚠ 雲端連線錯誤：'+e.message);}
 }
 
