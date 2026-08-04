@@ -298,10 +298,12 @@ tr:hover td{background:var(--bg3)}
 <div class="overlay" id="login-modal">
   <div class="modal">
     <h2>🔐 管理者登入</h2>
-    <p>請輸入管理者密碼以存取編輯功能</p>
-    <label>密碼</label>
+    <p>請輸入帳號與密碼以存取編輯功能</p>
+    <label>帳號（Email）</label>
+    <input type="email" id="email-input" placeholder="your@email.com" onkeydown="if(event.key==='Enter')document.getElementById('pw-input').focus()">
+    <label style="margin-top:10px">密碼</label>
     <input type="password" id="pw-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
-    <div class="err" id="pw-err">❌ 密碼錯誤，請再試一次</div>
+    <div class="err" id="pw-err">❌ 帳號或密碼錯誤，請再試一次</div>
     <div class="btn-row">
       <button class="btn btn-g" onclick="closeLogin()">取消</button>
       <button class="btn btn-p" onclick="doLogin()">登入</button>
@@ -396,18 +398,9 @@ const GAS_URL = ''; // 示範版未串接後端 API，請填入你自己的 GAS 
 // ═══════════════════════════════════════════════════════
 const SUPABASE_URL = 'https://kalaeubsgfyvhecyyuti.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthbGFldWJzZ2Z5dmhlY3l5dXRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU4MzYxMTUsImV4cCI6MjEwMTQxMjExNX0.He3dV1_KMcdao5dQN7VLjppdy8E2kclbWwuXYA5yYr0';
-const COMPANY_ID = 'oscar';
+let COMPANY_ID = null; // 登入後從 JWT user_metadata 動態取得
 const LAW_DATA_KEY = 'law_data_v1';
-
-// ═══════════════════════════════════════════════════════
-// 管理者密碼 Hash（SHA-256）
-// 預設密碼：demo1234
-// 更改密碼：到 https://emn178.github.io/online-tools/sha256.html
-// 輸入新密碼取得 hash 後替換下方字串
-// ═══════════════════════════════════════════════════════
-// 管理者 Supabase Auth 帳號（密碼存在 Supabase，不在此處）
-const ADMIN_EMAIL = 'admin@oscar.local';
-let SESSION_TOKEN = null; // 登入後存放 Supabase user JWT，用於寫入
+let SESSION_TOKEN = null; // 登入後存放 Supabase user JWT
 
 // ═══════════════════════════════════════════════════════
 // 產業別標籤（跟法規白話文轉換工具共用同一套代碼）
@@ -601,7 +594,7 @@ async function supabaseSave(){
 function saveAll(){saveLocal();supabaseSave();}
 
 async function supabaseLoad(){
-  const sbHeaders={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY};
+  const sbHeaders={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SESSION_TOKEN};
   try{
     const res=await fetch(`${SUPABASE_URL}/rest/v1/law_records?company_id=eq.${COMPANY_ID}&select=*`,{headers:sbHeaders});
     if(!res.ok){toast('⚠ 雲端載入失敗：'+res.status);return;}
@@ -741,6 +734,7 @@ function toggleAdmin() {
 }
 
 async function doLogin() {
+  const email = document.getElementById('email-input').value.trim();
   const pw = document.getElementById('pw-input').value;
   const btn = document.querySelector('#login-modal .btn-p');
   btn.disabled = true;
@@ -748,12 +742,15 @@ async function doLogin() {
     const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
       method: 'POST',
       headers: {'apikey': SUPABASE_KEY, 'Content-Type': 'application/json'},
-      body: JSON.stringify({email: ADMIN_EMAIL, password: pw})
+      body: JSON.stringify({email, password: pw})
     });
     if (res.ok) {
       const data = await res.json();
       SESSION_TOKEN = data.access_token;
+      COMPANY_ID = data.user?.user_metadata?.company_id || null;
+      if (!COMPANY_ID) { toast('⚠ 此帳號尚未設定公司代碼，請聯絡系統管理員'); btn.disabled=false; return; }
       isAdmin = true;
+      document.getElementById('email-input').value = '';
       document.getElementById('pw-input').value = '';
       document.getElementById('pw-err').style.display = 'none';
       document.getElementById('login-modal').classList.remove('show');
@@ -773,6 +770,7 @@ async function doLogin() {
 
 function closeLogin() {
   document.getElementById('login-modal').classList.remove('show');
+  document.getElementById('email-input').value = '';
   document.getElementById('pw-input').value = '';
   document.getElementById('pw-err').style.display = 'none';
 }
