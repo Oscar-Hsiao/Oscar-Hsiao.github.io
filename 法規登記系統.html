@@ -614,6 +614,9 @@ async function supabaseLoad(){
     if(!res.ok){toast('⚠ 雲端載入失敗：'+res.status);return;}
     const rows=await res.json();
     if(!rows.length){toast('☁ 雲端首次使用，自動同步本地資料...');await supabaseSave();return;}
+    // 若雲端筆數少於本機，補推完整資料
+    const localCount=Object.values(DATA).reduce((s,c)=>s+c.rows.length,0);
+    if(rows.length<localCount){await supabaseSave();}
     const grouped={};
     rows.forEach(r=>{
       if(!grouped[r.category])grouped[r.category]={};
