@@ -599,7 +599,7 @@ async function supabaseSave(){
     });
   });
   try{
-    const res=await fetch(`${SUPABASE_URL}/rest/v1/law_records`,{method:'POST',headers:sbHeaders,body:JSON.stringify(records)});
+    const res=await fetch(`${SUPABASE_URL}/rest/v1/law_records?on_conflict=company_id,category,law_code`,{method:'POST',headers:sbHeaders,body:JSON.stringify(records)});
     if(res.ok)toast('☁ 已同步至雲端');
     else{const err=await res.text();toast('⚠ 雲端同步失敗：'+err);}
   }catch(e){toast('⚠ 雲端連線錯誤：'+e.message);}
