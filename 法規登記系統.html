@@ -222,9 +222,6 @@ tr:hover td{background:var(--bg3)}
     <button class="btn btn-r" onclick="resetAll()">
       ↺ 還原預設
     </button>
-    <button class="btn btn-g" onclick="openJbSettings()">
-      ☁ 雲端設定
-    </button>
   </div>
 
   <!-- 一般使用者：只能匯出 -->
@@ -385,23 +382,6 @@ tr:hover td{background:var(--bg3)}
   </div>
 </div>
 
-<!-- ═══ 雲端設定 MODAL ═══ -->
-<div class="overlay" id="jb-modal">
-  <div class="modal" style="width:480px">
-    <h2>☁ JSONBin 雲端設定</h2>
-    <p>輸入你的 JSONBin API Key 與 Bin ID，資料會自動同步至雲端，任何裝置登入管理者後即可載入最新資料。</p>
-    <label>X-Master-Key</label>
-    <input type="password" id="jb-key-input" placeholder="$2a$10$..." style="width:100%;padding:10px 14px;border:1.5px solid var(--border2);border-radius:8px;font-size:14px;font-family:var(--mono);outline:none;margin-bottom:14px">
-    <label>Bin ID</label>
-    <input type="text" id="jb-bin-input" placeholder="6xxxxxxxxxxxxxxxxxxxxxxx" style="width:100%;padding:10px 14px;border:1.5px solid var(--border2);border-radius:8px;font-size:14px;font-family:var(--mono);outline:none;margin-bottom:6px">
-    <div style="font-size:12px;color:var(--text3);margin-bottom:18px">Key 與 Bin ID 只存在你的瀏覽器 localStorage，不會上傳到原始碼。</div>
-    <div class="btn-row">
-      <button class="btn btn-g" onclick="document.getElementById('jb-modal').classList.remove('show')">取消</button>
-      <button class="btn btn-teal" onclick="testJbConfig()">測試連線</button>
-      <button class="btn btn-p" onclick="saveJbConfig()">儲存設定</button>
-    </div>
-  </div>
-</div>
 
 <script>
 // ═══════════════════════════════════════════════════════
@@ -412,14 +392,12 @@ tr:hover td{background:var(--bg3)}
 const GAS_URL = ''; // 示範版未串接後端 API，請填入你自己的 GAS Web App 網址
 
 // ═══════════════════════════════════════════════════════
-// JSONBin 雲端設定
+// Supabase 雲端設定
 // ═══════════════════════════════════════════════════════
-const JSONBIN_BASE = 'https://api.jsonbin.io/v3/b';
-const JB_KEY_STORE = 'law_jb_master_key';
-const JB_BIN_STORE = 'law_jb_bin_id';
+const SUPABASE_URL = 'https://kalaeubsgfyvhecyyuti.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_O4SeInd_jfeW8lSU4hhjtQ_UdGl94kT';
+const COMPANY_ID = 'oscar';
 const LAW_DATA_KEY = 'law_data_v1';
-function jbKey(){return localStorage.getItem(JB_KEY_STORE)||'';}
-function jbBin(){return localStorage.getItem(JB_BIN_STORE)||'';}
 
 // ═══════════════════════════════════════════════════════
 // 管理者密碼 Hash（SHA-256）
@@ -585,7 +563,7 @@ async function sha256(str) {
 }
 
 // ═══════════════════════════════════════════════════════
-// 資料持久化：localStorage + JSONBin 雲端
+// 資料持久化：localStorage + Supabase 雲端
 // ═══════════════════════════════════════════════════════
 function saveLocal(){
   const toSave={};
@@ -593,63 +571,71 @@ function saveLocal(){
   try{localStorage.setItem(LAW_DATA_KEY,JSON.stringify(toSave));}catch(e){}
 }
 
-function jsonbinSave(){
-  const key=jbKey(),bin=jbBin();
-  if(!key||!bin)return;
-  const toSave={};
-  Object.keys(DATA).forEach(k=>{toSave[k]=DATA[k].rows;});
-  fetch(`${JSONBIN_BASE}/${bin}`,{
-    method:'PUT',
-    headers:{'Content-Type':'application/json','X-Master-Key':key},
-    body:JSON.stringify(toSave)
-  }).then(r=>r.json()).then(j=>{
-    if(j.metadata)toast('☁ 已同步至雲端');
-    else toast('⚠ 雲端同步失敗：'+JSON.stringify(j));
-  }).catch(e=>toast('⚠ 雲端連線錯誤：'+e.message));
-}
-
-function saveAll(){saveLocal();jsonbinSave();}
-
-async function jsonbinLoad(){
-  const key=jbKey(),bin=jbBin();
-  if(!key||!bin)return;
+async function supabaseSave(){
+  const sbHeaders={
+    'apikey':SUPABASE_KEY,
+    'Authorization':'Bearer '+SUPABASE_KEY,
+    'Content-Type':'application/json',
+    'Prefer':'resolution=merge-duplicates'
+  };
+  const records=[];
+  Object.keys(DATA).forEach(cat=>{
+    DATA[cat].rows.forEach(row=>{
+      records.push({
+        company_id:COMPANY_ID,
+        category:cat,
+        law_code:row.p||'',
+        law_name:row.n||'',
+        pub_date:row.pub||null,
+        mod_date:row.mod||null,
+        applicable:row.a||'Y',
+        industry:row.ind||[],
+        status:row.status||null,
+        reason:row.reason||null,
+        review_date:row.r||null,
+        next_review:row.c||null,
+        updated_at:new Date().toISOString()
+      });
+    });
+  });
   try{
-    const res=await fetch(`${JSONBIN_BASE}/${bin}/latest`,{headers:{'X-Master-Key':key}});
-    const j=await res.json();
-    if(j.record){
-      Object.keys(j.record).forEach(k=>{if(DATA[k])DATA[k].rows=j.record[k];});
-      saveLocal();
-      toast('已從雲端載入最新資料');
-      render();
-    }
+    const res=await fetch(`${SUPABASE_URL}/rest/v1/law_records`,{method:'POST',headers:sbHeaders,body:JSON.stringify(records)});
+    if(res.ok)toast('☁ 已同步至雲端');
+    else{const err=await res.text();toast('⚠ 雲端同步失敗：'+err);}
   }catch(e){toast('⚠ 雲端連線錯誤：'+e.message);}
 }
 
-function saveJbConfig(){
-  const k=document.getElementById('jb-key-input').value.trim();
-  const b=document.getElementById('jb-bin-input').value.trim();
-  if(k)localStorage.setItem(JB_KEY_STORE,k);
-  if(b)localStorage.setItem(JB_BIN_STORE,b);
-  document.getElementById('jb-modal').classList.remove('show');
-  toast('⚙ 雲端設定已儲存');
-}
+function saveAll(){saveLocal();supabaseSave();}
 
-async function testJbConfig(){
-  const key=document.getElementById('jb-key-input').value.trim();
-  const bin=document.getElementById('jb-bin-input').value.trim();
-  if(!key||!bin){toast('⚠ 請先填入 Key 與 Bin ID');return;}
+async function supabaseLoad(){
+  const sbHeaders={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY};
   try{
-    const res=await fetch(`${JSONBIN_BASE}/${bin}/latest`,{headers:{'X-Master-Key':key}});
-    const j=await res.json();
-    if(j.record||j.metadata)toast('✅ 連線成功！');
-    else toast('⚠ 連線失敗：'+JSON.stringify(j));
-  }catch(e){toast('⚠ 連線錯誤：'+e.message);}
-}
-
-function openJbSettings(){
-  document.getElementById('jb-key-input').value=jbKey();
-  document.getElementById('jb-bin-input').value=jbBin();
-  document.getElementById('jb-modal').classList.add('show');
+    const res=await fetch(`${SUPABASE_URL}/rest/v1/law_records?company_id=eq.${COMPANY_ID}&select=*`,{headers:sbHeaders});
+    if(!res.ok){toast('⚠ 雲端載入失敗：'+res.status);return;}
+    const rows=await res.json();
+    if(!rows.length){toast('☁ 雲端首次使用，自動同步本地資料...');await supabaseSave();return;}
+    const grouped={};
+    rows.forEach(r=>{
+      if(!grouped[r.category])grouped[r.category]={};
+      grouped[r.category][r.law_code]=r;
+    });
+    Object.keys(grouped).forEach(cat=>{
+      if(!DATA[cat])return;
+      DATA[cat].rows.forEach(row=>{
+        const cloud=grouped[cat][row.p];
+        if(!cloud)return;
+        if(cloud.status!==null)row.status=cloud.status;
+        if(cloud.reason!==null)row.reason=cloud.reason;
+        if(cloud.review_date!==null)row.r=cloud.review_date;
+        if(cloud.next_review!==null)row.c=cloud.next_review;
+        if(cloud.applicable!==null)row.a=cloud.applicable;
+        if(cloud.industry&&cloud.industry.length)row.ind=cloud.industry;
+      });
+    });
+    saveLocal();
+    toast('已從雲端載入最新資料');
+    render();
+  }catch(e){toast('⚠ 雲端連線錯誤：'+e.message);}
 }
 
 function toast(msg, ms=3500) {
@@ -768,7 +754,7 @@ async function doLogin() {
     document.getElementById('login-modal').classList.remove('show');
     applyAdminUI();
     toast('🔓 管理者模式已啟用');
-    jsonbinLoad();
+    supabaseLoad();
   } else {
     document.getElementById('pw-err').style.display = 'block';
     document.getElementById('pw-input').select();
@@ -939,7 +925,6 @@ function resetAll() {
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     closeLogin(); closeEdit();
-    document.getElementById('jb-modal').classList.remove('show');
   }
 });
 
@@ -949,9 +934,6 @@ document.getElementById('login-modal').addEventListener('click', e => {
 });
 document.getElementById('edit-modal').addEventListener('click', e => {
   if (e.target === e.currentTarget) closeEdit();
-});
-document.getElementById('jb-modal').addEventListener('click', e => {
-  if (e.target === e.currentTarget) document.getElementById('jb-modal').classList.remove('show');
 });
 
 // ═══════════════════════════════════════════════════════
