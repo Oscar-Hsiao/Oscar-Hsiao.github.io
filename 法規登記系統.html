@@ -210,10 +210,7 @@ tr:hover td{background:var(--bg3)}
 
   <!-- 管理者專用按鈕（預設隱藏） -->
   <div class="admin-btns admin-only" id="admin-btns">
-    <button class="btn btn-p" id="btn-upd" onclick="doUpdate()">
-      ↻ 自動更新（官方API）
-    </button>
-    <button class="btn btn-teal" onclick="addLaw()">
+<button class="btn btn-teal" onclick="addLaw()">
       ＋ 新增法規
     </button>
     <button class="btn btn-a" onclick="exportCSV()">
@@ -806,57 +803,6 @@ function applyAdminUI() {
 }
 
 // ═══════════════════════════════════════════════════════
-// 自動更新（需 GAS 後端）
-// ═══════════════════════════════════════════════════════
-async function doUpdate() {
-  if (!GAS_URL) {
-    toast('⚠️ 請先在程式碼中填入 GAS_URL（Google Apps Script 後端網址）', 5000);
-    return;
-  }
-  const btn = document.getElementById('btn-upd');
-  btn.disabled = true;
-  btn.textContent = '⟳ 查詢中...';
-  document.getElementById('prog-bar').style.display = 'block';
-
-  const rows = DATA[cur].rows;
-  let changed = 0, unchanged = 0, failed = 0;
-
-  for (let i = 0; i < rows.length; i++) {
-    const r = rows[i];
-    document.getElementById('stat-msg').textContent = `查詢中 (${i+1}/${rows.length})：${r.n}...`;
-    document.getElementById('prog').style.width = Math.round((i+1)/rows.length*100) + '%';
-    try {
-      const res = await fetch(`${GAS_URL}?pcode=${r.p}`);
-      const data = await res.json();
-      if (data.mod) {
-        if (data.mod !== r.mod) { r.mod = data.mod; r.status = '待複核'; changed++; }
-        else unchanged++;
-        if (data.pub) r.pub = data.pub;
-      } else { failed++; }
-    } catch(e) { failed++; }
-    render();
-    await new Promise(res => setTimeout(res, 300));
-  }
-
-  // 更新清點日期為今天
-  const now = new Date();
-  const today = `${now.getFullYear()-1911}/${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')}`;
-  rows.forEach(r => r.c = today);
-  ['hdr-chk','ft-chk','sig-chk'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.textContent = today;
-  });
-
-  document.getElementById('prog-bar').style.display = 'none';
-  document.getElementById('prog').style.width = '0%';
-  btn.disabled = false;
-  btn.textContent = '↻ 自動更新（官方API）';
-  document.getElementById('stat-msg').textContent = `✅ 更新完成！有新修正 ${changed} 筆，無異動 ${unchanged} 筆，失敗 ${failed} 筆`;
-  document.getElementById('last-upd').textContent = `上次更新：${today}`;
-  toast(`✅ 更新完成：${changed} 筆有新修正，${unchanged} 筆無異動，${failed} 筆失敗`);
-  render();
-}
-
 // ═══════════════════════════════════════════════════════
 // 編輯法規
 // ═══════════════════════════════════════════════════════
