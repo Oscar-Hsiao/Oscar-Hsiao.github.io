@@ -126,8 +126,8 @@ tr:hover td{background:var(--bg3)}
 .modal{background:var(--bg2);border-radius:12px;padding:28px;width:440px;max-width:90vw;box-shadow:0 20px 60px rgba(0,0,0,.2)}
 .modal h2{font-size:18px;font-weight:600;color:var(--text);margin-bottom:6px}
 .modal p{font-size:15px;color:var(--text2);margin-bottom:18px}
-.modal input[type=password]{width:100%;padding:10px 14px;border:1.5px solid var(--border2);border-radius:8px;font-size:16px;font-family:var(--font);outline:none;transition:border .15s}
-.modal input[type=password]:focus{border-color:var(--blue)}
+.modal input[type=password],.modal input[type=email]{width:100%;padding:10px 14px;border:1.5px solid var(--border2);border-radius:8px;font-size:16px;font-family:var(--font);outline:none;transition:border .15s;box-sizing:border-box}
+.modal input[type=password]:focus,.modal input[type=email]:focus{border-color:var(--blue)}
 .modal .err{font-size:14px;color:#dc2626;margin-top:6px;display:none}
 .modal .btn-row{display:flex;gap:8px;margin-top:18px;justify-content:flex-end}
 .modal label{font-size:14px;color:var(--text2);margin-bottom:6px;display:block}
