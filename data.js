@@ -13,6 +13,9 @@ const NAV=[
     {id:'tool-bully',label:'職場不法侵害防治工具',href:'職場霸凌防治因應工具.html'},
     {id:'tool-lawmap',label:'職安法子法地圖',href:'職安法子法地圖.html'}
   ]},
+  {id:'ipas',label:'iPAS 備考',icon:'⬡',type:'accordion',children:[
+    {id:'ipas-cv',label:'交叉驗證 · MONARCH',href:'ipas-交叉驗證系統.html'}
+  ]},
   {id:'about',label:'關於我',icon:'ⓘ',type:'link'}
 ];
 

@@ -1,0 +1,2149 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MONARCH 交叉驗證系統 | 泰坦分類協議</title>
+    <style>
+/* MONARCH 交叉驗證系統 - 樣式表 */
+/* 設計語言：軍事科幻 HUD + 機密檔案美學 */
+/* 色彩：#0A0A0F 深太空黑 | #FF4500 哥吉拉橘紅 | #00FF88 MONARCH綠 | #4A9EFF 冰藍 | #FFD700 金黃 */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg-deep: #0A0A0F;
+  --bg-card: #0F0F1A;
+  --bg-card2: #141428;
+  --accent-red: #FF4500;
+  --accent-green: #00FF88;
+  --accent-blue: #4A9EFF;
+  --accent-gold: #FFD700;
+  --text-primary: #E8E8F0;
+  --text-muted: #8888AA;
+  --border-dim: rgba(255, 69, 0, 0.25);
+  --border-glow: rgba(255, 69, 0, 0.6);
+  --font-display: 'Orbitron', monospace;
+  --font-mono: 'Share Tech Mono', monospace;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+/* 掃描線效果 */
+.scanlines {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.08) 2px,
+    rgba(0, 0, 0, 0.08) 4px
+  );
+}
+
+/* 頂部導航 */
+.monarch-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(10, 10, 15, 0.95);
+  border-bottom: 1px solid var(--border-dim);
+  backdrop-filter: blur(10px);
+}
+
+.header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0.8rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.monarch-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.logo-icon {
+  font-size: 1.8rem;
+  color: var(--accent-red);
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.logo-text {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: var(--accent-gold);
+  letter-spacing: 0.2em;
+}
+
+.logo-sub {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  letter-spacing: 0.15em;
+}
+
+.header-status {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.75rem;
+}
+
+.status-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--accent-green);
+  animation: blink 1.5s ease-in-out infinite;
+}
+
+.status-text { color: var(--accent-green); }
+
+.threat-level {
+  color: var(--text-muted);
+  border: 1px solid var(--border-dim);
+  padding: 0.2rem 0.6rem;
+}
+
+.threat-value {
+  color: var(--accent-red);
+  font-weight: bold;
+}
+
+/* 英雄區塊 */
+.hero-section {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  padding: 4rem 2rem;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(255, 69, 0, 0.08) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, rgba(74, 158, 255, 0.06) 0%, transparent 50%),
+    var(--bg-deep);
+}
+
+.hero-section::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image:
+    linear-gradient(rgba(255,69,0,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,69,0,0.05) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+}
+
+.hero-content {
+  max-width: 900px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.classified-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  color: var(--accent-red);
+  border: 1px solid var(--accent-red);
+  padding: 0.3rem 1rem;
+  margin-bottom: 1.5rem;
+  animation: flicker 4s ease-in-out infinite;
+}
+
+.hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 6vw, 5rem);
+  font-weight: 900;
+  color: var(--accent-gold);
+  text-shadow: 0 0 30px rgba(255, 215, 0, 0.4);
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.05em;
+}
+
+.hero-subtitle {
+  font-size: 1rem;
+  color: var(--accent-blue);
+  letter-spacing: 0.2em;
+  margin-bottom: 1.5rem;
+}
+
+.hero-desc {
+  font-size: 1rem;
+  color: var(--text-primary);
+  line-height: 1.8;
+  max-width: 650px;
+  margin-bottom: 2.5rem;
+  border-left: 3px solid var(--accent-red);
+  padding-left: 1.2rem;
+}
+
+.hero-stats {
+  display: flex;
+  gap: 3rem;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.stat-num {
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--accent-red);
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+  margin-top: 0.2rem;
+}
+
+/* 通用區塊樣式 */
+section {
+  padding: 4rem 2rem;
+}
+
+.section-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section-label {
+  font-size: 0.7rem;
+  color: var(--accent-red);
+  letter-spacing: 0.3em;
+  margin-bottom: 0.5rem;
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 2rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid var(--border-dim);
+}
+
+/* 問題意識區塊 */
+.problem-section {
+  background: var(--bg-card);
+}
+
+.problem-grid {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.problem-card {
+  flex: 1;
+  min-width: 220px;
+  padding: 1.5rem;
+  border: 1px solid var(--border-dim);
+  position: relative;
+}
+
+.problem-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 4px; height: 100%;
+}
+
+.warning-card::before { background: var(--accent-green); }
+.danger-card::before { background: var(--accent-red); }
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+  letter-spacing: 0.1em;
+}
+
+.card-icon { font-size: 1rem; color: var(--accent-gold); }
+
+.accuracy-display {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.8rem;
+}
+
+.acc-num {
+  font-family: var(--font-display);
+  font-size: 3rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.acc-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.problem-card p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.vs-divider {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  color: var(--accent-red);
+  font-weight: 900;
+  flex-shrink: 0;
+}
+
+.problem-conclusion {
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  padding: 1rem 1.5rem;
+  border: 1px solid var(--border-dim);
+  background: rgba(255, 69, 0, 0.05);
+}
+
+/* CV 區塊 */
+.cv-section {
+  background: var(--bg-deep);
+}
+
+.cv-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 0;
+  border-bottom: 1px solid var(--border-dim);
+}
+
+.cv-tab {
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  padding: 0.8rem 2rem;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s;
+  position: relative;
+  bottom: -1px;
+}
+
+.cv-tab:hover {
+  color: var(--text-primary);
+  background: rgba(255, 69, 0, 0.05);
+}
+
+.cv-tab.active {
+  color: var(--accent-gold);
+  border-bottom-color: var(--accent-red);
+  background: rgba(255, 69, 0, 0.08);
+}
+
+.tab-num {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  color: var(--accent-red);
+}
+
+.tab-name {
+  font-size: 0.85rem;
+}
+
+/* CV 面板 */
+.cv-panels {
+  position: relative;
+}
+
+.cv-panel {
+  display: none;
+  padding: 2rem 0;
+}
+
+.cv-panel.active {
+  display: block;
+}
+
+.panel-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+@media (max-width: 768px) {
+  .panel-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 3D Canvas 容器 */
+.panel-3d {
+  position: relative;
+  background: var(--bg-card);
+  border: 1px solid var(--border-dim);
+  aspect-ratio: 1;
+  max-height: 480px;
+  overflow: hidden;
+}
+
+.panel-3d canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+.canvas-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.fold-indicator {
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  color: var(--accent-gold);
+  background: rgba(10, 10, 15, 0.8);
+  padding: 0.3rem 0.8rem;
+  border: 1px solid var(--border-dim);
+  display: inline-block;
+  align-self: flex-start;
+}
+
+.legend {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  background: rgba(10, 10, 15, 0.8);
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--border-dim);
+}
+
+.legend-item {
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+}
+
+.legend-item.train { color: var(--accent-green); }
+.legend-item.test { color: var(--accent-red); }
+
+/* 面板資訊 */
+.panel-info {
+  padding: 0.5rem 0;
+}
+
+.method-title {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  color: var(--accent-gold);
+  margin-bottom: 0.3rem;
+}
+
+.method-subtitle {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+  margin-bottom: 1rem;
+}
+
+.method-desc {
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  line-height: 1.8;
+  margin-bottom: 1.5rem;
+}
+
+/* 怪獸名單 */
+.monster-roster {
+  margin-bottom: 1.5rem;
+}
+
+.roster-title {
+  font-size: 0.7rem;
+  color: var(--accent-red);
+  letter-spacing: 0.2em;
+  margin-bottom: 0.8rem;
+}
+
+.monster-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.monster-tag {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.6rem;
+  border: 1px solid;
+  letter-spacing: 0.05em;
+  transition: all 0.3s;
+}
+
+.monster-tag.fold-0 { border-color: #FF4500; color: #FF4500; }
+.monster-tag.fold-1 { border-color: #4A9EFF; color: #4A9EFF; }
+.monster-tag.fold-2 { border-color: #00FF88; color: #00FF88; }
+.monster-tag.fold-3 { border-color: #FFD700; color: #FFD700; }
+.monster-tag.fold-4 { border-color: #FF69B4; color: #FF69B4; }
+
+.monster-tag.is-test {
+  background: rgba(255, 69, 0, 0.2);
+  border-color: var(--accent-red) !important;
+  color: var(--accent-red) !important;
+  box-shadow: 0 0 8px rgba(255, 69, 0, 0.4);
+}
+
+/* 統計數據 */
+.method-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+}
+
+.mstat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.6rem;
+  background: var(--bg-card2);
+  border-left: 2px solid var(--border-dim);
+}
+
+.mstat-label {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+}
+
+.mstat-val {
+  font-size: 0.8rem;
+  color: var(--text-primary);
+}
+
+/* 比例顯示 */
+.ratio-display {
+  margin-bottom: 1.5rem;
+}
+
+.ratio-title {
+  font-size: 0.7rem;
+  color: var(--accent-red);
+  letter-spacing: 0.2em;
+  margin-bottom: 0.8rem;
+}
+
+.ratio-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ratio-row {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  font-size: 0.75rem;
+}
+
+.ratio-label {
+  width: 80px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.ratio-bar-track {
+  flex: 1;
+  height: 12px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.ratio-bar-fill {
+  height: 100%;
+  transition: width 0.5s ease;
+}
+
+.ratio-count {
+  width: 30px;
+  text-align: right;
+  color: var(--text-muted);
+}
+
+/* 陷阱提示框 */
+.trap-box {
+  border: 1px solid var(--accent-red);
+  padding: 1rem;
+  background: rgba(255, 69, 0, 0.05);
+  margin-top: 1rem;
+}
+
+.trap-title {
+  font-size: 0.75rem;
+  color: var(--accent-red);
+  letter-spacing: 0.2em;
+  margin-bottom: 0.5rem;
+}
+
+.trap-box p {
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  line-height: 1.7;
+}
+
+/* 運算量比較 */
+.compute-comparison {
+  margin-bottom: 1.5rem;
+}
+
+.compute-title {
+  font-size: 0.7rem;
+  color: var(--accent-red);
+  letter-spacing: 0.2em;
+  margin-bottom: 0.8rem;
+}
+
+.compute-item {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 0.6rem;
+  font-size: 0.75rem;
+}
+
+.compute-label {
+  width: 120px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.compute-bar-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.compute-bar {
+  height: 14px;
+  transition: width 1s ease;
+}
+
+.compute-note {
+  font-size: 0.75rem;
+  color: var(--accent-red);
+  margin-top: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  border-left: 2px solid var(--accent-red);
+}
+
+/* 比較表 */
+.comparison-section {
+  background: var(--bg-card);
+}
+
+.comparison-table-wrap {
+  overflow-x: auto;
+}
+
+.comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.comparison-table th {
+  background: rgba(255, 69, 0, 0.1);
+  color: var(--accent-red);
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  padding: 0.8rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-dim);
+}
+
+.comparison-table td {
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  color: var(--text-primary);
+  vertical-align: top;
+  line-height: 1.6;
+}
+
+.comparison-table tr:hover td {
+  background: rgba(255, 69, 0, 0.03);
+}
+
+.method-badge {
+  font-family: var(--font-display);
+  font-size: 0.65rem;
+  padding: 0.3rem 0.6rem;
+  letter-spacing: 0.1em;
+  display: inline-block;
+}
+
+.kfold-badge { background: rgba(0, 255, 136, 0.1); color: var(--accent-green); border: 1px solid var(--accent-green); }
+.strat-badge { background: rgba(74, 158, 255, 0.1); color: var(--accent-blue); border: 1px solid var(--accent-blue); }
+.loocv-badge { background: rgba(255, 69, 0, 0.1); color: var(--accent-red); border: 1px solid var(--accent-red); }
+
+.pro { color: var(--accent-green); }
+.con { color: var(--accent-red); }
+
+/* 陷阱區塊 */
+.trap-section {
+  background: var(--bg-deep);
+}
+
+.trap-grid {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.trap-card {
+  flex: 1;
+  min-width: 250px;
+  padding: 1.5rem;
+  border: 1px solid;
+}
+
+.stratified-trap {
+  border-color: var(--accent-blue);
+  background: rgba(74, 158, 255, 0.05);
+}
+
+.fairness-trap {
+  border-color: var(--accent-gold);
+  background: rgba(255, 215, 0, 0.05);
+}
+
+.trap-card-header {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.stratified-trap .trap-card-header { color: var(--accent-blue); }
+.fairness-trap .trap-card-header { color: var(--accent-gold); }
+
+.trap-point {
+  font-size: 0.8rem;
+  color: var(--text-primary);
+  margin-bottom: 0.4rem;
+}
+
+.trap-example {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.8rem;
+  padding: 0.5rem;
+  background: rgba(0,0,0,0.3);
+  line-height: 1.6;
+}
+
+.trap-vs {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  color: var(--accent-red);
+  font-weight: 900;
+  flex-shrink: 0;
+}
+
+.mnemonic-box {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  border: 1px solid var(--accent-gold);
+  background: rgba(255, 215, 0, 0.05);
+}
+
+.mnemonic-label {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  color: var(--accent-gold);
+  letter-spacing: 0.2em;
+  flex-shrink: 0;
+  border: 1px solid var(--accent-gold);
+  padding: 0.2rem 0.5rem;
+}
+
+.mnemonic-text {
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+/* 總結區塊 */
+.summary-section {
+  background: var(--bg-card);
+}
+
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.summary-card {
+  padding: 1.5rem;
+  border: 1px solid var(--border-dim);
+  background: var(--bg-card2);
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s;
+}
+
+.summary-card:hover {
+  border-color: var(--accent-red);
+}
+
+.summary-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 100%; height: 2px;
+  background: linear-gradient(90deg, var(--accent-red), transparent);
+}
+
+.summary-num {
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: rgba(255, 69, 0, 0.2);
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+.summary-method {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  color: var(--accent-gold);
+  margin-bottom: 0.8rem;
+  letter-spacing: 0.1em;
+}
+
+.summary-text {
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  line-height: 1.7;
+}
+
+/* 頁尾 */
+.monarch-footer {
+  background: rgba(0, 0, 0, 0.8);
+  border-top: 1px solid var(--border-dim);
+  padding: 1rem 2rem;
+}
+
+.footer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.7rem;
+}
+
+.footer-logo {
+  color: var(--accent-gold);
+  font-family: var(--font-display);
+  letter-spacing: 0.2em;
+}
+
+.footer-text { color: var(--text-muted); }
+
+.footer-classified {
+  color: var(--accent-red);
+  border: 1px solid var(--accent-red);
+  padding: 0.1rem 0.4rem;
+  letter-spacing: 0.2em;
+  font-size: 0.65rem;
+}
+
+/* 動畫 */
+@keyframes pulse-glow {
+  0%, 100% { text-shadow: 0 0 10px rgba(255, 69, 0, 0.5); }
+  50% { text-shadow: 0 0 25px rgba(255, 69, 0, 1), 0 0 50px rgba(255, 69, 0, 0.5); }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+
+@keyframes flicker {
+  0%, 95%, 100% { opacity: 1; }
+  96% { opacity: 0.7; }
+  97% { opacity: 1; }
+  98% { opacity: 0.5; }
+  99% { opacity: 1; }
+}
+
+@keyframes count-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 封面區塊 */
+.cover-section {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  min-height: 600px;
+  overflow: hidden;
+  display: flex;
+  align-items: stretch;
+}
+
+.cover-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.cover-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 30%;
+  display: block;
+  filter: brightness(0.72) saturate(1.1);
+}
+
+.cover-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to bottom,
+      rgba(10,10,15,0.55) 0%,
+      rgba(10,10,15,0.15) 40%,
+      rgba(10,10,15,0.15) 60%,
+      rgba(10,10,15,0.92) 100%
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 3px,
+      rgba(0,0,0,0.06) 3px,
+      rgba(0,0,0,0.06) 4px
+    );
+}
+
+.cover-content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 2rem 3rem 2.5rem;
+}
+
+.cover-top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cover-badge-left,
+.cover-badge-right {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.3em;
+  padding: 0.25rem 0.8rem;
+  border: 1px solid rgba(255,69,0,0.5);
+  color: rgba(255,69,0,0.85);
+  background: rgba(10,10,15,0.6);
+  backdrop-filter: blur(4px);
+}
+
+.cover-center {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding-left: 1rem;
+  padding-bottom: 1rem;
+}
+
+.cover-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.35em;
+  color: var(--accent-blue);
+  margin-bottom: 0.8rem;
+  text-shadow: 0 0 12px rgba(74,158,255,0.6);
+}
+
+.cover-title {
+  font-family: var(--font-display);
+  font-size: clamp(4rem, 10vw, 8rem);
+  font-weight: 900;
+  line-height: 0.95;
+  color: var(--accent-gold);
+  text-shadow:
+    0 0 40px rgba(255,215,0,0.5),
+    0 0 80px rgba(255,215,0,0.2),
+    2px 2px 0 rgba(0,0,0,0.8);
+  letter-spacing: 0.03em;
+  margin-bottom: 0.3rem;
+}
+
+.cover-en {
+  font-family: var(--font-display);
+  font-size: clamp(1.2rem, 3vw, 2rem);
+  font-weight: 400;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 0.25em;
+  margin-bottom: 1.2rem;
+}
+
+.cover-divider {
+  width: 80px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent-red), transparent);
+  margin-bottom: 1rem;
+}
+
+.cover-subtitle {
+  font-family: var(--font-mono);
+  font-size: clamp(0.8rem, 1.5vw, 1rem);
+  color: var(--accent-blue);
+  letter-spacing: 0.2em;
+  margin-bottom: 0.8rem;
+  text-shadow: 0 0 10px rgba(74,158,255,0.4);
+}
+
+.cover-tagline {
+  font-family: var(--font-mono);
+  font-size: clamp(0.75rem, 1.2vw, 0.9rem);
+  color: rgba(232,232,240,0.6);
+  letter-spacing: 0.1em;
+  border-left: 2px solid var(--accent-red);
+  padding-left: 0.8rem;
+}
+
+.cover-scroll-hint {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  align-self: center;
+  animation: float-hint 2.5s ease-in-out infinite;
+}
+
+.scroll-label {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.4em;
+  color: rgba(255,255,255,0.4);
+}
+
+.scroll-arrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.scroll-arrow span {
+  display: block;
+  width: 14px;
+  height: 14px;
+  border-right: 2px solid rgba(255,69,0,0.7);
+  border-bottom: 2px solid rgba(255,69,0,0.7);
+  transform: rotate(45deg);
+  animation: arrow-cascade 1.5s ease-in-out infinite;
+}
+
+.scroll-arrow span:nth-child(1) { animation-delay: 0s; opacity: 0.3; }
+.scroll-arrow span:nth-child(2) { animation-delay: 0.2s; opacity: 0.6; }
+.scroll-arrow span:nth-child(3) { animation-delay: 0.4s; opacity: 1; }
+
+@keyframes float-hint {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(6px); }
+}
+
+@keyframes arrow-cascade {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 1; }
+}
+
+/* 響應式 */
+@media (max-width: 768px) {
+  .hero-stats { gap: 1.5rem; flex-wrap: wrap; }
+  .problem-grid { flex-direction: column; }
+  .vs-divider { transform: rotate(90deg); }
+  .cv-tabs { overflow-x: auto; }
+  .cv-tab { padding: 0.6rem 1rem; white-space: nowrap; }
+  .trap-grid { flex-direction: column; }
+  .trap-vs { align-self: center; }
+  .footer-inner { flex-direction: column; gap: 0.5rem; text-align: center; }
+  .cover-content { padding: 1.5rem; }
+  .cover-title { font-size: clamp(3rem, 15vw, 5rem); }
+  .cover-top-bar { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+}
+
+</style>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  </head>
+  <body>
+    <!-- 掃描線覆蓋層 -->
+    <div class="scanlines"></div>
+
+    <!-- 全螢幕封面 -->
+    <section class="cover-section" id="cover">
+      <div class="cover-bg">
+        <img src="https://d21g8wfdqviqnd.cloudfront.net/session_files/68680185/3IAhSWw6ut4w5gNspYzTtThidbJ/3IAlkHroaqPCZiCS1yQnDdssOBn/v2_3IAlxZeK1RXvExW4kQ2tf4sR42R.jpg?Expires=1802767501&Signature=ayFuCtqfL8Otov3IoNku4GqSJc-yzjMxFibtOrfn6pQjMWo6vn55ZeyUMS5jhWEE43vOmO4WFmR54fceWShDjQD3wdzGCzEf7w5C6Oj0fujhG1w229JwyG1sY6z85dO2Wz6w9EFQbTtzvs5nevSKFkqjTFCEb0fMgK9C3KbjoK3M8QNCzsfwa5-hfb0FR2BfcjrE6hNzN7u6uOh0Up7zIgaZSpF0-bZYFxz2sOgqbOLIY4Kp9qfggRlKWO~zhvOzEF3EApm1O~GpQbWIPQicgl1x~u9rbrlncRkDUQisfJoKttC8hWQUlSwJWY9Lj9DQA6tPRr4crp4m0pWC-kknmQ__&Key-Pair-Id=KEP1XOZE0NGIV" alt="MONARCH Cover" class="cover-img" />
+        <div class="cover-overlay"></div>
+      </div>
+      <div class="cover-content">
+        <div class="cover-top-bar">
+          <span class="cover-badge-left">&#9632; CLASSIFIED &#9632;</span>
+          <span class="cover-badge-right">MONARCH RESEARCH DIVISION</span>
+        </div>
+        <div class="cover-center">
+          <div class="cover-eyebrow">TITAN CLASSIFICATION PROTOCOL</div>
+          <h1 class="cover-title">交叉驗證</h1>
+          <p class="cover-en">Cross-Validation</p>
+          <div class="cover-divider"></div>
+          <p class="cover-subtitle">K-Fold &nbsp;&#183;&nbsp; Stratified K-Fold &nbsp;&#183;&nbsp; LOOCV</p>
+          <p class="cover-tagline">讓每一隻泰坦都當過裁判，模型才算真的強</p>
+        </div>
+        <div class="cover-scroll-hint">
+          <span class="scroll-label">SCROLL TO BEGIN</span>
+          <div class="scroll-arrow">
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 頂部導航 -->
+    <header class="monarch-header">
+      <div class="header-inner">
+        <div class="monarch-logo">
+          <span class="logo-icon">&#9763;</span>
+          <span class="logo-text">MONARCH</span>
+          <span class="logo-sub">TITAN CLASSIFICATION PROTOCOL</span>
+        </div>
+        <div class="header-status">
+          <span class="status-dot"></span>
+          <span class="status-text">SYSTEM ACTIVE</span>
+          <span class="threat-level">THREAT LVL: <span class="threat-value">OMEGA</span></span>
+        </div>
+      </div>
+    </header>
+
+    <!-- 英雄區塊 -->
+    <section class="hero-section">
+      <div class="hero-content">
+        <div class="classified-badge">&#9632; CLASSIFIED DOCUMENT &#9632;</div>
+        <h1 class="hero-title">
+          <span class="type-text" id="typeTitle">交叉驗證</span>
+        </h1>
+        <p class="hero-subtitle">Cross-Validation：K-Fold &#183; Stratified &#183; LOOCV</p>
+        <p class="hero-desc">
+          如果你只用一批怪獸樣本訓練模型，就宣稱「能識別所有泰坦」——<br/>
+          那你只是運氣好，剛好遇到你見過的怪獸。<br/>
+          <strong>交叉驗證</strong>，就是讓模型接受更嚴格的考驗。
+        </p>
+        <div class="hero-stats">
+          <div class="stat-item">
+            <span class="stat-num" data-target="17">0</span>
+            <span class="stat-label">已知泰坦樣本</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-num" data-target="3">0</span>
+            <span class="stat-label">驗證方法</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-num" data-target="94">0</span>
+            <span class="stat-label">分類準確率 %</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 問題意識區塊 -->
+    <section class="problem-section">
+      <div class="section-inner">
+        <div class="section-label">// PROBLEM ANALYSIS</div>
+        <h2 class="section-title">只切一次，準得準不準？</h2>
+        <div class="problem-grid">
+          <div class="problem-card warning-card">
+            <div class="card-header">
+              <span class="card-icon">&#9888;</span>
+              <span>切法 A</span>
+            </div>
+            <div class="accuracy-display">
+              <span class="acc-num" style="color: #00FF88;">92%</span>
+              <span class="acc-label">準確率</span>
+            </div>
+            <p>測試集剛好都是「你見過的怪獸」<br/>哥吉拉、魔斯拉、拉頓</p>
+          </div>
+          <div class="vs-divider">
+            <span>VS</span>
+          </div>
+          <div class="problem-card danger-card">
+            <div class="card-header">
+              <span class="card-icon">&#9888;</span>
+              <span>切法 B</span>
+            </div>
+            <div class="accuracy-display">
+              <span class="acc-num" style="color: #FF4500;">78%</span>
+              <span class="acc-label">準確率</span>
+            </div>
+            <p>測試集剛好都是「罕見變種怪獸」<br/>機械哥吉拉、太空哥吉拉</p>
+          </div>
+        </div>
+        <p class="problem-conclusion">
+          &#9632; 同一個模型、同一份怪獸資料，只是換了切法，結果差了 <strong style="color:#FF4500;">14%</strong>
+        </p>
+      </div>
+    </section>
+
+    <!-- 主要 CV 展示區 -->
+    <section class="cv-section">
+      <div class="section-inner">
+        <div class="section-label">// CROSS-VALIDATION PROTOCOLS</div>
+        <h2 class="section-title">三種驗證協議</h2>
+
+        <!-- Tab 切換 -->
+        <div class="cv-tabs">
+          <button class="cv-tab active" data-tab="kfold">
+            <span class="tab-num">01</span>
+            <span class="tab-name">K-Fold</span>
+          </button>
+          <button class="cv-tab" data-tab="stratified">
+            <span class="tab-num">02</span>
+            <span class="tab-name">Stratified K-Fold</span>
+          </button>
+          <button class="cv-tab" data-tab="loocv">
+            <span class="tab-num">03</span>
+            <span class="tab-name">LOOCV</span>
+          </button>
+        </div>
+
+        <!-- CV 內容面板 -->
+        <div class="cv-panels">
+
+          <!-- K-Fold 面板 -->
+          <div class="cv-panel active" id="panel-kfold">
+            <div class="panel-layout">
+              <div class="panel-3d">
+                <canvas id="canvas-kfold"></canvas>
+                <div class="canvas-overlay">
+                  <div class="fold-indicator">
+                    FOLD <span id="kfold-current">1</span> / <span id="kfold-total">5</span>
+                  </div>
+                  <div class="legend">
+                    <span class="legend-item train">&#9632; 訓練集</span>
+                    <span class="legend-item test">&#9632; 測試集</span>
+                  </div>
+                </div>
+              </div>
+              <div class="panel-info">
+                <h3 class="method-title">K-Fold 交叉驗證</h3>
+                <p class="method-desc">
+                  把 17 隻泰坦樣本切成 <strong>K=5 份</strong>，每輪輪流讓一份當「測試集」，其餘 4 份訓練模型。跑完 5 輪取平均，才是模型真正的識別能力。
+                </p>
+                <div class="monster-roster">
+                  <div class="roster-title">&#9632; 泰坦樣本名單</div>
+                  <div class="monster-grid" id="kfold-monsters"></div>
+                </div>
+                <div class="method-stats">
+                  <div class="mstat">
+                    <span class="mstat-label">訓練次數</span>
+                    <span class="mstat-val">5 次</span>
+                  </div>
+                  <div class="mstat">
+                    <span class="mstat-label">適合情境</span>
+                    <span class="mstat-val">一般分類 / 迴歸</span>
+                  </div>
+                  <div class="mstat">
+                    <span class="mstat-label">優點</span>
+                    <span class="mstat-val" style="color:#00FF88;">穩定、通用</span>
+                  </div>
+                  <div class="mstat">
+                    <span class="mstat-label">缺點</span>
+                    <span class="mstat-val" style="color:#FF4500;">類別不平衡時可能失真</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Stratified K-Fold 面板 -->
+          <div class="cv-panel" id="panel-stratified">
+            <div class="panel-layout">
+              <div class="panel-3d">
+                <canvas id="canvas-stratified"></canvas>
+                <div class="canvas-overlay">
+                  <div class="fold-indicator">
+                    FOLD <span id="strat-current">1</span> / <span id="strat-total">5</span>
+                  </div>
+                  <div class="legend">
+                    <span class="legend-item" style="color:#FF4500;">&#9632; 超大型泰坦</span>
+                    <span class="legend-item" style="color:#4A9EFF;">&#9632; 飛行型泰坦</span>
+                    <span class="legend-item" style="color:#00FF88;">&#9632; 海洋型泰坦</span>
+                    <span class="legend-item" style="color:#FFD700;">&#9632; 機械泰坦</span>
+                  </div>
+                </div>
+              </div>
+              <div class="panel-info">
+                <h3 class="method-title">Stratified K-Fold</h3>
+                <p class="method-desc">
+                  泰坦資料嚴重不平衡：超大型只有 3 隻，機械型只有 2 隻。普通 K-Fold 可能把所有機械泰坦切進同一份，導致某輪完全沒有機械泰坦可測試。<br/><br/>
+                  Stratified K-Fold 確保<strong>每份都維持相同的物種比例</strong>。
+                </p>
+                <div class="ratio-display">
+                  <div class="ratio-title">&#9632; 每份的物種比例（維持一致）</div>
+                  <div class="ratio-bars" id="ratio-bars"></div>
+                </div>
+                <div class="method-stats">
+                  <div class="mstat">
+                    <span class="mstat-label">適合情境</span>
+                    <span class="mstat-val">詐欺偵測、疾病篩檢</span>
+                  </div>
+                  <div class="mstat">
+                    <span class="mstat-label">優點</span>
+                    <span class="mstat-val" style="color:#00FF88;">不平衡資料更準確</span>
+                  </div>
+                  <div class="mstat">
+                    <span class="mstat-label">缺點</span>
+                    <span class="mstat-val" style="color:#FF4500;">只適用分類問題</span>
+                  </div>
+                </div>
+                <div class="trap-box">
+                  <div class="trap-title">&#9888; 常考陷阱</div>
+                  <p>Stratified K-Fold 顧的是<strong>「答案的比例」</strong>（物種類別）<br/>
+                  公平性評估顧的是<strong>「是誰的比例」</strong>（棲息地、體型等屬性）</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- LOOCV 面板 -->
+          <div class="cv-panel" id="panel-loocv">
+            <div class="panel-layout">
+              <div class="panel-3d">
+                <canvas id="canvas-loocv"></canvas>
+                <div class="canvas-overlay">
+                  <div class="fold-indicator">
+                    測試中: <span id="loocv-current">哥吉拉</span>
+                  </div>
+                  <div class="legend">
+                    <span class="legend-item train">&#9632; 訓練集 (n-1)</span>
+                    <span class="legend-item test">&#9632; 測試集 (1隻)</span>
+                  </div>
+                </div>
+              </div>
+              <div class="panel-info">
+                <h3 class="method-title">LOOCV</h3>
+                <p class="method-subtitle">Leave-One-Out Cross-Validation</p>
+                <p class="method-desc">
+                  K-Fold 的極端版本。K = 資料筆數 n = 17。每輪只留<strong>一隻泰坦</strong>當測試集，其餘 16 隻全部訓練。輪完 17 輪，每隻泰坦都當過一次「裁判」。
+                </p>
+                <div class="compute-comparison">
+                  <div class="compute-title">&#9632; 運算量比較</div>
+                  <div class="compute-item">
+                    <span class="compute-label">K-Fold (K=5)</span>
+                    <div class="compute-bar-wrap">
+                      <div class="compute-bar" style="width:29%; background:#00FF88;"></div>
+                      <span>5 次訓練</span>
+                    </div>
+                  </div>
+                  <div class="compute-item">
+                    <span class="compute-label">LOOCV (n=17)</span>
+                    <div class="compute-bar-wrap">
+                      <div class="compute-bar" style="width:100%; background:#FF4500;"></div>
+                      <span>17 次訓練</span>
+                    </div>
+                  </div>
+                  <p class="compute-note">&#9888; 若有 1000 隻泰坦樣本，LOOCV 需訓練 1000 次！</p>
+                </div>
+                <div class="method-stats">
+                  <div class="mstat">
+                    <span class="mstat-label">適合情境</span>
+                    <span class="mstat-val">資料量非常小</span>
+                  </div>
+                  <div class="mstat">
+                    <span class="mstat-label">優點</span>
+                    <span class="mstat-val" style="color:#00FF88;">幾乎用盡所有資料訓練</span>
+                  </div>
+                  <div class="mstat">
+                    <span class="mstat-label">缺點</span>
+                    <span class="mstat-val" style="color:#FF4500;">運算量爆炸，實務少用</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 三法比較表 -->
+    <section class="comparison-section">
+      <div class="section-inner">
+        <div class="section-label">// PROTOCOL COMPARISON</div>
+        <h2 class="section-title">三種協議一次比較</h2>
+        <div class="comparison-table-wrap">
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th>協議名稱</th>
+                <th>切分方式</th>
+                <th>優點</th>
+                <th>缺點</th>
+                <th>適合情境</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="method-badge kfold-badge">K-Fold</span></td>
+                <td>隨機切 K 份<br/>輪流當測試集</td>
+                <td class="pro">穩定、通用</td>
+                <td class="con">類別不平衡時可能失真</td>
+                <td>一般迴歸 / 分類問題</td>
+              </tr>
+              <tr>
+                <td><span class="method-badge strat-badge">Stratified</span></td>
+                <td>切 K 份但<br/>維持類別比例</td>
+                <td class="pro">不平衡資料更準確</td>
+                <td class="con">只適用分類問題</td>
+                <td>詐欺偵測、疾病篩檢</td>
+              </tr>
+              <tr>
+                <td><span class="method-badge loocv-badge">LOOCV</span></td>
+                <td>K = n<br/>每次只留一筆</td>
+                <td class="pro">幾乎用盡所有資料</td>
+                <td class="con">運算量大、不實際</td>
+                <td>資料量非常小的情況</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 常考陷阱區塊 -->
+    <section class="trap-section">
+      <div class="section-inner">
+        <div class="section-label">// CLASSIFIED: EXAM TRAP</div>
+        <h2 class="section-title">&#9888; 常考陷阱：這兩個不要搞混！</h2>
+        <div class="trap-grid">
+          <div class="trap-card stratified-trap">
+            <div class="trap-card-header">Stratified K-Fold</div>
+            <div class="trap-card-body">
+              <div class="trap-point">&#9632; 依「預測目標類別」切分</div>
+              <div class="trap-point">&#9632; 目的：解決評估穩定性</div>
+              <div class="trap-example">例：確保每份的<br/>超大型 / 飛行型 / 海洋型比例一致</div>
+            </div>
+          </div>
+          <div class="trap-vs">&#8800;</div>
+          <div class="trap-card fairness-trap">
+            <div class="trap-card-header">公平性評估 Fairness</div>
+            <div class="trap-card-body">
+              <div class="trap-point">&#9632; 依「棲息地屬性」切分</div>
+              <div class="trap-point">&#9632; 目的：檢查模型對不同群體是否公平</div>
+              <div class="trap-example">例：分別檢查<br/>陸地型 / 海洋型泰坦的識別準確率</div>
+            </div>
+          </div>
+        </div>
+        <div class="mnemonic-box">
+          <span class="mnemonic-label">口訣</span>
+          <span class="mnemonic-text">Stratified 顧「答案的比例」；Fairness 顧「是誰的比例」</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 總結區塊 -->
+    <section class="summary-section">
+      <div class="section-inner">
+        <div class="section-label">// MISSION SUMMARY</div>
+        <h2 class="section-title">三句話記住交叉驗證</h2>
+        <div class="summary-cards">
+          <div class="summary-card">
+            <div class="summary-num">01</div>
+            <div class="summary-method">K-Fold</div>
+            <div class="summary-text">切 K 份輪流當測試集，結果更穩定，不要只切一次就下定論</div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-num">02</div>
+            <div class="summary-method">Stratified K-Fold</div>
+            <div class="summary-text">切的時候顧「類別比例」，不是顧「人口公平性」，這是最容易考錯的地方</div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-num">03</div>
+            <div class="summary-method">LOOCV</div>
+            <div class="summary-text">K = n，準但貴，只有資料少時才划算</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 頁尾 -->
+    <footer class="monarch-footer">
+      <div class="footer-inner">
+        <span class="footer-logo">&#9763; MONARCH</span>
+        <span class="footer-text">TITAN CLASSIFICATION PROTOCOL v2.0 | CROSS-VALIDATION DIVISION</span>
+        <span class="footer-classified">TOP SECRET</span>
+      </div>
+    </footer>
+
+    <script>
+/* MONARCH 交叉驗證系統 - 互動邏輯 */
+/* Three.js 3D 視覺化 + 動畫控制 */
+
+// 怪獸資料集
+const MONSTERS = [
+  { name: '哥吉拉', type: 0, emoji: '🦕' },
+  { name: '魔斯拉', type: 1, emoji: '🦋' },
+  { name: '基多拉', type: 1, emoji: '🐉' },
+  { name: '拉頓', type: 1, emoji: '🦅' },
+  { name: '孔恩', type: 2, emoji: '🦍' },
+  { name: '比歐蘭特', type: 2, emoji: '🌿' },
+  { name: '甘達拉', type: 2, emoji: '🐢' },
+  { name: '機械哥吉拉', type: 3, emoji: '🤖' },
+  { name: '太空哥吉拉', type: 0, emoji: '⭐' },
+  { name: '戴斯特洛伊亞', type: 0, emoji: '🔴' },
+  { name: '海格拉', type: 2, emoji: '🦀' },
+  { name: '魔斯拉幼蟲', type: 1, emoji: '🐛' },
+  { name: '機械拉頓', type: 3, emoji: '⚙️' },
+  { name: '奧加', type: 2, emoji: '🌊' },
+  { name: '巴拉哥', type: 2, emoji: '🦎' },
+  { name: '史庫拉', type: 2, emoji: '🦂' },
+  { name: '比奧蘭特II', type: 0, emoji: '🌺' },
+];
+
+// 物種類型顏色
+const TYPE_COLORS = [0xFF4500, 0x4A9EFF, 0x00FF88, 0xFFD700];
+const TYPE_NAMES = ['超大型泰坦', '飛行型泰坦', '海洋型泰坦', '機械泰坦'];
+const TYPE_HEX = ['#FF4500', '#4A9EFF', '#00FF88', '#FFD700'];
+const TYPE_COUNTS = [4, 4, 7, 2]; // 各類型數量
+
+// 全域狀態
+let scenes = {};
+let animationIds = {};
+let currentFolds = { kfold: 0, stratified: 0, loocv: 0 };
+let foldTimers = {};
+
+// =====================
+// 初始化
+// =====================
+document.addEventListener('DOMContentLoaded', () => {
+  initTypewriterEffect();
+  initCounterAnimation();
+  initTabs();
+  initKFoldMonsterGrid();
+  initRatioBars();
+  initThreeJS();
+  startFoldAnimations();
+});
+
+// =====================
+// 打字機效果
+// =====================
+function initTypewriterEffect() {
+  const el = document.getElementById('typeTitle');
+  if (!el) return;
+  const text = el.textContent;
+  el.textContent = '';
+  let i = 0;
+  const timer = setInterval(() => {
+    el.textContent += text[i];
+    i++;
+    if (i >= text.length) clearInterval(timer);
+  }, 120);
+}
+
+// =====================
+// 數字計數動畫
+// =====================
+function initCounterAnimation() {
+  const counters = document.querySelectorAll('.stat-num[data-target]');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const el = entry.target;
+        const target = parseInt(el.dataset.target);
+        let current = 0;
+        const step = Math.ceil(target / 30);
+        const timer = setInterval(() => {
+          current = Math.min(current + step, target);
+          el.textContent = current;
+          if (current >= target) clearInterval(timer);
+        }, 50);
+        observer.unobserve(el);
+      }
+    });
+  }, { threshold: 0.5 });
+  counters.forEach(c => observer.observe(c));
+}
+
+// =====================
+// Tab 切換
+// =====================
+function initTabs() {
+  const tabs = document.querySelectorAll('.cv-tab');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.tab;
+      tabs.forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.cv-panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('panel-' + target).classList.add('active');
+      // 重新渲染對應的 canvas
+      setTimeout(() => resizeCanvas(target), 50);
+    });
+  });
+}
+
+function resizeCanvas(tabName) {
+  if (scenes[tabName] && scenes[tabName].renderer) {
+    const canvas = scenes[tabName].renderer.domElement;
+    const container = canvas.parentElement;
+    const w = container.clientWidth;
+    const h = container.clientHeight;
+    scenes[tabName].renderer.setSize(w, h);
+    scenes[tabName].camera.aspect = w / h;
+    scenes[tabName].camera.updateProjectionMatrix();
+  }
+}
+
+// =====================
+// K-Fold 怪獸名單
+// =====================
+function initKFoldMonsterGrid() {
+  const grid = document.getElementById('kfold-monsters');
+  if (!grid) return;
+  MONSTERS.forEach((m, i) => {
+    const fold = Math.floor(i / (MONSTERS.length / 5));
+    const tag = document.createElement('div');
+    tag.className = `monster-tag fold-${Math.min(fold, 4)}`;
+    tag.dataset.index = i;
+    tag.dataset.fold = Math.min(fold, 4);
+    tag.textContent = m.name;
+    tag.title = `${m.name} | ${TYPE_NAMES[m.type]}`;
+    grid.appendChild(tag);
+  });
+}
+
+function updateKFoldMonsterGrid(currentFold) {
+  const tags = document.querySelectorAll('.monster-tag');
+  tags.forEach(tag => {
+    const fold = parseInt(tag.dataset.fold);
+    tag.classList.toggle('is-test', fold === currentFold);
+  });
+}
+
+// =====================
+// Stratified 比例條
+// =====================
+function initRatioBars() {
+  const container = document.getElementById('ratio-bars');
+  if (!container) return;
+  TYPE_NAMES.forEach((name, i) => {
+    const count = TYPE_COUNTS[i];
+    const pct = Math.round(count / MONSTERS.length * 100);
+    const row = document.createElement('div');
+    row.className = 'ratio-row';
+    row.innerHTML = `
+      <span class="ratio-label" style="color:${TYPE_HEX[i]}">${name}</span>
+      <div class="ratio-bar-track">
+        <div class="ratio-bar-fill" style="width:${pct}%; background:${TYPE_HEX[i]};"></div>
+      </div>
+      <span class="ratio-count" style="color:${TYPE_HEX[i]}">${count}</span>
+    `;
+    container.appendChild(row);
+  });
+}
+
+// =====================
+// Three.js 3D 場景
+// =====================
+function initThreeJS() {
+  initKFoldScene();
+  initStratifiedScene();
+  initLOOCVScene();
+}
+
+function createBaseScene(canvasId) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return null;
+  const container = canvas.parentElement;
+  const w = container.clientWidth || 400;
+  const h = container.clientHeight || 400;
+
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setSize(w, h);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setClearColor(0x000000, 0);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, w / h, 0.1, 1000);
+  camera.position.set(0, 0, 8);
+
+  // 環境光
+  const ambientLight = new THREE.AmbientLight(0x222244, 2);
+  scene.add(ambientLight);
+
+  // 點光源
+  const pointLight = new THREE.PointLight(0xFF4500, 1.5, 20);
+  pointLight.position.set(3, 3, 3);
+  scene.add(pointLight);
+
+  const pointLight2 = new THREE.PointLight(0x4A9EFF, 1, 20);
+  pointLight2.position.set(-3, -2, 2);
+  scene.add(pointLight2);
+
+  // 網格背景
+  const gridHelper = new THREE.GridHelper(12, 12, 0xFF4500, 0x1A1A2E);
+  gridHelper.position.y = -3.5;
+  gridHelper.material.opacity = 0.3;
+  gridHelper.material.transparent = true;
+  scene.add(gridHelper);
+
+  // 滑鼠拖拉旋轉
+  let isDragging = false;
+  let prevMouse = { x: 0, y: 0 };
+  let rotationGroup = new THREE.Group();
+  scene.add(rotationGroup);
+
+  canvas.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    prevMouse = { x: e.clientX, y: e.clientY };
+  });
+  canvas.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    const dx = e.clientX - prevMouse.x;
+    const dy = e.clientY - prevMouse.y;
+    rotationGroup.rotation.y += dx * 0.01;
+    rotationGroup.rotation.x += dy * 0.01;
+    prevMouse = { x: e.clientX, y: e.clientY };
+  });
+  canvas.addEventListener('mouseup', () => { isDragging = false; });
+  canvas.addEventListener('mouseleave', () => { isDragging = false; });
+
+  // 觸控支援
+  canvas.addEventListener('touchstart', (e) => {
+    isDragging = true;
+    prevMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  });
+  canvas.addEventListener('touchmove', (e) => {
+    if (!isDragging) return;
+    const dx = e.touches[0].clientX - prevMouse.x;
+    const dy = e.touches[0].clientY - prevMouse.y;
+    rotationGroup.rotation.y += dx * 0.01;
+    rotationGroup.rotation.x += dy * 0.01;
+    prevMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    e.preventDefault();
+  }, { passive: false });
+  canvas.addEventListener('touchend', () => { isDragging = false; });
+
+  return { renderer, scene, camera, rotationGroup, isDragging: () => isDragging };
+}
+
+// =====================
+// K-Fold 場景
+// =====================
+function initKFoldScene() {
+  const base = createBaseScene('canvas-kfold');
+  if (!base) return;
+  const { renderer, scene, camera, rotationGroup, isDragging } = base;
+
+  const K = 5;
+  const spheres = [];
+  const foldSize = Math.ceil(MONSTERS.length / K);
+
+  MONSTERS.forEach((m, i) => {
+    const fold = Math.min(Math.floor(i / foldSize), K - 1);
+    // 按 fold 分組排列在圓柱形空間
+    const angle = (i / MONSTERS.length) * Math.PI * 2;
+    const radius = 2.5 + (fold * 0.3);
+    const x = Math.cos(angle) * radius;
+    const y = (fold - 2) * 1.2;
+    const z = Math.sin(angle) * radius;
+
+    const geo = new THREE.SphereGeometry(0.25, 16, 16);
+    const mat = new THREE.MeshPhongMaterial({
+      color: TYPE_COLORS[m.type],
+      emissive: TYPE_COLORS[m.type],
+      emissiveIntensity: 0.3,
+      transparent: true,
+      opacity: 0.85,
+    });
+    const sphere = new THREE.Mesh(geo, mat);
+    sphere.position.set(x, y, z);
+    sphere.userData = { fold, monsterIndex: i, baseY: y };
+    rotationGroup.add(sphere);
+    spheres.push(sphere);
+
+    // 連線到中心
+    const lineMat = new THREE.LineBasicMaterial({
+      color: TYPE_COLORS[m.type],
+      transparent: true,
+      opacity: 0.15,
+    });
+    const points = [new THREE.Vector3(0, y, 0), new THREE.Vector3(x, y, z)];
+    const lineGeo = new THREE.BufferGeometry().setFromPoints(points);
+    const line = new THREE.Line(lineGeo, lineMat);
+    rotationGroup.add(line);
+  });
+
+  // 中心核心
+  const coreGeo = new THREE.OctahedronGeometry(0.4, 0);
+  const coreMat = new THREE.MeshPhongMaterial({
+    color: 0xFF4500,
+    emissive: 0xFF4500,
+    emissiveIntensity: 0.8,
+    wireframe: false,
+  });
+  const core = new THREE.Mesh(coreGeo, coreMat);
+  rotationGroup.add(core);
+
+  scenes['kfold'] = { renderer, scene, camera, rotationGroup, spheres, core, isDragging };
+
+  let time = 0;
+  function animate() {
+    animationIds['kfold'] = requestAnimationFrame(animate);
+    time += 0.01;
+
+    if (!isDragging()) {
+      rotationGroup.rotation.y += 0.004;
+    }
+
+    core.rotation.x += 0.02;
+    core.rotation.y += 0.03;
+
+    const currentFold = currentFolds.kfold;
+    spheres.forEach((s, i) => {
+      const fold = s.userData.fold;
+      const isTest = fold === currentFold;
+      const targetEmissive = isTest ? 1.2 : 0.2;
+      const targetScale = isTest ? 1.5 : 1.0;
+      const targetOpacity = isTest ? 1.0 : 0.5;
+
+      s.material.emissiveIntensity += (targetEmissive - s.material.emissiveIntensity) * 0.1;
+      s.scale.setScalar(s.scale.x + (targetScale - s.scale.x) * 0.1);
+      s.material.opacity += (targetOpacity - s.material.opacity) * 0.1;
+
+      if (isTest) {
+        s.material.color.setHex(0xFF4500);
+        s.material.emissive.setHex(0xFF4500);
+      } else {
+        s.material.color.setHex(TYPE_COLORS[MONSTERS[s.userData.monsterIndex].type]);
+        s.material.emissive.setHex(TYPE_COLORS[MONSTERS[s.userData.monsterIndex].type]);
+      }
+
+      // 浮動效果
+      s.position.y = s.userData.baseY + Math.sin(time + i * 0.5) * 0.1;
+    });
+
+    renderer.render(scene, camera);
+  }
+  animate();
+}
+
+// =====================
+// Stratified K-Fold 場景
+// =====================
+function initStratifiedScene() {
+  const base = createBaseScene('canvas-stratified');
+  if (!base) return;
+  const { renderer, scene, camera, rotationGroup, isDragging } = base;
+
+  const K = 5;
+  const spheres = [];
+
+  // 按類型分組，每組按比例分配到各 fold
+  const byType = [[], [], [], []];
+  MONSTERS.forEach((m, i) => byType[m.type].push(i));
+
+  // 分配 fold：每個類型的怪獸輪流分配到各 fold
+  const foldAssignment = new Array(MONSTERS.length).fill(0);
+  byType.forEach((typeGroup) => {
+    typeGroup.forEach((monsterIdx, j) => {
+      foldAssignment[monsterIdx] = j % K;
+    });
+  });
+
+  MONSTERS.forEach((m, i) => {
+    const fold = foldAssignment[i];
+    const typeAngleOffset = (m.type / 4) * Math.PI * 2;
+    const withinTypeIdx = byType[m.type].indexOf(i);
+    const angle = typeAngleOffset + (withinTypeIdx / byType[m.type].length) * (Math.PI / 2);
+    const radius = 2.2 + fold * 0.25;
+    const x = Math.cos(angle) * radius;
+    const z = Math.sin(angle) * radius;
+    const y = (fold - 2) * 0.9;
+
+    const geo = new THREE.SphereGeometry(0.22, 16, 16);
+    const mat = new THREE.MeshPhongMaterial({
+      color: TYPE_COLORS[m.type],
+      emissive: TYPE_COLORS[m.type],
+      emissiveIntensity: 0.3,
+      transparent: true,
+      opacity: 0.85,
+    });
+    const sphere = new THREE.Mesh(geo, mat);
+    sphere.position.set(x, y, z);
+    sphere.userData = { fold, monsterIndex: i, type: m.type, baseY: y };
+    rotationGroup.add(sphere);
+    spheres.push(sphere);
+  });
+
+  // 中心核心 - 環形
+  const torusGeo = new THREE.TorusGeometry(0.5, 0.15, 8, 24);
+  const torusMat = new THREE.MeshPhongMaterial({
+    color: 0x4A9EFF,
+    emissive: 0x4A9EFF,
+    emissiveIntensity: 0.6,
+  });
+  const torus = new THREE.Mesh(torusGeo, torusMat);
+  rotationGroup.add(torus);
+
+  scenes['stratified'] = { renderer, scene, camera, rotationGroup, spheres, torus, isDragging };
+
+  let time = 0;
+  function animate() {
+    animationIds['stratified'] = requestAnimationFrame(animate);
+    time += 0.01;
+
+    if (!isDragging()) {
+      rotationGroup.rotation.y += 0.004;
+    }
+
+    torus.rotation.x += 0.01;
+    torus.rotation.z += 0.02;
+
+    const currentFold = currentFolds.stratified;
+    spheres.forEach((s, i) => {
+      const fold = s.userData.fold;
+      const isTest = fold === currentFold;
+      const targetEmissive = isTest ? 1.2 : 0.2;
+      const targetScale = isTest ? 1.5 : 1.0;
+      const targetOpacity = isTest ? 1.0 : 0.45;
+
+      s.material.emissiveIntensity += (targetEmissive - s.material.emissiveIntensity) * 0.1;
+      s.scale.setScalar(s.scale.x + (targetScale - s.scale.x) * 0.1);
+      s.material.opacity += (targetOpacity - s.material.opacity) * 0.1;
+
+      if (isTest) {
+        s.material.color.setHex(0xFFFFFF);
+        s.material.emissive.setHex(0xFFFFFF);
+      } else {
+        s.material.color.setHex(TYPE_COLORS[s.userData.type]);
+        s.material.emissive.setHex(TYPE_COLORS[s.userData.type]);
+      }
+
+      s.position.y = s.userData.baseY + Math.sin(time + i * 0.4) * 0.08;
+    });
+
+    renderer.render(scene, camera);
+  }
+  animate();
+}
+
+// =====================
+// LOOCV 場景
+// =====================
+function initLOOCVScene() {
+  const base = createBaseScene('canvas-loocv');
+  if (!base) return;
+  const { renderer, scene, camera, rotationGroup, isDragging } = base;
+
+  const spheres = [];
+  const n = MONSTERS.length;
+
+  MONSTERS.forEach((m, i) => {
+    const phi = Math.acos(-1 + (2 * i) / n);
+    const theta = Math.sqrt(n * Math.PI) * phi;
+    const radius = 3;
+    const x = radius * Math.cos(theta) * Math.sin(phi);
+    const y = radius * Math.sin(theta) * Math.sin(phi);
+    const z = radius * Math.cos(phi);
+
+    const geo = new THREE.SphereGeometry(0.2, 16, 16);
+    const mat = new THREE.MeshPhongMaterial({
+      color: TYPE_COLORS[m.type],
+      emissive: TYPE_COLORS[m.type],
+      emissiveIntensity: 0.3,
+      transparent: true,
+      opacity: 0.85,
+    });
+    const sphere = new THREE.Mesh(geo, mat);
+    sphere.position.set(x, y, z);
+    sphere.userData = { monsterIndex: i, type: m.type, basePos: { x, y, z } };
+    rotationGroup.add(sphere);
+    spheres.push(sphere);
+  });
+
+  // 中心核心 - 二十面體
+  const icoGeo = new THREE.IcosahedronGeometry(0.5, 0);
+  const icoMat = new THREE.MeshPhongMaterial({
+    color: 0xFF4500,
+    emissive: 0xFF4500,
+    emissiveIntensity: 0.8,
+    wireframe: true,
+  });
+  const ico = new THREE.Mesh(icoGeo, icoMat);
+  rotationGroup.add(ico);
+
+  // 連線：所有球到中心
+  spheres.forEach((s) => {
+    const lineMat = new THREE.LineBasicMaterial({
+      color: TYPE_COLORS[MONSTERS[s.userData.monsterIndex].type],
+      transparent: true,
+      opacity: 0.1,
+    });
+    const points = [
+      new THREE.Vector3(0, 0, 0),
+      s.position.clone(),
+    ];
+    const lineGeo = new THREE.BufferGeometry().setFromPoints(points);
+    const line = new THREE.Line(lineGeo, lineMat);
+    rotationGroup.add(line);
+  });
+
+  scenes['loocv'] = { renderer, scene, camera, rotationGroup, spheres, ico, isDragging };
+
+  let time = 0;
+  function animate() {
+    animationIds['loocv'] = requestAnimationFrame(animate);
+    time += 0.01;
+
+    if (!isDragging()) {
+      rotationGroup.rotation.y += 0.005;
+    }
+
+    ico.rotation.x += 0.015;
+    ico.rotation.y += 0.02;
+
+    const currentIdx = currentFolds.loocv;
+    spheres.forEach((s, i) => {
+      const isTest = i === currentIdx;
+      const targetEmissive = isTest ? 2.0 : 0.2;
+      const targetScale = isTest ? 2.0 : 1.0;
+      const targetOpacity = isTest ? 1.0 : 0.5;
+
+      s.material.emissiveIntensity += (targetEmissive - s.material.emissiveIntensity) * 0.12;
+      s.scale.setScalar(s.scale.x + (targetScale - s.scale.x) * 0.12);
+      s.material.opacity += (targetOpacity - s.material.opacity) * 0.12;
+
+      if (isTest) {
+        s.material.color.setHex(0xFF4500);
+        s.material.emissive.setHex(0xFF4500);
+        // 向外彈出
+        const bp = s.userData.basePos;
+        const dist = 1.5;
+        s.position.x = bp.x * (1 + dist / 3);
+        s.position.y = bp.y * (1 + dist / 3);
+        s.position.z = bp.z * (1 + dist / 3);
+      } else {
+        s.material.color.setHex(TYPE_COLORS[s.userData.type]);
+        s.material.emissive.setHex(TYPE_COLORS[s.userData.type]);
+        const bp = s.userData.basePos;
+        s.position.x += (bp.x - s.position.x) * 0.1;
+        s.position.y += (bp.y - s.position.y) * 0.1;
+        s.position.z += (bp.z - s.position.z) * 0.1;
+      }
+    });
+
+    renderer.render(scene, camera);
+  }
+  animate();
+}
+
+// =====================
+// Fold 動畫控制
+// =====================
+function startFoldAnimations() {
+  // K-Fold
+  foldTimers['kfold'] = setInterval(() => {
+    currentFolds.kfold = (currentFolds.kfold + 1) % 5;
+    const el = document.getElementById('kfold-current');
+    if (el) el.textContent = currentFolds.kfold + 1;
+    updateKFoldMonsterGrid(currentFolds.kfold);
+  }, 1800);
+
+  // Stratified K-Fold
+  foldTimers['stratified'] = setInterval(() => {
+    currentFolds.stratified = (currentFolds.stratified + 1) % 5;
+    const el = document.getElementById('strat-current');
+    if (el) el.textContent = currentFolds.stratified + 1;
+  }, 1800);
+
+  // LOOCV
+  foldTimers['loocv'] = setInterval(() => {
+    currentFolds.loocv = (currentFolds.loocv + 1) % MONSTERS.length;
+    const el = document.getElementById('loocv-current');
+    if (el) el.textContent = MONSTERS[currentFolds.loocv].name;
+  }, 900);
+}
+
+// =====================
+// 視窗大小調整
+// =====================
+window.addEventListener('resize', () => {
+  ['kfold', 'stratified', 'loocv'].forEach(key => {
+    if (scenes[key]) resizeCanvas(key);
+  });
+});
+
+</script>
+  </body>
+</html>
