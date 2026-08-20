@@ -14,7 +14,8 @@ const NAV=[
     {id:'tool-lawmap',label:'職安法子法地圖',href:'職安法子法地圖.html'}
   ]},
   {id:'ipas',label:'iPAS 備考',icon:'⬡',type:'accordion',children:[
-    {id:'ipas-cv',label:'交叉驗證 · MONARCH',href:'ipas-交叉驗證系統.html'}
+    {id:'ipas-cv',label:'交叉驗證 · MONARCH',href:'ipas-交叉驗證系統.html'},
+    {id:'ipas-overfit',label:'過擬合 3D 模型',href:'ipas-過擬合模型.html'}
   ]},
   {id:'about',label:'關於我',icon:'ⓘ',type:'link'}
 ];

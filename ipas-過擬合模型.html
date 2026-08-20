@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🦖 哥吉拉互動 3D 模型</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:#000;overflow:hidden;font-family:'Segoe UI',sans-serif;}
+  #canvas{display:block;width:100vw;height:100vh;}
+
+  /* HUD 頂部標題 */
+  #hud-title{
+    position:fixed;top:0;left:0;right:0;
+    padding:12px 20px;
+    background:linear-gradient(180deg,rgba(0,0,0,0.85)0%,transparent 100%);
+    display:flex;align-items:center;justify-content:space-between;
+    z-index:100;pointer-events:none;
+  }
+  #hud-title h1{
+    font-size:1.3rem;font-weight:900;letter-spacing:3px;
+    background:linear-gradient(90deg,#ff4400,#ff8800,#ff4400);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    animation:glow-title 2s infinite;
+  }
+  @keyframes glow-title{0%,100%{filter:brightness(1)}50%{filter:brightness(1.4)}}
+  #hud-title .subtitle{font-size:0.72rem;color:#ff6633;letter-spacing:2px;opacity:0.8;}
+
+  /* 狀態面板 */
+  #status-panel{
+    position:fixed;top:70px;left:16px;
+    background:rgba(0,0,0,0.75);border:1px solid #ff440055;
+    border-radius:12px;padding:12px 16px;min-width:180px;z-index:100;
+    backdrop-filter:blur(8px);
+  }
+  .stat-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+  .stat-label{font-size:0.72rem;color:#aa6633;}
+  .stat-val{font-size:0.78rem;font-weight:700;color:#ff8844;}
+  .stat-bar-bg{width:80px;height:5px;background:#1a0800;border-radius:3px;overflow:hidden;}
+  .stat-bar{height:100%;border-radius:3px;transition:width 0.5s ease;}
+
+  /* 訊息框 */
+  #msg-box{
+    position:fixed;bottom:130px;left:50%;transform:translateX(-50%);
+    background:rgba(0,0,0,0.85);border:1px solid #ff440088;
+    border-radius:14px;padding:14px 22px;max-width:480px;width:90%;
+    text-align:center;z-index:100;
+    font-size:0.85rem;color:#ffcc99;line-height:1.7;
+    backdrop-filter:blur(10px);
+    transition:opacity 0.5s,transform 0.5s;
+    opacity:0;transform:translateX(-50%) translateY(20px);
+    pointer-events:none;
+  }
+  #msg-box.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  #msg-box .msg-title{font-size:1rem;font-weight:800;color:#ff6600;margin-bottom:6px;}
+
+  /* 控制按鈕 */
+  #controls{
+    position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+    display:flex;gap:10px;flex-wrap:wrap;justify-content:center;z-index:100;
+  }
+  .ctrl-btn{
+    padding:10px 18px;border-radius:24px;border:1px solid;
+    cursor:pointer;font-size:0.82rem;font-weight:700;
+    transition:all 0.3s;backdrop-filter:blur(8px);
+    white-space:nowrap;
+  }
+  .btn-roar{background:rgba(255,68,0,0.25);border-color:#ff4400;color:#ff8844;}
+  .btn-roar:hover{background:rgba(255,68,0,0.5);box-shadow:0 0 20px #ff440088;}
+  .btn-breath{background:rgba(0,170,255,0.2);border-color:#00aaff;color:#44ccff;}
+  .btn-breath:hover{background:rgba(0,170,255,0.4);box-shadow:0 0 20px #00aaff88;}
+  .btn-stomp{background:rgba(255,200,0,0.2);border-color:#ffcc00;color:#ffdd55;}
+  .btn-stomp:hover{background:rgba(255,200,0,0.4);box-shadow:0 0 20px #ffcc0088;}
+  .btn-spin{background:rgba(0,255,136,0.2);border-color:#00ff88;color:#44ffaa;}
+  .btn-spin:hover{background:rgba(0,255,136,0.4);box-shadow:0 0 20px #00ff8888;}
+  .btn-reset{background:rgba(150,150,150,0.15);border-color:#555;color:#aaa;}
+  .btn-reset:hover{background:rgba(150,150,150,0.3);}
+
+  /* 提示 */
+  #hint{
+    position:fixed;top:70px;right:16px;
+    font-size:0.72rem;color:#553322;text-align:right;
+    line-height:1.8;pointer-events:none;z-index:100;
+  }
+
+  /* 部位標籤 */
+  #part-label{
+    position:fixed;top:50%;left:50%;
+    transform:translate(-50%,-50%);
+    background:rgba(255,68,0,0.15);border:1px solid #ff440066;
+    border-radius:8px;padding:6px 14px;
+    font-size:0.78rem;color:#ff8844;font-weight:700;
+    pointer-events:none;z-index:100;
+    opacity:0;transition:opacity 0.3s;
+  }
+
+  /* 震動動畫 */
+  @keyframes screen-shake{
+    0%,100%{transform:translate(0,0);}
+    10%{transform:translate(-6px,4px);}
+    20%{transform:translate(6px,-4px);}
+    30%{transform:translate(-4px,6px);}
+    40%{transform:translate(4px,-6px);}
+    50%{transform:translate(-6px,2px);}
+    60%{transform:translate(6px,-2px);}
+    70%{transform:translate(-3px,5px);}
+    80%{transform:translate(3px,-5px);}
+    90%{transform:translate(-2px,3px);}
+  }
+  body.shaking{animation:screen-shake 0.6s ease;}
+
+  /* 原子吐息光效 */
+  #breath-overlay{
+    position:fixed;inset:0;pointer-events:none;z-index:50;
+    background:radial-gradient(ellipse at 50% 30%,rgba(0,170,255,0.15)0%,transparent 60%);
+    opacity:0;transition:opacity 0.3s;
+  }
+  #breath-overlay.active{opacity:1;}
+</style>
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+<div id="breath-overlay"></div>
+
+<!-- HUD -->
+<div id="hud-title">
+  <div>
+    <h1>🦖 GODZILLA MODEL</h1>
+    <div class="subtitle">過擬合 × 欠擬合 × Bias-Variance</div>
+  </div>
+  <div style="font-size:0.72rem;color:#553322;text-align:right">
+    點擊身體部位<br>觸發互動
+  </div>
+</div>
+
+<!-- 狀態面板 -->
+<div id="status-panel">
+  <div style="font-size:0.7rem;color:#ff4400;font-weight:700;margin-bottom:8px;letter-spacing:1px">⚡ 哥吉拉狀態</div>
+  <div class="stat-row">
+    <span class="stat-label">訓練準確率</span>
+    <span class="stat-val" id="train-val">99%</span>
+  </div>
+  <div style="margin-bottom:8px">
+    <div class="stat-bar-bg"><div class="stat-bar" id="train-bar" style="width:99%;background:linear-gradient(90deg,#ff4400,#ff8800)"></div></div>
+  </div>
+  <div class="stat-row">
+    <span class="stat-label">測試準確率</span>
+    <span class="stat-val" id="test-val">62%</span>
+  </div>
+  <div style="margin-bottom:8px">
+    <div class="stat-bar-bg"><div class="stat-bar" id="test-bar" style="width:62%;background:linear-gradient(90deg,#0088ff,#00ccff)"></div></div>
+  </div>
+  <div class="stat-row">
+    <span class="stat-label">狀態</span>
+    <span class="stat-val" id="fit-status" style="color:#ff4400">🔥 過擬合</span>
+  </div>
+</div>
+
+<div id="hint">🖱️ 拖曳旋轉<br>🖱️ 滾輪縮放<br>👆 點擊部位</div>
+<div id="msg-box"><div class="msg-title" id="msg-title"></div><div id="msg-body"></div></div>
+<div id="part-label" id="part-label"></div>
+
+<!-- 控制按鈕 -->
+<div id="controls">
+  <button class="ctrl-btn btn-roar" onclick="doRoar()">🔊 ROAR！</button>
+  <button class="ctrl-btn btn-breath" onclick="doBreath()">💙 原子吐息</button>
+  <button class="ctrl-btn btn-stomp" onclick="doStomp()">👣 踩踏城市</button>
+  <button class="ctrl-btn btn-spin" onclick="doSpin()">🌀 旋轉展示</button>
+  <button class="ctrl-btn btn-reset" onclick="resetGodzilla()">↺ 重置</button>
+</div>
+
+<script>
+// ===== SCENE SETUP =====
+const canvas = document.getElementById('canvas');
+const renderer = new THREE.WebGLRenderer({canvas, antialias:true});
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.2;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x050205);
+scene.fog = new THREE.FogExp2(0x0a0005, 0.035);
+
+const camera = new THREE.PerspectiveCamera(55, window.innerWidth/window.innerHeight, 0.1, 200);
+camera.position.set(0, 3, 14);
+
+// ===== LIGHTS =====
+const ambLight = new THREE.AmbientLight(0x110808, 2);
+scene.add(ambLight);
+
+const sunLight = new THREE.DirectionalLight(0xff6600, 3);
+sunLight.position.set(8, 12, 6);
+sunLight.castShadow = true;
+sunLight.shadow.mapSize.width = 2048;
+sunLight.shadow.mapSize.height = 2048;
+scene.add(sunLight);
+
+const rimLight = new THREE.DirectionalLight(0x0044ff, 1.5);
+rimLight.position.set(-8, 4, -6);
+scene.add(rimLight);
+
+const groundLight = new THREE.PointLight(0xff2200, 2, 20);
+groundLight.position.set(0, -2, 0);
+scene.add(groundLight);
+
+// ===== MATERIALS =====
+const skinMat = new THREE.MeshPhongMaterial({color:0x2a4a2a, emissive:0x0a1a0a, shininess:30, specular:0x334433});
+const spineMat = new THREE.MeshPhongMaterial({color:0x00ff88, emissive:0x00aa44, emissiveIntensity:0.6, shininess:80});
+const eyeMat = new THREE.MeshPhongMaterial({color:0xff4400, emissive:0xff2200, emissiveIntensity:1.0, shininess:100});
+const clawMat = new THREE.MeshPhongMaterial({color:0x888866, emissive:0x222211, shininess:60});
+const teethMat = new THREE.MeshPhongMaterial({color:0xffffee, emissive:0x111100, shininess:80});
+
+// ===== GODZILLA GROUP =====
+const godzilla = new THREE.Group();
+scene.add(godzilla);
+
+const parts = {}; // 儲存可點擊部位
+
+// --- BODY ---
+const bodyGeo = new THREE.SphereGeometry(1.6, 24, 24);
+bodyGeo.scale(1, 1.2, 0.9);
+const bodyMesh = new THREE.Mesh(bodyGeo, skinMat.clone());
+bodyMesh.position.set(0, 0, 0);
+bodyMesh.castShadow = true;
+bodyMesh.userData = {name:'身體', partKey:'body'};
+godzilla.add(bodyMesh);
+parts.body = bodyMesh;
+
+// --- CHEST / BELLY (lighter) ---
+const bellyMat = new THREE.MeshPhongMaterial({color:0x3a5a3a, emissive:0x0a1a0a, shininess:20});
+const bellyGeo = new THREE.SphereGeometry(1.0, 16, 16);
+bellyGeo.scale(0.7, 1.0, 0.5);
+const bellyMesh = new THREE.Mesh(bellyGeo, bellyMat);
+bellyMesh.position.set(0, -0.1, 0.7);
+godzilla.add(bellyMesh);
+
+// --- NECK ---
+const neckGeo = new THREE.CylinderGeometry(0.55, 0.7, 1.0, 12);
+const neckMesh = new THREE.Mesh(neckGeo, skinMat.clone());
+neckMesh.position.set(0, 1.6, 0.2);
+neckMesh.rotation.x = -0.15;
+neckMesh.castShadow = true;
+godzilla.add(neckMesh);
+
+// --- HEAD ---
+const headGroup = new THREE.Group();
+headGroup.position.set(0, 2.7, 0.4);
+godzilla.add(headGroup);
+
+const headGeo = new THREE.SphereGeometry(0.85, 20, 20);
+headGeo.scale(1.1, 0.85, 1.2);
+const headMesh = new THREE.Mesh(headGeo, skinMat.clone());
+headMesh.userData = {name:'頭部', partKey:'head'};
+headGroup.add(headMesh);
+parts.head = headMesh;
+
+// Snout
+const snoutGeo = new THREE.SphereGeometry(0.5, 14, 14);
+snoutGeo.scale(0.9, 0.6, 1.3);
+const snoutMesh = new THREE.Mesh(snoutGeo, skinMat.clone());
+snoutMesh.position.set(0, -0.15, 0.7);
+headGroup.add(snoutMesh);
+
+// Eyes
+[-0.38, 0.38].forEach(x => {
+  const eyeGeo = new THREE.SphereGeometry(0.12, 12, 12);
+  const eyeMesh = new THREE.Mesh(eyeGeo, eyeMat);
+  eyeMesh.position.set(x, 0.15, 0.65);
+  eyeMesh.userData = {name:'眼睛', partKey:'eye'};
+  headGroup.add(eyeMesh);
+  if(x < 0) parts.eye = eyeMesh;
+  // Pupil
+  const pupilGeo = new THREE.SphereGeometry(0.06, 8, 8);
+  const pupilMat = new THREE.MeshPhongMaterial({color:0x000000});
+  const pupil = new THREE.Mesh(pupilGeo, pupilMat);
+  pupil.position.set(x, 0.15, 0.76);
+  headGroup.add(pupil);
+});
+
+// Teeth (upper jaw)
+for(let i = -2; i <= 2; i++) {
+  const tGeo = new THREE.ConeGeometry(0.06, 0.18, 6);
+  const tMesh = new THREE.Mesh(tGeo, teethMat);
+  tMesh.position.set(i*0.18, -0.38, 0.9);
+  tMesh.rotation.x = Math.PI;
+  headGroup.add(tMesh);
+}
+
+// --- SPINES ---
+const spineData = [
+  {pos:[0, 1.8, -0.5], scale:[1,1,1], rot:[0.2,0,0]},
+  {pos:[0, 1.5, -0.8], scale:[1.3,1.3,1.3], rot:[0.15,0,0]},
+  {pos:[0, 1.0, -1.2], scale:[1.6,1.6,1.6], rot:[0.1,0,0]},
+  {pos:[0, 0.5, -1.4], scale:[1.8,1.8,1.8], rot:[0.05,0,0]},
+  {pos:[0, 0.0, -1.5], scale:[1.6,1.6,1.6], rot:[0,0,0]},
+  {pos:[0,-0.5, -1.4], scale:[1.3,1.3,1.3], rot:[-0.05,0,0]},
+  {pos:[0,-1.0, -1.2], scale:[1.0,1.0,1.0], rot:[-0.1,0,0]},
+];
+const spineGroup = new THREE.Group();
+spineData.forEach(sd => {
+  const sGeo = new THREE.ConeGeometry(0.12, 0.55, 6);
+  const sMesh = new THREE.Mesh(sGeo, spineMat.clone());
+  sMesh.position.set(...sd.pos);
+  sMesh.rotation.set(...sd.rot);
+  sMesh.scale.set(...sd.scale);
+  sMesh.userData = {name:'背脊', partKey:'spine'};
+  spineGroup.add(sMesh);
+});
+godzilla.add(spineGroup);
+parts.spine = spineGroup.children[2];
+
+// --- ARMS ---
+[[-1.8, 0.3, 0.2], [1.8, 0.3, 0.2]].forEach((pos, idx) => {
+  const armGroup = new THREE.Group();
+  armGroup.position.set(...pos);
+  // Upper arm
+  const uaGeo = new THREE.CylinderGeometry(0.28, 0.22, 0.9, 10);
+  const uaMesh = new THREE.Mesh(uaGeo, skinMat.clone());
+  uaMesh.rotation.z = idx===0 ? 0.5 : -0.5;
+  uaMesh.rotation.x = 0.3;
+  armGroup.add(uaMesh);
+  // Forearm
+  const faGeo = new THREE.CylinderGeometry(0.2, 0.15, 0.8, 10);
+  const faMesh = new THREE.Mesh(faGeo, skinMat.clone());
+  faMesh.position.set(idx===0 ? -0.3 : 0.3, -0.8, 0.3);
+  faMesh.rotation.z = idx===0 ? 0.8 : -0.8;
+  faMesh.rotation.x = 0.5;
+  armGroup.add(faMesh);
+  // Claws
+  for(let c = -1; c <= 1; c++) {
+    const clawGeo = new THREE.ConeGeometry(0.05, 0.22, 5);
+    const clawMesh = new THREE.Mesh(clawGeo, clawMat);
+    clawMesh.position.set(
+      (idx===0 ? -0.3 : 0.3) + c*0.12,
+      -1.25, 0.55
+    );
+    clawMesh.rotation.x = 0.8;
+    armGroup.add(clawMesh);
+  }
+  armGroup.userData = {name: idx===0?'左臂':'右臂', partKey:'arm'};
+  godzilla.add(armGroup);
+  if(idx===0) parts.arm = armGroup;
+});
+
+// --- LEGS ---
+[[-1.0, -2.2, 0.3], [1.0, -2.2, 0.3]].forEach((pos, idx) => {
+  const legGroup = new THREE.Group();
+  legGroup.position.set(...pos);
+  // Thigh
+  const thighGeo = new THREE.CylinderGeometry(0.45, 0.35, 1.2, 12);
+  const thighMesh = new THREE.Mesh(thighGeo, skinMat.clone());
+  thighMesh.castShadow = true;
+  legGroup.add(thighMesh);
+  // Lower leg
+  const llGeo = new THREE.CylinderGeometry(0.3, 0.4, 1.0, 12);
+  const llMesh = new THREE.Mesh(llGeo, skinMat.clone());
+  llMesh.position.set(0, -1.1, 0.2);
+  llMesh.rotation.x = 0.2;
+  llMesh.castShadow = true;
+  legGroup.add(llMesh);
+  // Foot
+  const footGeo = new THREE.SphereGeometry(0.4, 12, 8);
+  footGeo.scale(1.2, 0.5, 1.5);
+  const footMesh = new THREE.Mesh(footGeo, skinMat.clone());
+  footMesh.position.set(0, -1.7, 0.5);
+  footMesh.castShadow = true;
+  legGroup.add(footMesh);
+  // Toe claws
+  for(let c = -1; c <= 1; c++) {
+    const tcGeo = new THREE.ConeGeometry(0.07, 0.28, 5);
+    const tcMesh = new THREE.Mesh(tcGeo, clawMat);
+    tcMesh.position.set(c*0.2, -1.9, 0.95);
+    tcMesh.rotation.x = -0.5;
+    legGroup.add(tcMesh);
+  }
+  legGroup.userData = {name: idx===0?'左腿':'右腿', partKey:'leg'};
+  godzilla.add(legGroup);
+  if(idx===0) parts.leg = legGroup;
+});
+
+// --- TAIL ---
+const tailGroup = new THREE.Group();
+const tailSegments = [
+  {pos:[0,-0.8,-1.8], r1:0.55, r2:0.45, len:0.8, rx:-0.3, ry:0},
+  {pos:[0,-1.2,-2.6], r1:0.42, r2:0.32, len:0.8, rx:-0.4, ry:0.1},
+  {pos:[0.3,-1.5,-3.3], r1:0.3, r2:0.22, len:0.7, rx:-0.3, ry:0.2},
+  {pos:[0.7,-1.7,-3.9], r1:0.2, r2:0.13, len:0.6, rx:-0.2, ry:0.3},
+  {pos:[1.1,-1.8,-4.4], r1:0.12, r2:0.05, len:0.5, rx:-0.1, ry:0.2},
+];
+tailSegments.forEach(ts => {
+  const tGeo = new THREE.CylinderGeometry(ts.r1, ts.r2, ts.len, 10);
+  const tMesh = new THREE.Mesh(tGeo, skinMat.clone());
+  tMesh.position.set(...ts.pos);
+  tMesh.rotation.x = ts.rx;
+  tMesh.rotation.y = ts.ry;
+  tMesh.userData = {name:'尾巴', partKey:'tail'};
+  tailGroup.add(tMesh);
+});
+godzilla.add(tailGroup);
+parts.tail = tailGroup.children[0];
+
+// ===== ATOMIC BREATH PARTICLES =====
+const breathParticles = [];
+const breathGroup = new THREE.Group();
+scene.add(breathGroup);
+let breathActive = false;
+
+function createBreathParticle() {
+  const geo = new THREE.SphereGeometry(0.08 + Math.random()*0.12, 6, 6);
+  const mat = new THREE.MeshPhongMaterial({
+    color: new THREE.Color().setHSL(0.55 + Math.random()*0.1, 1, 0.6),
+    emissive: new THREE.Color(0x0044ff),
+    emissiveIntensity: 0.8,
+    transparent: true, opacity: 0.9
+  });
+  const mesh = new THREE.Mesh(geo, mat);
+  const startPos = new THREE.Vector3(0, 3.5, 2.2);
+  mesh.position.copy(startPos);
+  const vel = new THREE.Vector3(
+    (Math.random()-0.5)*0.15,
+    0.05 + Math.random()*0.1,
+    0.25 + Math.random()*0.15
+  );
+  breathGroup.add(mesh);
+  breathParticles.push({mesh, vel, life:1.0, maxLife:1.0});
+}
+
+// ===== GROUND =====
+const groundGeo = new THREE.PlaneGeometry(80, 80, 20, 20);
+const groundMat = new THREE.MeshPhongMaterial({color:0x1a0808, emissive:0x0a0404, shininess:5});
+const ground = new THREE.Mesh(groundGeo, groundMat);
+ground.rotation.x = -Math.PI/2;
+ground.position.y = -3.8;
+ground.receiveShadow = true;
+scene.add(ground);
+
+// ===== CITY RUINS =====
+const buildingMat = new THREE.MeshPhongMaterial({color:0x222222, emissive:0x0a0808});
+const buildingPositions = [
+  [-8,0,-5],[-6,0,-8],[-10,0,-10],[8,0,-5],[6,0,-8],[10,0,-10],
+  [-12,0,-3],[12,0,-3],[-5,0,-12],[5,0,-12],[0,0,-15],
+  [-14,0,-8],[14,0,-8]
+];
+buildingPositions.forEach(pos => {
+  const h = 2 + Math.random()*6;
+  const w = 0.8 + Math.random()*1.5;
+  const bGeo = new THREE.BoxGeometry(w, h, w);
+  const bMesh = new THREE.Mesh(bGeo, buildingMat.clone());
+  bMesh.position.set(pos[0], -3.8 + h/2, pos[2]);
+  // Random destruction (cut top)
+  if(Math.random() > 0.5) bMesh.rotation.z = (Math.random()-0.5)*0.15;
+  bMesh.castShadow = true;
+  scene.add(bMesh);
+  // Window lights
+  if(Math.random() > 0.4) {
+    const wLight = new THREE.PointLight(0xff6600, 0.5 + Math.random()*0.5, 4);
+    wLight.position.set(pos[0], -3.8 + h*0.6, pos[2]+w/2);
+    scene.add(wLight);
+  }
+});
+
+// ===== FIRE PARTICLES =====
+const fireParticles = [];
+const fireGroup = new THREE.Group();
+scene.add(fireGroup);
+for(let i = 0; i < 60; i++) {
+  const fGeo = new THREE.SphereGeometry(0.06 + Math.random()*0.1, 5, 5);
+  const fMat = new THREE.MeshPhongMaterial({
+    color: new THREE.Color().setHSL(0.05 + Math.random()*0.08, 1, 0.5 + Math.random()*0.3),
+    emissive: new THREE.Color(0xff2200), emissiveIntensity:0.8,
+    transparent:true, opacity: 0.7 + Math.random()*0.3
+  });
+  const fMesh = new THREE.Mesh(fGeo, fMat);
+  const angle = Math.random()*Math.PI*2;
+  const r = 3 + Math.random()*8;
+  fMesh.position.set(Math.cos(angle)*r, -3.8, Math.sin(angle)*r - 5);
+  fireGroup.add(fMesh);
+  fireParticles.push({mesh:fMesh, speed:0.02+Math.random()*0.04, phase:Math.random()*Math.PI*2});
+}
+
+// ===== BACKGROUND STARS =====
+const starGeo = new THREE.BufferGeometry();
+const starPos = new Float32Array(500*3);
+for(let i = 0; i < 1500; i++) starPos[i] = (Math.random()-0.5)*200;
+starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({color:0x664433, size:0.05})));
+
+// ===== ORBIT CONTROLS (manual) =====
+let isDrag = false, prevMouse = {x:0,y:0};
+let targetRotY = 0, targetRotX = 0, currentRotY = 0, currentRotX = 0;
+let targetZoom = 14, currentZoom = 14;
+let isSpinning = false;
+
+canvas.addEventListener('mousedown', e => {isDrag=true; prevMouse={x:e.clientX,y:e.clientY};});
+window.addEventListener('mouseup', () => isDrag=false);
+window.addEventListener('mousemove', e => {
+  if(!isDrag || isSpinning) return;
+  targetRotY += (e.clientX - prevMouse.x) * 0.01;
+  targetRotX += (e.clientY - prevMouse.y) * 0.008;
+  targetRotX = Math.max(-0.5, Math.min(0.5, targetRotX));
+  prevMouse = {x:e.clientX, y:e.clientY};
+});
+canvas.addEventListener('wheel', e => {
+  targetZoom += e.deltaY * 0.02;
+  targetZoom = Math.max(6, Math.min(22, targetZoom));
+});
+canvas.addEventListener('touchstart', e => {isDrag=true; prevMouse={x:e.touches[0].clientX,y:e.touches[0].clientY};});
+window.addEventListener('touchend', () => isDrag=false);
+window.addEventListener('touchmove', e => {
+  if(!isDrag || isSpinning) return;
+  targetRotY += (e.touches[0].clientX - prevMouse.x) * 0.01;
+  targetRotX += (e.touches[0].clientY - prevMouse.y) * 0.008;
+  targetRotX = Math.max(-0.5, Math.min(0.5, targetRotX));
+  prevMouse = {x:e.touches[0].clientX, y:e.touches[0].clientY};
+});
+
+// ===== RAYCASTER (click parts) =====
+const raycaster = new THREE.Raycaster();
+const mouse2D = new THREE.Vector2();
+const clickableMeshes = Object.values(parts).flatMap(p => p.isGroup ? p.children : [p]);
+
+canvas.addEventListener('click', e => {
+  if(Math.abs(e.clientX - prevMouse.x) > 5) return;
+  mouse2D.x = (e.clientX / window.innerWidth) * 2 - 1;
+  mouse2D.y = -(e.clientY / window.innerHeight) * 2 + 1;
+  raycaster.setFromCamera(mouse2D, camera);
+  const allMeshes = [];
+  godzilla.traverse(obj => { if(obj.isMesh) allMeshes.push(obj); });
+  const hits = raycaster.intersectObjects(allMeshes);
+  if(hits.length > 0) {
+    let obj = hits[0].object;
+    while(obj && !obj.userData.partKey) obj = obj.parent;
+    if(obj && obj.userData.partKey) onPartClick(obj.userData.partKey, obj.userData.name);
+  }
+});
+
+const partMessages = {
+  head: {title:'🦖 頭部 → 過擬合', body:'哥吉拉的大腦記住了訓練場每一隻怪獸的每個細節！\n訓練準確率：99% ✅\n但遇到新怪獸：62% ❌\n這就是<strong style="color:#ff4400">過擬合（Overfitting）</strong>——記憶力太強，泛化力太弱。'},
+  eye:  {title:'👁️ 眼睛 → 特徵偵測', body:'哥吉拉的眼睛代表模型的<strong style="color:#ff8844">特徵提取能力</strong>。\n過擬合時，眼睛看到的是訓練資料的雜訊，而非真正的規律。\n解法：<strong style="color:#00ff88">正則化（L1/L2）</strong>讓眼睛只看重要特徵！'},
+  spine:{title:'⚡ 背脊 → 模型複雜度', body:'背脊越多越高 = 模型越複雜！\n<strong style="color:#00ff88">背脊發光</strong> = 模型正在學習新規律。\n背脊太多 → 過擬合；背脊太少 → 欠擬合。\n最佳背脊數量 = <strong style="color:#ffcc00">Bias-Variance 甜蜜點</strong>！'},
+  body: {title:'💪 身體 → 模型主體', body:'哥吉拉的身體代表整個<strong style="color:#ff8844">機器學習模型</strong>。\n身體太大（複雜）→ 過擬合 🔥\n身體太小（簡單）→ 欠擬合 💤\n目標：找到<strong style="color:#00ff88">剛剛好的體型</strong>！'},
+  arm:  {title:'🦾 手臂 → 正則化防禦', body:'手臂代表<strong style="color:#00aaff">正則化（Regularization）</strong>！\nL1 正則化：讓不重要的特徵係數歸零（斷捨離）\nL2 正則化：讓所有係數縮小（平滑化）\n防衛隊靠手臂馴服過擬合哥吉拉！'},
+  leg:  {title:'🦵 腿部 → 訓練資料量', body:'腿越強壯 = 訓練資料越多！\n<strong style="color:#ffcc00">增加訓練資料</strong>是解決過擬合最有效的方法。\n資料量 ↑ → Variance ↓ → 過擬合改善！\n沒有足夠的腿，哥吉拉站不穩（模型不穩定）。'},
+  tail: {title:'🐉 尾巴 → 模型記憶', body:'尾巴代表模型的<strong style="color:#ff6633">記憶容量</strong>。\n尾巴太長 = 記住太多訓練細節 = 過擬合\n尾巴太短 = 記憶不足 = 欠擬合\n<strong style="color:#00ff88">Early Stopping</strong> = 在尾巴長太長之前停下來！'},
+};
+
+function onPartClick(key, name) {
+  const msg = partMessages[key];
+  if(!msg) return;
+  showMsg(msg.title, msg.body);
+  // Highlight effect
+  godzilla.traverse(obj => {
+    if(obj.isMesh && obj.material && obj.material.emissive) {
+      obj.material.emissiveIntensity = 0.1;
+    }
+  });
+  setTimeout(() => {
+    godzilla.traverse(obj => {
+      if(obj.isMesh && obj.material && obj.material.emissive) {
+        obj.material.emissiveIntensity = obj.material.color.getHex() === 0x00ff88 ? 0.6 : 0.2;
+      }
+    });
+  }, 800);
+}
+
+function showMsg(title, body) {
+  document.getElementById('msg-title').innerHTML = title;
+  document.getElementById('msg-body').innerHTML = body;
+  const box = document.getElementById('msg-box');
+  box.classList.add('show');
+  clearTimeout(window._msgTimer);
+  window._msgTimer = setTimeout(() => box.classList.remove('show'), 5000);
+}
+
+// ===== ACTIONS =====
+let roarAnim = 0, stompAnim = 0, spinAnim = 0;
+
+function doRoar() {
+  roarAnim = 1.0;
+  document.body.classList.add('shaking');
+  setTimeout(() => document.body.classList.remove('shaking'), 600);
+  showMsg('🔊 ROAR！', '哥吉拉咆哮！<br>這是<strong style="color:#ff4400">過擬合模型</strong>在訓練集上的表現——無敵！<br>訓練準確率：<strong style="color:#ff4400">99%</strong>（但測試集只有 62%）');
+  updateStats(99, 62, '🔥 過擬合');
+}
+
+function doBreath() {
+  breathActive = true;
+  document.getElementById('breath-overlay').classList.add('active');
+  showMsg('💙 原子吐息！', '<strong style="color:#00aaff">正則化防禦啟動！</strong><br>L2 Ridge 正則化讓所有係數縮小...<br>過擬合哥吉拉被馴服！<br>測試準確率從 62% 提升到 <strong style="color:#00ff88">84%</strong>！');
+  updateStats(92, 84, '⚡ 平衡');
+  setTimeout(() => {
+    breathActive = false;
+    document.getElementById('breath-overlay').classList.remove('active');
+  }, 3000);
+}
+
+function doStomp() {
+  stompAnim = 1.0;
+  document.body.classList.add('shaking');
+  setTimeout(() => document.body.classList.remove('shaking'), 400);
+  showMsg('👣 踩踏城市！', '<strong style="color:#ffcc00">欠擬合哥吉拉出現！</strong><br>模型太簡單，連訓練集都學不好。<br>訓練準確率：<strong style="color:#4488ff">58%</strong>，測試：<strong style="color:#4488ff">55%</strong><br>需要增加模型複雜度！');
+  updateStats(58, 55, '💤 欠擬合');
+}
+
+function doSpin() {
+  isSpinning = !isSpinning;
+  showMsg('🌀 360° 展示', isSpinning ?
+    '旋轉模式開啟！<br>觀察哥吉拉的每個部位，點擊了解對應的 ML 概念。' :
+    '旋轉模式關閉。<br>可以手動拖曳旋轉查看細節。');
+}
+
+function resetGodzilla() {
+  targetRotY = 0; targetRotX = 0; targetZoom = 14;
+  isSpinning = false;
+  updateStats(99, 62, '🔥 過擬合');
+  showMsg('↺ 重置', '哥吉拉回到初始狀態！<br><strong style="color:#ff4400">過擬合</strong>模式：訓練 99%，測試 62%。');
+}
+
+function updateStats(train, test, status) {
+  document.getElementById('train-val').textContent = train + '%';
+  document.getElementById('test-val').textContent = test + '%';
+  document.getElementById('train-bar').style.width = train + '%';
+  document.getElementById('test-bar').style.width = test + '%';
+  const statusEl = document.getElementById('fit-status');
+  statusEl.textContent = status;
+  statusEl.style.color = status.includes('過擬合') ? '#ff4400' : status.includes('欠擬合') ? '#4488ff' : '#00ff88';
+}
+
+// ===== ANIMATION LOOP =====
+let t = 0;
+function animate() {
+  requestAnimationFrame(animate);
+  t += 0.016;
+
+  // Smooth camera
+  currentRotY += (targetRotY - currentRotY) * 0.08;
+  currentRotX += (targetRotX - currentRotX) * 0.08;
+  currentZoom += (targetZoom - currentZoom) * 0.06;
+  if(isSpinning) targetRotY += 0.008;
+
+  godzilla.rotation.y = currentRotY;
+  godzilla.rotation.x = currentRotX;
+  camera.position.z = currentZoom;
+
+  // Idle breathing animation
+  const breathScale = 1 + Math.sin(t * 1.2) * 0.015;
+  bodyMesh.scale.set(breathScale, breathScale * 1.01, breathScale);
+
+  // Tail sway
+  tailGroup.children.forEach((seg, i) => {
+    seg.rotation.y = Math.sin(t * 0.8 + i * 0.3) * 0.08;
+  });
+
+  // Spine glow pulse
+  spineGroup.children.forEach((spine, i) => {
+    spine.material.emissiveIntensity = 0.4 + Math.sin(t * 2 + i * 0.5) * 0.3;
+  });
+
+  // Eye glow
+  headGroup.children.forEach(child => {
+    if(child.material && child.material.color && child.material.color.getHex() === 0xff4400) {
+      child.material.emissiveIntensity = 0.7 + Math.sin(t * 3) * 0.3;
+    }
+  });
+
+  // Roar animation
+  if(roarAnim > 0) {
+    headGroup.rotation.x = Math.sin(roarAnim * Math.PI * 4) * 0.3 * roarAnim;
+    roarAnim -= 0.04;
+    if(roarAnim < 0) { roarAnim = 0; headGroup.rotation.x = 0; }
+  }
+
+  // Stomp animation
+  if(stompAnim > 0) {
+    godzilla.position.y = Math.abs(Math.sin(stompAnim * Math.PI * 3)) * 0.5 * stompAnim;
+    stompAnim -= 0.04;
+    if(stompAnim < 0) { stompAnim = 0; godzilla.position.y = 0; }
+  }
+
+  // Breath particles
+  if(breathActive && Math.random() > 0.3) createBreathParticle();
+  for(let i = breathParticles.length - 1; i >= 0; i--) {
+    const bp = breathParticles[i];
+    bp.mesh.position.add(bp.vel);
+    bp.vel.y += 0.002;
+    bp.life -= 0.025;
+    bp.mesh.material.opacity = bp.life;
+    bp.mesh.scale.setScalar(1 + (1 - bp.life) * 2);
+    if(bp.life <= 0) {
+      breathGroup.remove(bp.mesh);
+      breathParticles.splice(i, 1);
+    }
+  }
+
+  // Fire particles
+  fireParticles.forEach(fp => {
+    fp.mesh.position.y += fp.speed;
+    fp.mesh.material.opacity = 0.5 + Math.sin(t * 3 + fp.phase) * 0.3;
+    if(fp.mesh.position.y > -1) fp.mesh.position.y = -3.8;
+  });
+
+  // Ground light flicker
+  groundLight.intensity = 1.5 + Math.sin(t * 4) * 0.5;
+
+  renderer.render(scene, camera);
+}
+animate();
+
+window.addEventListener('resize', () => {
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+});
+</script>
+</body>
+</html>
