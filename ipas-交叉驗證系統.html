@@ -535,6 +535,25 @@ section {
   box-shadow: 0 0 8px rgba(255, 69, 0, 0.4);
 }
 
+.monster-tag:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 4px 14px rgba(255, 215, 0, 0.25);
+}
+
+.monster-tag.is-selected {
+  background: rgba(255, 215, 0, 0.12) !important;
+  border-color: var(--accent-gold) !important;
+  color: var(--accent-gold) !important;
+  box-shadow: 0 0 14px rgba(255, 215, 0, 0.6), 0 0 28px rgba(255, 215, 0, 0.2) !important;
+  animation: selected-pulse 1.5s ease-in-out infinite;
+  transform: translateY(-2px);
+}
+
+@keyframes selected-pulse {
+  0%, 100% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.5), 0 0 20px rgba(255, 215, 0, 0.2); }
+  50% { box-shadow: 0 0 22px rgba(255, 215, 0, 0.9), 0 0 44px rgba(255, 215, 0, 0.4); }
+}
+
 /* 統計數據 */
 .method-stats {
   display: grid;
@@ -1145,7 +1164,7 @@ section {
     <!-- 全螢幕封面 -->
     <section class="cover-section" id="cover">
       <div class="cover-bg">
-        <img src="https://d21g8wfdqviqnd.cloudfront.net/session_files/68680185/3IAhSWw6ut4w5gNspYzTtThidbJ/3IAlkHroaqPCZiCS1yQnDdssOBn/v2_3IAlxZeK1RXvExW4kQ2tf4sR42R.jpg?Expires=1802767501&Signature=ayFuCtqfL8Otov3IoNku4GqSJc-yzjMxFibtOrfn6pQjMWo6vn55ZeyUMS5jhWEE43vOmO4WFmR54fceWShDjQD3wdzGCzEf7w5C6Oj0fujhG1w229JwyG1sY6z85dO2Wz6w9EFQbTtzvs5nevSKFkqjTFCEb0fMgK9C3KbjoK3M8QNCzsfwa5-hfb0FR2BfcjrE6hNzN7u6uOh0Up7zIgaZSpF0-bZYFxz2sOgqbOLIY4Kp9qfggRlKWO~zhvOzEF3EApm1O~GpQbWIPQicgl1x~u9rbrlncRkDUQisfJoKttC8hWQUlSwJWY9Lj9DQA6tPRr4crp4m0pWC-kknmQ__&Key-Pair-Id=KEP1XOZE0NGIV" alt="MONARCH Cover" class="cover-img" />
+        <img src="https://d21g8wfdqviqnd.cloudfront.net/session_files/68680185/3IAhSWw6ut4w5gNspYzTtThidbJ/3IAlkHroaqPCZiCS1yQnDdssOBn/v3_3IDCCMiRmMXlP8YPaTkO5Rnzm2n.jpg?Expires=1802841624&Signature=s8du3jh816~wMqwinf7j3iLkt4SZDur5rvk~zVfzBJ8aFeSD82Q-I6Cx3dv8yEYU41an0SH9xY1i2yPWJyZmHOifnVfJffLR6pw5R0d2OLuTVuYZwDbl8eEI~GFDOILZivY3oii6dQlhAV1cpuhCNuuaraj2FIG7n7ULB7YIK-Ck2Qd8LwD3cUCIpeLTW9MH2NUzvPl9aoRAOCsiGTpElG2GMh-HtRPsquTA5XT2DGcjU9yKUBuKcippCneHzIy8GvN5AebPzzwXqJWJHTFw-rAoSkxwO1XfczOItccwHVp9gOfsVOkWkxCB7CEiL0Izne~-Ff40hn7zQwscSAtCUg__&Key-Pair-Id=KEP1XOZE0NGIV" alt="MONARCH Cover" class="cover-img" />
         <div class="cover-overlay"></div>
       </div>
       <div class="cover-content">
@@ -1546,7 +1565,7 @@ section {
 
     <script>
 /* MONARCH 交叉驗證系統 - 互動邏輯 */
-/* Three.js 3D 視覺化 + 動畫控制 */
+/* Three.js 3D 視覺化 + 怪獸模型投射 */
 
 // 怪獸資料集
 const MONSTERS = [
@@ -1573,13 +1592,454 @@ const MONSTERS = [
 const TYPE_COLORS = [0xFF4500, 0x4A9EFF, 0x00FF88, 0xFFD700];
 const TYPE_NAMES = ['超大型泰坦', '飛行型泰坦', '海洋型泰坦', '機械泰坦'];
 const TYPE_HEX = ['#FF4500', '#4A9EFF', '#00FF88', '#FFD700'];
-const TYPE_COUNTS = [4, 4, 7, 2]; // 各類型數量
+const TYPE_COUNTS = [4, 4, 7, 2];
 
 // 全域狀態
 let scenes = {};
 let animationIds = {};
 let currentFolds = { kfold: 0, stratified: 0, loocv: 0 };
 let foldTimers = {};
+let activeMonsterModel = null;   // 當前投射的怪獸模型 group
+let activeMonsterIndex = -1;     // 當前選中的怪獸 index
+let monsterModelTime = 0;        // 怪獸模型動畫時間
+
+// =====================
+// 怪獸 3D 模型建構函式
+// 每隻怪獸用幾何體組合出特徵造型，回傳 THREE.Group
+// =====================
+function buildMonsterModel(monsterIndex) {
+  const m = MONSTERS[monsterIndex];
+  const color = TYPE_COLORS[m.type];
+  const group = new THREE.Group();
+
+  function mat(c, emissiveIntensity = 0.5, wireframe = false) {
+    return new THREE.MeshPhongMaterial({
+      color: c, emissive: c, emissiveIntensity,
+      transparent: true, opacity: 0.92, wireframe,
+      shininess: 80,
+    });
+  }
+  function mesh(geo, c, ei = 0.5) {
+    const m = new THREE.Mesh(geo, mat(c, ei));
+    return m;
+  }
+
+  switch (monsterIndex) {
+    case 0: { // 哥吉拉 - 粗壯身軀 + 背脊排列
+      const body = mesh(new THREE.CylinderGeometry(0.55, 0.7, 1.6, 8), color);
+      group.add(body);
+      const head = mesh(new THREE.BoxGeometry(0.7, 0.55, 0.65), color);
+      head.position.set(0, 1.25, 0.1);
+      group.add(head);
+      const tail = mesh(new THREE.ConeGeometry(0.25, 1.2, 6), color, 0.3);
+      tail.rotation.z = Math.PI;
+      tail.position.set(0, -1.4, -0.1);
+      group.add(tail);
+      // 背脊
+      [-0.5, -0.1, 0.3, 0.7].forEach((y, i) => {
+        const spine = mesh(new THREE.TetrahedronGeometry(0.18 + i * 0.04), 0xFF6600, 0.8);
+        spine.position.set(0, y, -0.55);
+        group.add(spine);
+      });
+      // 手臂
+      [-1, 1].forEach(side => {
+        const arm = mesh(new THREE.CylinderGeometry(0.12, 0.09, 0.6, 6), color, 0.3);
+        arm.rotation.z = side * 0.7;
+        arm.position.set(side * 0.75, 0.3, 0);
+        group.add(arm);
+      });
+      break;
+    }
+    case 1: { // 魔斯拉 - 大翅膀 + 圓身
+      const body = mesh(new THREE.SphereGeometry(0.45, 10, 8), color);
+      group.add(body);
+      // 翅膀（左右各一個扁平橢圓）
+      [-1, 1].forEach(side => {
+        const wing = mesh(new THREE.SphereGeometry(1, 8, 4), color, 0.4);
+        wing.scale.set(1, 0.12, 0.7);
+        wing.position.set(side * 1.1, 0.1, 0);
+        group.add(wing);
+        // 翅膀紋路
+        const vein = new THREE.Mesh(
+          new THREE.TorusGeometry(0.6, 0.03, 4, 12),
+          mat(0xFFD700, 0.9)
+        );
+        vein.scale.set(1, 0.15, 0.6);
+        vein.position.set(side * 1.1, 0.1, 0);
+        group.add(vein);
+      });
+      // 觸角
+      [-0.15, 0.15].forEach(x => {
+        const ant = mesh(new THREE.CylinderGeometry(0.03, 0.01, 0.6, 4), 0xFFD700, 0.9);
+        ant.position.set(x, 0.85, 0);
+        ant.rotation.z = x * 2;
+        group.add(ant);
+      });
+      break;
+    }
+    case 2: { // 基多拉 - 三頭龍，三個頸部+頭
+      const body = mesh(new THREE.SphereGeometry(0.5, 8, 6), color);
+      group.add(body);
+      // 三個頭
+      [[-0.6, 1.1, 0], [0, 1.4, 0], [0.6, 1.1, 0]].forEach(([x, y, z]) => {
+        const neck = mesh(new THREE.CylinderGeometry(0.1, 0.15, 0.7, 6), color, 0.4);
+        neck.position.set(x * 0.7, y * 0.55, z);
+        neck.rotation.z = x * 0.5;
+        group.add(neck);
+        const head = mesh(new THREE.ConeGeometry(0.2, 0.4, 5), color);
+        head.position.set(x, y, z);
+        head.rotation.z = x * 0.6;
+        group.add(head);
+      });
+      // 翅膀
+      [-1, 1].forEach(side => {
+        const wing = mesh(new THREE.SphereGeometry(0.9, 6, 4), 0xFFD700, 0.5);
+        wing.scale.set(1, 0.1, 0.6);
+        wing.position.set(side * 1.0, 0, 0);
+        group.add(wing);
+      });
+      break;
+    }
+    case 3: { // 拉頓 - 翼龍，尖翼 + 長嘴
+      const body = mesh(new THREE.SphereGeometry(0.4, 8, 6), color);
+      body.scale.set(1, 0.7, 1.3);
+      group.add(body);
+      // 大三角翼
+      [-1, 1].forEach(side => {
+        const wing = mesh(new THREE.ConeGeometry(0.15, 1.8, 3), color, 0.4);
+        wing.rotation.z = side * (Math.PI / 2.2);
+        wing.rotation.x = 0.3;
+        wing.position.set(side * 0.5, 0.2, 0);
+        group.add(wing);
+      });
+      // 頭+嘴
+      const head = mesh(new THREE.SphereGeometry(0.28, 8, 6), color);
+      head.position.set(0, 0.5, 0.6);
+      group.add(head);
+      const beak = mesh(new THREE.ConeGeometry(0.08, 0.5, 4), 0xFFD700, 0.8);
+      beak.rotation.x = -Math.PI / 2;
+      beak.position.set(0, 0.45, 1.1);
+      group.add(beak);
+      break;
+    }
+    case 4: { // 孔恩 - 大猩猩，寬肩 + 大拳頭
+      const body = mesh(new THREE.CylinderGeometry(0.6, 0.55, 1.2, 8), color);
+      group.add(body);
+      const head = mesh(new THREE.SphereGeometry(0.42, 10, 8), color);
+      head.position.set(0, 1.0, 0);
+      group.add(head);
+      // 寬肩膀
+      [-1, 1].forEach(side => {
+        const shoulder = mesh(new THREE.SphereGeometry(0.3, 8, 6), color, 0.3);
+        shoulder.position.set(side * 0.85, 0.5, 0);
+        group.add(shoulder);
+        const arm = mesh(new THREE.CylinderGeometry(0.18, 0.14, 0.9, 6), color, 0.3);
+        arm.rotation.z = side * 0.5;
+        arm.position.set(side * 1.1, 0, 0);
+        group.add(arm);
+        const fist = mesh(new THREE.SphereGeometry(0.22, 8, 6), color);
+        fist.position.set(side * 1.35, -0.45, 0);
+        group.add(fist);
+      });
+      break;
+    }
+    case 5: { // 比歐蘭特 - 植物怪獸，藤蔓+花朵
+      const body = mesh(new THREE.SphereGeometry(0.5, 10, 8), color);
+      group.add(body);
+      // 藤蔓觸手
+      for (let i = 0; i < 6; i++) {
+        const angle = (i / 6) * Math.PI * 2;
+        const vine = mesh(new THREE.CylinderGeometry(0.06, 0.03, 1.2, 5), color, 0.4);
+        vine.position.set(Math.cos(angle) * 0.6, 0.3, Math.sin(angle) * 0.6);
+        vine.rotation.z = Math.cos(angle) * 0.8;
+        vine.rotation.x = Math.sin(angle) * 0.8;
+        group.add(vine);
+      }
+      // 花朵
+      const flower = mesh(new THREE.TorusGeometry(0.35, 0.12, 6, 8), 0x00FF88, 1.0);
+      flower.position.set(0, 1.0, 0);
+      group.add(flower);
+      const center = mesh(new THREE.SphereGeometry(0.18, 8, 6), 0xFFD700, 1.0);
+      center.position.set(0, 1.0, 0);
+      group.add(center);
+      break;
+    }
+    case 6: { // 甘達拉 - 龜殼怪獸
+      const shell = mesh(new THREE.SphereGeometry(0.65, 8, 6), color);
+      shell.scale.set(1, 0.55, 1);
+      group.add(shell);
+      // 龜殼紋路
+      const pattern = new THREE.Mesh(
+        new THREE.TorusGeometry(0.4, 0.05, 4, 8),
+        mat(0x004400, 0.6)
+      );
+      pattern.rotation.x = Math.PI / 2;
+      pattern.position.y = 0.3;
+      group.add(pattern);
+      // 頭
+      const head = mesh(new THREE.SphereGeometry(0.28, 8, 6), color);
+      head.position.set(0, 0.15, 0.75);
+      group.add(head);
+      // 四肢
+      [[0.6, -0.1, 0.5], [-0.6, -0.1, 0.5], [0.6, -0.1, -0.5], [-0.6, -0.1, -0.5]].forEach(([x, y, z]) => {
+        const leg = mesh(new THREE.CylinderGeometry(0.12, 0.1, 0.4, 5), color, 0.3);
+        leg.position.set(x, y, z);
+        group.add(leg);
+      });
+      break;
+    }
+    case 7: { // 機械哥吉拉 - 機械感，方形身軀+砲管
+      const body = mesh(new THREE.BoxGeometry(1.0, 1.4, 0.8), color);
+      group.add(body);
+      const head = mesh(new THREE.BoxGeometry(0.7, 0.5, 0.6), color);
+      head.position.set(0, 1.15, 0);
+      group.add(head);
+      // 砲管
+      [-0.3, 0.3].forEach(x => {
+        const cannon = mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.8, 8), 0xAAAAAA, 0.3);
+        cannon.rotation.z = Math.PI / 2;
+        cannon.position.set(x > 0 ? 0.9 : -0.9, 0.3, 0);
+        group.add(cannon);
+      });
+      // 背部火箭
+      for (let i = 0; i < 3; i++) {
+        const rocket = mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.5, 6), 0xFFD700, 0.9);
+        rocket.position.set((i - 1) * 0.3, 0.95, -0.5);
+        group.add(rocket);
+      }
+      // 眼睛（紅色）
+      [-0.18, 0.18].forEach(x => {
+        const eye = mesh(new THREE.SphereGeometry(0.07, 6, 6), 0xFF0000, 1.5);
+        eye.position.set(x, 1.18, 0.32);
+        group.add(eye);
+      });
+      break;
+    }
+    case 8: { // 太空哥吉拉 - 哥吉拉+水晶
+      const body = mesh(new THREE.CylinderGeometry(0.5, 0.65, 1.4, 8), color);
+      group.add(body);
+      const head = mesh(new THREE.BoxGeometry(0.65, 0.5, 0.6), color);
+      head.position.set(0, 1.15, 0.1);
+      group.add(head);
+      // 肩膀水晶
+      [-1, 1].forEach(side => {
+        const crystal = mesh(new THREE.OctahedronGeometry(0.35, 0), 0x88AAFF, 1.2);
+        crystal.position.set(side * 0.9, 0.6, 0);
+        crystal.rotation.z = side * 0.3;
+        group.add(crystal);
+      });
+      // 頭頂水晶
+      const topCrystal = mesh(new THREE.OctahedronGeometry(0.25, 0), 0xAADDFF, 1.4);
+      topCrystal.position.set(0, 1.7, 0);
+      group.add(topCrystal);
+      break;
+    }
+    case 9: { // 戴斯特洛伊亞 - 惡魔形態，多角+翅膀
+      const body = mesh(new THREE.ConeGeometry(0.55, 1.5, 6), color);
+      body.rotation.x = Math.PI;
+      body.position.y = 0.2;
+      group.add(body);
+      const head = mesh(new THREE.SphereGeometry(0.4, 8, 6), color);
+      head.position.set(0, 1.1, 0);
+      group.add(head);
+      // 頭角
+      [[-0.25, 1.55, 0], [0.25, 1.55, 0], [0, 1.7, 0]].forEach(([x, y, z]) => {
+        const horn = mesh(new THREE.ConeGeometry(0.07, 0.45, 4), 0xFF0000, 1.0);
+        horn.position.set(x, y, z);
+        group.add(horn);
+      });
+      // 翅膀
+      [-1, 1].forEach(side => {
+        const wing = mesh(new THREE.ConeGeometry(0.1, 1.4, 3), color, 0.4);
+        wing.rotation.z = side * (Math.PI / 2.5);
+        wing.position.set(side * 0.6, 0.4, -0.2);
+        group.add(wing);
+      });
+      break;
+    }
+    case 10: { // 海格拉 - 螃蟹/水母，多觸手
+      const body = mesh(new THREE.SphereGeometry(0.5, 10, 8), color);
+      body.scale.set(1.2, 0.6, 1.2);
+      group.add(body);
+      // 觸手（8條）
+      for (let i = 0; i < 8; i++) {
+        const angle = (i / 8) * Math.PI * 2;
+        const tentacle = mesh(new THREE.CylinderGeometry(0.06, 0.02, 1.0, 5), color, 0.4);
+        tentacle.position.set(Math.cos(angle) * 0.55, -0.5, Math.sin(angle) * 0.55);
+        tentacle.rotation.z = Math.cos(angle) * 0.5;
+        tentacle.rotation.x = Math.sin(angle) * 0.5;
+        group.add(tentacle);
+      }
+      // 眼睛
+      for (let i = 0; i < 4; i++) {
+        const angle = (i / 4) * Math.PI * 2;
+        const eye = mesh(new THREE.SphereGeometry(0.09, 6, 6), 0xFF4500, 1.2);
+        eye.position.set(Math.cos(angle) * 0.4, 0.1, Math.sin(angle) * 0.4);
+        group.add(eye);
+      }
+      break;
+    }
+    case 11: { // 魔斯拉幼蟲 - 毛毛蟲，多節身體
+      for (let i = 0; i < 5; i++) {
+        const seg = mesh(new THREE.SphereGeometry(0.28 - i * 0.02, 8, 6), color);
+        seg.position.set(0, i * 0.45 - 0.9, 0);
+        group.add(seg);
+      }
+      // 頭部
+      const head = mesh(new THREE.SphereGeometry(0.3, 8, 6), color);
+      head.position.set(0, 1.15, 0);
+      group.add(head);
+      // 眼睛（藍色發光）
+      [-0.15, 0.15].forEach(x => {
+        const eye = mesh(new THREE.SphereGeometry(0.08, 6, 6), 0x00FFFF, 1.5);
+        eye.position.set(x, 1.2, 0.28);
+        group.add(eye);
+      });
+      // 小腳
+      for (let i = 0; i < 4; i++) {
+        [-0.3, 0.3].forEach(side => {
+          const leg = mesh(new THREE.CylinderGeometry(0.04, 0.03, 0.3, 4), color, 0.3);
+          leg.rotation.z = side * 1.2;
+          leg.position.set(side * 0.38, i * 0.45 - 0.7, 0);
+          group.add(leg);
+        });
+      }
+      break;
+    }
+    case 12: { // 機械拉頓 - 金屬翼龍
+      const body = mesh(new THREE.BoxGeometry(0.7, 0.5, 1.0), color);
+      group.add(body);
+      // 金屬三角翼
+      [-1, 1].forEach(side => {
+        const wing = mesh(new THREE.ConeGeometry(0.12, 2.0, 3), 0xCCCCCC, 0.4);
+        wing.rotation.z = side * (Math.PI / 2.3);
+        wing.rotation.x = 0.2;
+        wing.position.set(side * 0.5, 0.2, 0);
+        group.add(wing);
+      });
+      // 頭
+      const head = mesh(new THREE.BoxGeometry(0.45, 0.35, 0.5), color);
+      head.position.set(0, 0.35, 0.7);
+      group.add(head);
+      // 推進器
+      [-0.25, 0.25].forEach(x => {
+        const thruster = mesh(new THREE.CylinderGeometry(0.12, 0.08, 0.4, 8), 0xFFD700, 1.0);
+        thruster.position.set(x, -0.1, -0.6);
+        group.add(thruster);
+      });
+      break;
+    }
+    case 13: { // 奧加 - 海洋生物，流線型
+      const body = mesh(new THREE.SphereGeometry(0.55, 10, 8), color);
+      body.scale.set(0.8, 1.0, 1.5);
+      group.add(body);
+      // 背鰭
+      const fin = mesh(new THREE.ConeGeometry(0.15, 0.8, 4), color, 0.5);
+      fin.position.set(0, 0.8, 0);
+      group.add(fin);
+      // 尾巴
+      const tail = mesh(new THREE.ConeGeometry(0.3, 0.8, 6), color, 0.3);
+      tail.rotation.x = Math.PI / 2;
+      tail.position.set(0, 0, -1.1);
+      group.add(tail);
+      // 觸鬚
+      [-0.2, 0.2].forEach(x => {
+        const whisker = mesh(new THREE.CylinderGeometry(0.03, 0.01, 0.9, 4), 0x00FFFF, 0.8);
+        whisker.position.set(x, 0.3, 0.7);
+        whisker.rotation.x = -0.5;
+        group.add(whisker);
+      });
+      break;
+    }
+    case 14: { // 巴拉哥 - 蜥蜴，長尾
+      const body = mesh(new THREE.CylinderGeometry(0.4, 0.5, 1.0, 8), color);
+      body.rotation.x = 0.3;
+      group.add(body);
+      const head = mesh(new THREE.SphereGeometry(0.3, 8, 6), color);
+      head.position.set(0, 0.75, 0.4);
+      group.add(head);
+      // 長尾
+      const tail = mesh(new THREE.CylinderGeometry(0.15, 0.04, 1.5, 6), color, 0.3);
+      tail.rotation.x = -0.5;
+      tail.position.set(0, -0.4, -0.8);
+      group.add(tail);
+      // 四肢
+      [[0.55, -0.1, 0.3], [-0.55, -0.1, 0.3], [0.5, -0.1, -0.3], [-0.5, -0.1, -0.3]].forEach(([x, y, z]) => {
+        const leg = mesh(new THREE.CylinderGeometry(0.1, 0.08, 0.5, 5), color, 0.3);
+        leg.position.set(x, y, z);
+        leg.rotation.z = x > 0 ? 0.5 : -0.5;
+        group.add(leg);
+      });
+      break;
+    }
+    case 15: { // 史庫拉 - 蠍子，尾刺+蟹鉗
+      const body = mesh(new THREE.SphereGeometry(0.5, 8, 6), color);
+      body.scale.set(1.2, 0.6, 1.0);
+      group.add(body);
+      // 蠍尾
+      const tailBase = mesh(new THREE.CylinderGeometry(0.1, 0.08, 0.8, 6), color, 0.4);
+      tailBase.rotation.x = -0.8;
+      tailBase.position.set(0, 0.3, -0.7);
+      group.add(tailBase);
+      const stinger = mesh(new THREE.ConeGeometry(0.08, 0.4, 5), 0xFF4500, 1.0);
+      stinger.rotation.x = -2.0;
+      stinger.position.set(0, 0.9, -1.0);
+      group.add(stinger);
+      // 蟹鉗
+      [-1, 1].forEach(side => {
+        const claw = mesh(new THREE.TorusGeometry(0.22, 0.07, 4, 8, Math.PI), color, 0.5);
+        claw.rotation.z = side > 0 ? 0 : Math.PI;
+        claw.rotation.x = 0.3;
+        claw.position.set(side * 0.85, 0, 0.4);
+        group.add(claw);
+      });
+      // 腳（6條）
+      for (let i = 0; i < 3; i++) {
+        [-1, 1].forEach(side => {
+          const leg = mesh(new THREE.CylinderGeometry(0.05, 0.03, 0.7, 4), color, 0.3);
+          leg.rotation.z = side * (0.8 + i * 0.15);
+          leg.position.set(side * (0.6 + i * 0.1), -0.2, (i - 1) * 0.3);
+          group.add(leg);
+        });
+      }
+      break;
+    }
+    case 16: { // 比奧蘭特II - 進化版，更大花朵+水晶
+      const body = mesh(new THREE.SphereGeometry(0.55, 10, 8), color);
+      group.add(body);
+      // 進化藤蔓
+      for (let i = 0; i < 8; i++) {
+        const angle = (i / 8) * Math.PI * 2;
+        const vine = mesh(new THREE.CylinderGeometry(0.07, 0.03, 1.4, 5), color, 0.4);
+        vine.position.set(Math.cos(angle) * 0.65, 0.2, Math.sin(angle) * 0.65);
+        vine.rotation.z = Math.cos(angle) * 0.9;
+        vine.rotation.x = Math.sin(angle) * 0.9;
+        group.add(vine);
+      }
+      // 大花朵
+      const flower = mesh(new THREE.TorusGeometry(0.45, 0.14, 6, 10), 0xFF69B4, 1.0);
+      flower.position.set(0, 1.1, 0);
+      group.add(flower);
+      const center = mesh(new THREE.SphereGeometry(0.22, 8, 6), 0xFFD700, 1.2);
+      center.position.set(0, 1.1, 0);
+      group.add(center);
+      // 水晶裝飾
+      [[-0.5, 0.8, 0.3], [0.5, 0.8, 0.3], [0, 0.6, -0.5]].forEach(([x, y, z]) => {
+        const crystal = mesh(new THREE.OctahedronGeometry(0.18, 0), 0xFF69B4, 1.2);
+        crystal.position.set(x, y, z);
+        group.add(crystal);
+      });
+      break;
+    }
+    default: {
+      // 預設：球體
+      group.add(mesh(new THREE.SphereGeometry(0.5, 12, 10), color));
+    }
+  }
+
+  group.scale.setScalar(0.01); // 從小放大（入場動畫）
+  return group;
+}
 
 // =====================
 // 初始化
@@ -1646,7 +2106,6 @@ function initTabs() {
       document.querySelectorAll('.cv-panel').forEach(p => p.classList.remove('active'));
       tab.classList.add('active');
       document.getElementById('panel-' + target).classList.add('active');
-      // 重新渲染對應的 canvas
       setTimeout(() => resizeCanvas(target), 50);
     });
   });
@@ -1665,7 +2124,7 @@ function resizeCanvas(tabName) {
 }
 
 // =====================
-// K-Fold 怪獸名單
+// K-Fold 怪獸名單（加入點擊事件）
 // =====================
 function initKFoldMonsterGrid() {
   const grid = document.getElementById('kfold-monsters');
@@ -1677,7 +2136,13 @@ function initKFoldMonsterGrid() {
     tag.dataset.index = i;
     tag.dataset.fold = Math.min(fold, 4);
     tag.textContent = m.name;
-    tag.title = `${m.name} | ${TYPE_NAMES[m.type]}`;
+    tag.title = `點擊查看 ${m.name} 的 3D 模型`;
+    tag.style.cursor = 'pointer';
+
+    tag.addEventListener('click', () => {
+      spawnMonsterModel(i, tag);
+    });
+
     grid.appendChild(tag);
   });
 }
@@ -1687,6 +2152,70 @@ function updateKFoldMonsterGrid(currentFold) {
   tags.forEach(tag => {
     const fold = parseInt(tag.dataset.fold);
     tag.classList.toggle('is-test', fold === currentFold);
+  });
+}
+
+// =====================
+// 投射怪獸 3D 模型到 K-Fold 場景
+// =====================
+function spawnMonsterModel(monsterIndex, clickedTag) {
+  const sceneData = scenes['kfold'];
+  if (!sceneData) return;
+
+  // 更新標籤選中狀態
+  document.querySelectorAll('.monster-tag').forEach(t => t.classList.remove('is-selected'));
+  clickedTag.classList.add('is-selected');
+
+  // 如果點同一隻，取消選中
+  if (activeMonsterIndex === monsterIndex) {
+    clearMonsterModel();
+    clickedTag.classList.remove('is-selected');
+    return;
+  }
+
+  // 移除舊模型
+  if (activeMonsterModel) {
+    sceneData.scene.remove(activeMonsterModel);
+    disposeGroup(activeMonsterModel);
+    activeMonsterModel = null;
+  }
+
+  activeMonsterIndex = monsterIndex;
+  monsterModelTime = 0;
+
+  // 建立新模型
+  const model = buildMonsterModel(monsterIndex);
+  model.position.set(0, 0, 0); // 場景中央
+  sceneData.scene.add(model);
+  activeMonsterModel = model;
+
+  // 更新 canvas overlay 顯示怪獸名稱
+  const indicator = document.querySelector('#panel-kfold .fold-indicator');
+  if (indicator) {
+    indicator._originalHTML = indicator._originalHTML || indicator.innerHTML;
+    indicator.innerHTML = `<span style="color:#FFD700">&#9670; ${MONSTERS[monsterIndex].name}</span> <span style="font-size:0.65rem;color:#888;margin-left:0.5rem">${TYPE_NAMES[MONSTERS[monsterIndex].type]}</span>`;
+  }
+}
+
+function clearMonsterModel() {
+  const sceneData = scenes['kfold'];
+  if (!sceneData || !activeMonsterModel) return;
+  sceneData.scene.remove(activeMonsterModel);
+  disposeGroup(activeMonsterModel);
+  activeMonsterModel = null;
+  activeMonsterIndex = -1;
+
+  // 還原指示器
+  const indicator = document.querySelector('#panel-kfold .fold-indicator');
+  if (indicator && indicator._originalHTML) {
+    indicator.innerHTML = indicator._originalHTML;
+  }
+}
+
+function disposeGroup(group) {
+  group.traverse(obj => {
+    if (obj.geometry) obj.geometry.dispose();
+    if (obj.material) obj.material.dispose();
   });
 }
 
@@ -1737,11 +2266,9 @@ function createBaseScene(canvasId) {
   const camera = new THREE.PerspectiveCamera(60, w / h, 0.1, 1000);
   camera.position.set(0, 0, 8);
 
-  // 環境光
   const ambientLight = new THREE.AmbientLight(0x222244, 2);
   scene.add(ambientLight);
 
-  // 點光源
   const pointLight = new THREE.PointLight(0xFF4500, 1.5, 20);
   pointLight.position.set(3, 3, 3);
   scene.add(pointLight);
@@ -1750,23 +2277,18 @@ function createBaseScene(canvasId) {
   pointLight2.position.set(-3, -2, 2);
   scene.add(pointLight2);
 
-  // 網格背景
   const gridHelper = new THREE.GridHelper(12, 12, 0xFF4500, 0x1A1A2E);
   gridHelper.position.y = -3.5;
   gridHelper.material.opacity = 0.3;
   gridHelper.material.transparent = true;
   scene.add(gridHelper);
 
-  // 滑鼠拖拉旋轉
   let isDragging = false;
   let prevMouse = { x: 0, y: 0 };
   let rotationGroup = new THREE.Group();
   scene.add(rotationGroup);
 
-  canvas.addEventListener('mousedown', (e) => {
-    isDragging = true;
-    prevMouse = { x: e.clientX, y: e.clientY };
-  });
+  canvas.addEventListener('mousedown', (e) => { isDragging = true; prevMouse = { x: e.clientX, y: e.clientY }; });
   canvas.addEventListener('mousemove', (e) => {
     if (!isDragging) return;
     const dx = e.clientX - prevMouse.x;
@@ -1778,11 +2300,7 @@ function createBaseScene(canvasId) {
   canvas.addEventListener('mouseup', () => { isDragging = false; });
   canvas.addEventListener('mouseleave', () => { isDragging = false; });
 
-  // 觸控支援
-  canvas.addEventListener('touchstart', (e) => {
-    isDragging = true;
-    prevMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-  });
+  canvas.addEventListener('touchstart', (e) => { isDragging = true; prevMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY }; });
   canvas.addEventListener('touchmove', (e) => {
     if (!isDragging) return;
     const dx = e.touches[0].clientX - prevMouse.x;
@@ -1811,7 +2329,6 @@ function initKFoldScene() {
 
   MONSTERS.forEach((m, i) => {
     const fold = Math.min(Math.floor(i / foldSize), K - 1);
-    // 按 fold 分組排列在圓柱形空間
     const angle = (i / MONSTERS.length) * Math.PI * 2;
     const radius = 2.5 + (fold * 0.3);
     const x = Math.cos(angle) * radius;
@@ -1820,11 +2337,8 @@ function initKFoldScene() {
 
     const geo = new THREE.SphereGeometry(0.25, 16, 16);
     const mat = new THREE.MeshPhongMaterial({
-      color: TYPE_COLORS[m.type],
-      emissive: TYPE_COLORS[m.type],
-      emissiveIntensity: 0.3,
-      transparent: true,
-      opacity: 0.85,
+      color: TYPE_COLORS[m.type], emissive: TYPE_COLORS[m.type],
+      emissiveIntensity: 0.3, transparent: true, opacity: 0.85,
     });
     const sphere = new THREE.Mesh(geo, mat);
     sphere.position.set(x, y, z);
@@ -1832,26 +2346,14 @@ function initKFoldScene() {
     rotationGroup.add(sphere);
     spheres.push(sphere);
 
-    // 連線到中心
-    const lineMat = new THREE.LineBasicMaterial({
-      color: TYPE_COLORS[m.type],
-      transparent: true,
-      opacity: 0.15,
-    });
+    const lineMat = new THREE.LineBasicMaterial({ color: TYPE_COLORS[m.type], transparent: true, opacity: 0.15 });
     const points = [new THREE.Vector3(0, y, 0), new THREE.Vector3(x, y, z)];
     const lineGeo = new THREE.BufferGeometry().setFromPoints(points);
-    const line = new THREE.Line(lineGeo, lineMat);
-    rotationGroup.add(line);
+    rotationGroup.add(new THREE.Line(lineGeo, lineMat));
   });
 
-  // 中心核心
   const coreGeo = new THREE.OctahedronGeometry(0.4, 0);
-  const coreMat = new THREE.MeshPhongMaterial({
-    color: 0xFF4500,
-    emissive: 0xFF4500,
-    emissiveIntensity: 0.8,
-    wireframe: false,
-  });
+  const coreMat = new THREE.MeshPhongMaterial({ color: 0xFF4500, emissive: 0xFF4500, emissiveIntensity: 0.8 });
   const core = new THREE.Mesh(coreGeo, coreMat);
   rotationGroup.add(core);
 
@@ -1861,13 +2363,29 @@ function initKFoldScene() {
   function animate() {
     animationIds['kfold'] = requestAnimationFrame(animate);
     time += 0.01;
+    monsterModelTime += 0.02;
 
-    if (!isDragging()) {
-      rotationGroup.rotation.y += 0.004;
-    }
-
+    if (!isDragging()) rotationGroup.rotation.y += 0.004;
     core.rotation.x += 0.02;
     core.rotation.y += 0.03;
+
+    // 怪獸模型入場縮放 + 自轉
+    if (activeMonsterModel) {
+      const targetScale = 1.0;
+      const currentScale = activeMonsterModel.scale.x;
+      const newScale = currentScale + (targetScale - currentScale) * 0.08;
+      activeMonsterModel.scale.setScalar(newScale);
+      activeMonsterModel.rotation.y = monsterModelTime * 0.6;
+      activeMonsterModel.rotation.x = Math.sin(monsterModelTime * 0.3) * 0.15;
+      // 脈衝發光：讓所有子物件的 emissiveIntensity 脈衝
+      const pulse = 0.5 + Math.sin(monsterModelTime * 2) * 0.3;
+      activeMonsterModel.traverse(obj => {
+        if (obj.material && obj.material.emissiveIntensity !== undefined) {
+          if (!obj.userData.baseEI) obj.userData.baseEI = obj.material.emissiveIntensity;
+          obj.material.emissiveIntensity = obj.userData.baseEI * (0.8 + pulse * 0.4);
+        }
+      });
+    }
 
     const currentFold = currentFolds.kfold;
     spheres.forEach((s, i) => {
@@ -1888,8 +2406,6 @@ function initKFoldScene() {
         s.material.color.setHex(TYPE_COLORS[MONSTERS[s.userData.monsterIndex].type]);
         s.material.emissive.setHex(TYPE_COLORS[MONSTERS[s.userData.monsterIndex].type]);
       }
-
-      // 浮動效果
       s.position.y = s.userData.baseY + Math.sin(time + i * 0.5) * 0.1;
     });
 
@@ -1908,17 +2424,11 @@ function initStratifiedScene() {
 
   const K = 5;
   const spheres = [];
-
-  // 按類型分組，每組按比例分配到各 fold
   const byType = [[], [], [], []];
   MONSTERS.forEach((m, i) => byType[m.type].push(i));
-
-  // 分配 fold：每個類型的怪獸輪流分配到各 fold
   const foldAssignment = new Array(MONSTERS.length).fill(0);
   byType.forEach((typeGroup) => {
-    typeGroup.forEach((monsterIdx, j) => {
-      foldAssignment[monsterIdx] = j % K;
-    });
+    typeGroup.forEach((monsterIdx, j) => { foldAssignment[monsterIdx] = j % K; });
   });
 
   MONSTERS.forEach((m, i) => {
@@ -1933,11 +2443,8 @@ function initStratifiedScene() {
 
     const geo = new THREE.SphereGeometry(0.22, 16, 16);
     const mat = new THREE.MeshPhongMaterial({
-      color: TYPE_COLORS[m.type],
-      emissive: TYPE_COLORS[m.type],
-      emissiveIntensity: 0.3,
-      transparent: true,
-      opacity: 0.85,
+      color: TYPE_COLORS[m.type], emissive: TYPE_COLORS[m.type],
+      emissiveIntensity: 0.3, transparent: true, opacity: 0.85,
     });
     const sphere = new THREE.Mesh(geo, mat);
     sphere.position.set(x, y, z);
@@ -1946,13 +2453,8 @@ function initStratifiedScene() {
     spheres.push(sphere);
   });
 
-  // 中心核心 - 環形
   const torusGeo = new THREE.TorusGeometry(0.5, 0.15, 8, 24);
-  const torusMat = new THREE.MeshPhongMaterial({
-    color: 0x4A9EFF,
-    emissive: 0x4A9EFF,
-    emissiveIntensity: 0.6,
-  });
+  const torusMat = new THREE.MeshPhongMaterial({ color: 0x4A9EFF, emissive: 0x4A9EFF, emissiveIntensity: 0.6 });
   const torus = new THREE.Mesh(torusGeo, torusMat);
   rotationGroup.add(torus);
 
@@ -1962,11 +2464,7 @@ function initStratifiedScene() {
   function animate() {
     animationIds['stratified'] = requestAnimationFrame(animate);
     time += 0.01;
-
-    if (!isDragging()) {
-      rotationGroup.rotation.y += 0.004;
-    }
-
+    if (!isDragging()) rotationGroup.rotation.y += 0.004;
     torus.rotation.x += 0.01;
     torus.rotation.z += 0.02;
 
@@ -1974,25 +2472,13 @@ function initStratifiedScene() {
     spheres.forEach((s, i) => {
       const fold = s.userData.fold;
       const isTest = fold === currentFold;
-      const targetEmissive = isTest ? 1.2 : 0.2;
-      const targetScale = isTest ? 1.5 : 1.0;
-      const targetOpacity = isTest ? 1.0 : 0.45;
-
-      s.material.emissiveIntensity += (targetEmissive - s.material.emissiveIntensity) * 0.1;
-      s.scale.setScalar(s.scale.x + (targetScale - s.scale.x) * 0.1);
-      s.material.opacity += (targetOpacity - s.material.opacity) * 0.1;
-
-      if (isTest) {
-        s.material.color.setHex(0xFFFFFF);
-        s.material.emissive.setHex(0xFFFFFF);
-      } else {
-        s.material.color.setHex(TYPE_COLORS[s.userData.type]);
-        s.material.emissive.setHex(TYPE_COLORS[s.userData.type]);
-      }
-
+      s.material.emissiveIntensity += ((isTest ? 1.2 : 0.2) - s.material.emissiveIntensity) * 0.1;
+      s.scale.setScalar(s.scale.x + ((isTest ? 1.5 : 1.0) - s.scale.x) * 0.1);
+      s.material.opacity += ((isTest ? 1.0 : 0.45) - s.material.opacity) * 0.1;
+      if (isTest) { s.material.color.setHex(0xFFFFFF); s.material.emissive.setHex(0xFFFFFF); }
+      else { s.material.color.setHex(TYPE_COLORS[s.userData.type]); s.material.emissive.setHex(TYPE_COLORS[s.userData.type]); }
       s.position.y = s.userData.baseY + Math.sin(time + i * 0.4) * 0.08;
     });
-
     renderer.render(scene, camera);
   }
   animate();
@@ -2019,11 +2505,8 @@ function initLOOCVScene() {
 
     const geo = new THREE.SphereGeometry(0.2, 16, 16);
     const mat = new THREE.MeshPhongMaterial({
-      color: TYPE_COLORS[m.type],
-      emissive: TYPE_COLORS[m.type],
-      emissiveIntensity: 0.3,
-      transparent: true,
-      opacity: 0.85,
+      color: TYPE_COLORS[m.type], emissive: TYPE_COLORS[m.type],
+      emissiveIntensity: 0.3, transparent: true, opacity: 0.85,
     });
     const sphere = new THREE.Mesh(geo, mat);
     sphere.position.set(x, y, z);
@@ -2032,31 +2515,15 @@ function initLOOCVScene() {
     spheres.push(sphere);
   });
 
-  // 中心核心 - 二十面體
   const icoGeo = new THREE.IcosahedronGeometry(0.5, 0);
-  const icoMat = new THREE.MeshPhongMaterial({
-    color: 0xFF4500,
-    emissive: 0xFF4500,
-    emissiveIntensity: 0.8,
-    wireframe: true,
-  });
+  const icoMat = new THREE.MeshPhongMaterial({ color: 0xFF4500, emissive: 0xFF4500, emissiveIntensity: 0.8, wireframe: true });
   const ico = new THREE.Mesh(icoGeo, icoMat);
   rotationGroup.add(ico);
 
-  // 連線：所有球到中心
   spheres.forEach((s) => {
-    const lineMat = new THREE.LineBasicMaterial({
-      color: TYPE_COLORS[MONSTERS[s.userData.monsterIndex].type],
-      transparent: true,
-      opacity: 0.1,
-    });
-    const points = [
-      new THREE.Vector3(0, 0, 0),
-      s.position.clone(),
-    ];
-    const lineGeo = new THREE.BufferGeometry().setFromPoints(points);
-    const line = new THREE.Line(lineGeo, lineMat);
-    rotationGroup.add(line);
+    const lineMat = new THREE.LineBasicMaterial({ color: TYPE_COLORS[MONSTERS[s.userData.monsterIndex].type], transparent: true, opacity: 0.1 });
+    const lineGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), s.position.clone()]);
+    rotationGroup.add(new THREE.Line(lineGeo, lineMat));
   });
 
   scenes['loocv'] = { renderer, scene, camera, rotationGroup, spheres, ico, isDragging };
@@ -2065,44 +2532,28 @@ function initLOOCVScene() {
   function animate() {
     animationIds['loocv'] = requestAnimationFrame(animate);
     time += 0.01;
-
-    if (!isDragging()) {
-      rotationGroup.rotation.y += 0.005;
-    }
-
+    if (!isDragging()) rotationGroup.rotation.y += 0.005;
     ico.rotation.x += 0.015;
     ico.rotation.y += 0.02;
 
     const currentIdx = currentFolds.loocv;
     spheres.forEach((s, i) => {
       const isTest = i === currentIdx;
-      const targetEmissive = isTest ? 2.0 : 0.2;
-      const targetScale = isTest ? 2.0 : 1.0;
-      const targetOpacity = isTest ? 1.0 : 0.5;
-
-      s.material.emissiveIntensity += (targetEmissive - s.material.emissiveIntensity) * 0.12;
-      s.scale.setScalar(s.scale.x + (targetScale - s.scale.x) * 0.12);
-      s.material.opacity += (targetOpacity - s.material.opacity) * 0.12;
-
+      s.material.emissiveIntensity += ((isTest ? 2.0 : 0.2) - s.material.emissiveIntensity) * 0.12;
+      s.scale.setScalar(s.scale.x + ((isTest ? 2.0 : 1.0) - s.scale.x) * 0.12);
+      s.material.opacity += ((isTest ? 1.0 : 0.5) - s.material.opacity) * 0.12;
       if (isTest) {
-        s.material.color.setHex(0xFF4500);
-        s.material.emissive.setHex(0xFF4500);
-        // 向外彈出
+        s.material.color.setHex(0xFF4500); s.material.emissive.setHex(0xFF4500);
         const bp = s.userData.basePos;
-        const dist = 1.5;
-        s.position.x = bp.x * (1 + dist / 3);
-        s.position.y = bp.y * (1 + dist / 3);
-        s.position.z = bp.z * (1 + dist / 3);
+        s.position.x = bp.x * 1.5; s.position.y = bp.y * 1.5; s.position.z = bp.z * 1.5;
       } else {
-        s.material.color.setHex(TYPE_COLORS[s.userData.type]);
-        s.material.emissive.setHex(TYPE_COLORS[s.userData.type]);
+        s.material.color.setHex(TYPE_COLORS[s.userData.type]); s.material.emissive.setHex(TYPE_COLORS[s.userData.type]);
         const bp = s.userData.basePos;
         s.position.x += (bp.x - s.position.x) * 0.1;
         s.position.y += (bp.y - s.position.y) * 0.1;
         s.position.z += (bp.z - s.position.z) * 0.1;
       }
     });
-
     renderer.render(scene, camera);
   }
   animate();
@@ -2112,7 +2563,6 @@ function initLOOCVScene() {
 // Fold 動畫控制
 // =====================
 function startFoldAnimations() {
-  // K-Fold
   foldTimers['kfold'] = setInterval(() => {
     currentFolds.kfold = (currentFolds.kfold + 1) % 5;
     const el = document.getElementById('kfold-current');
@@ -2120,14 +2570,12 @@ function startFoldAnimations() {
     updateKFoldMonsterGrid(currentFolds.kfold);
   }, 1800);
 
-  // Stratified K-Fold
   foldTimers['stratified'] = setInterval(() => {
     currentFolds.stratified = (currentFolds.stratified + 1) % 5;
     const el = document.getElementById('strat-current');
     if (el) el.textContent = currentFolds.stratified + 1;
   }, 1800);
 
-  // LOOCV
   foldTimers['loocv'] = setInterval(() => {
     currentFolds.loocv = (currentFolds.loocv + 1) % MONSTERS.length;
     const el = document.getElementById('loocv-current');
