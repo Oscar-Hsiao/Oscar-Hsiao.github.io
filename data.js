@@ -15,7 +15,8 @@ const NAV=[
   ]},
   {id:'ipas',label:'iPAS 備考',icon:'⬡',type:'accordion',children:[
     {id:'ipas-cv',label:'交叉驗證 · MONARCH',href:'ipas-交叉驗證系統.html'},
-    {id:'ipas-overfit',label:'過擬合 3D 模型',href:'ipas-過擬合模型.html'}
+    {id:'ipas-overfit',label:'過擬合 3D 模型',href:'ipas-過擬合模型.html'},
+    {id:'ipas-prob',label:'機率分布 · Yakiniku',href:'ipas-機率分布.html'}
   ]},
   {id:'about',label:'關於我',icon:'ⓘ',type:'link'}
 ];
