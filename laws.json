@@ -1,5 +1,5 @@
 {
-  "updated": "2026-08-24T01:20:40.049Z",
+  "updated": "2026-09-07T03:22:19.836Z",
   "source": "全國法規資料庫（https://law.moj.gov.tw/）",
   "note": "日期由 GitHub Actions 每週自動同步；matchType=grouping 為彙整類別，不比對單一法規",
   "laws": [
@@ -209,7 +209,7 @@
       "group": null,
       "name": "危害性化學品標示及通識規則",
       "matchType": "exact",
-      "amendDate": "20181109",
+      "amendDate": "20260826",
       "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060054",
       "abolished": false
     },
