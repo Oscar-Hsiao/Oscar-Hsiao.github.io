@@ -1041,7 +1041,7 @@ function chatWithPersona(text, quotedContext) {
     return "😏 我這邊有點恍神，你再說一次？";
   }
 
-  if (result.memory) saveMemory(result.memory);
+  if (result.memory && result.memory !== 'null') saveMemory(result.memory);
 
   history.push({ user: text, bot: result.reply });
   cache.put('chat_history', JSON.stringify(history.slice(-10)), 1800);
