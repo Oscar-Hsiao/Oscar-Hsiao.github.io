@@ -366,7 +366,7 @@ function buildPresets(){
   $('#rand').onclick=()=>{const rnd=()=>Array.from({length:10},()=>ORDER[Math.floor(Math.random()*4)]);state={A:rnd(),B:rnd()};render();};
 }
 function campHtml(key,title){
-  const chips=state[key].map((s,i)=>`<button class="chip ${s[0]} ${s[1]}" data-k="${key}" data-i="${i}" aria-label="${title}第${i+1}位：${s[0]==='Q'?'有資格':'無資格'}，${s[1]==='A'?'已核准':'未核准'}">${s[0]==='Q'?P('backpack'):P('boots')}${s[1]==='A'?'<span class="fl">'+P('fire')+'</span>':''}</button>`).join('');
+  const chips=state[key].map((s,i)=>`<button class="chip ${s[0]} ${s[1]}" data-k="${key}" data-i="${i}" aria-label="${key} 營區第${i+1}位：${s[0]==='Q'?'有資格':'無資格'}，${s[1]==='A'?'已核准':'未核准'}">${s[0]==='Q'?P('backpack'):P('boots')}${s[1]==='A'?'<span class="fl">'+P('fire')+'</span>':''}</button>`).join('');
   const st=stats(state[key]);
   return `<div class="card camp"><h3>${title}</h3><div class="mini">好營位 ${Math.round(st.ppr*10)}／10 位｜有資格 ${st.Q} 位｜無資格 ${st.U} 位</div><div class="chips">${chips}</div></div>`;
 }
