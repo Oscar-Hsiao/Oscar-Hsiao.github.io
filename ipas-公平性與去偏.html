@@ -124,30 +124,53 @@ footer{text-align:center;color:var(--mute);padding:30px 0 80px;font-size:14px}
 .where{font-size:14px;color:var(--mute);white-space:nowrap}
 .fab{bottom:78px}
 @media(max-width:620px){.dots{display:none}}
+
+.prop{width:40px;height:40px;display:inline-block;vertical-align:middle;flex:none}
+.ic{display:inline-flex;vertical-align:middle;margin-right:6px}.ic .prop{width:30px;height:30px}
+h2 .ic .prop{width:44px;height:44px}
+.hero .scene{max-width:640px;margin:0 auto 6px}.scene-svg{width:100%;height:auto;display:block}
+.mascot{display:flex;align-items:flex-end;gap:10px;margin-bottom:16px}
+.mascot .bear{width:64px;height:64px;flex:none}
+.bubble{position:relative;background:var(--panel2);border:2px solid var(--fire);border-radius:16px;padding:8px 14px;font-size:16px;max-width:620px}
+.bubble::before{content:"";position:absolute;left:-10px;bottom:14px;border:8px solid transparent;border-right-color:var(--fire);border-left:0}
+.tent .prop{width:56px;height:56px;margin-bottom:6px}
+.chip .prop{width:72%;height:72%}
+.chip .fl{position:absolute;top:-10px;right:-8px}.chip .fl .prop{width:26px;height:26px;filter:drop-shadow(0 0 4px #ff9a3c)}
+.chip{transition:transform .15s}.chip:hover{transform:rotate(-6deg) scale(1.06)}
+.chip.R::after{display:none}
+.chip.R .prop{opacity:.55;filter:grayscale(.4)}
+#ms{display:flex;gap:6px;align-items:center;margin:4px 0 14px;flex-wrap:wrap}
+#ms .prop{width:44px;height:44px;transition:transform .3s}
+#ms .pop{transform:scale(1.25) rotate(-8deg)}
+#ms .rank{font-size:16px;color:var(--gold);margin-left:8px}
+.btns .prop{width:22px;height:22px;margin-right:4px}
+.cards-ic{display:flex;gap:10px;align-items:flex-start}
+.cards-ic .prop{width:48px;height:48px}
+#fm{display:inline-flex;vertical-align:middle;margin-right:6px}#fm .prop{transition:.3s}
 </style>
 </head>
 <body>
 <main class="stage" id="stage">
-<section class="slide" id="p1" data-name="封面"><div class="slide-in">
+<section class="slide" data-say="歡迎來到營地！我是熊管理員，今天由我決定誰睡營火旁邊。放心，等一下大家會幫我檢查有沒有偏心。" id="p1" data-name="封面"><div class="slide-in">
 <div class="hero">
-  <div class="fire" aria-hidden="true">🔥</div>
+  <div class="scene" data-scene></div>
   <h1>營火公平學</h1>
   <p>AI 模型就像營地管理員：誰能分到「營火旁的好營位」，由它決定。<br>今天帶大家逛四頂<b>公平性指標帳篷</b>，再走完<b>三步驟去偏開伙流程</b>。</p>
   <p class="mini">iPAS 科目三 · 第六章 機器學習治理 · L23402 演算法偏見與公平性<br>按 <kbd>←</kbd> <kbd>→</kbd> 翻頁　<kbd>N</kbd> 顯示／隱藏講者提示</p>
 </div>
 </div></section>
-<section class="slide" id="p2" data-name="先把故事講清楚" hidden><div class="slide-in">
+<section class="slide" data-say="我只看資料做決定。有人說我偏心？我只是一隻……資料教壞的熊。" id="p2" data-name="先把故事講清楚" hidden><div class="slide-in">
 <h2><small>STORY</small>先把故事講清楚</h2>
 <p class="lead">整場報告都用同一個情境，聽眾不用切換腦袋。</p>
 <div class="story">
-  <div class="card"><b>🏕 管理員 = 模型</b><br>看每位露營者的資料，預測「要不要分配營火旁的好營位」。</div>
-  <div class="card"><b>🎒 有帶齊裝備 = 真正符合資格</b><br>實際上就該被選中的人（正例）。🥾 代表實際不符合資格。</div>
-  <div class="card"><b>🔥 好營位 = 正向預測</b><br>貸款核准、錄取面試、獲得服務，都是這個角色。</div>
-  <div class="card"><b>A 營區 / B 營區 = 兩個群體</b><br>例如不同性別、族群、年齡層。公平性就是比較這兩區的待遇。</div>
+  <div class="card"><b><span class="ic" data-prop="tent"></span>熊管理員 = 模型</b><br>看每位露營者的資料，預測「要不要分配營火旁的好營位」。</div>
+  <div class="card"><b><span class="ic" data-prop="backpack"></span>有帶齊裝備 = 真正符合資格</b><br>實際上就該被選中的人（正例）。<span class="ic" data-prop="boots"></span>代表實際不符合資格。</div>
+  <div class="card"><b><span class="ic" data-prop="fire"></span>好營位 = 正向預測</b><br>貸款核准、錄取面試、獲得服務，都是這個角色。</div>
+  <div class="card"><b><span class="ic" data-prop="pine"></span>A 營區 / B 營區 = 兩個群體</b><br>例如不同性別、族群、年齡層。公平性就是比較這兩區的待遇。</div>
 </div>
 <div class="speaker">💬 講者提示：先問聽眾「如果你是 B 營區的人，你希望管理員用什麼標準？」讓大家自己感受到「公平」有好幾種定義，帶出四頂帳篷。</div>
 </div></section>
-<section class="slide" id="p3" data-name="四頂帳篷" hidden><div class="slide-in">
+<section class="slide" data-say="四頂帳篷，四種公平。選哪頂，要看你今天想保護誰。" id="p3" data-name="四頂帳篷" hidden><div class="slide-in">
 <h2><small>PART 1 · 四頂帳篷</small>公平性指標四兄弟</h2>
 <p class="lead">點一頂帳篷，看它在比較什麼。下一頁可以自己動手改營區。</p>
 <div class="grid g4" id="tents"></div>
@@ -160,15 +183,15 @@ footer{text-align:center;color:var(--mute);padding:30px 0 80px;font-size:14px}
   <tr><td>Disparate Impact</td><td>比例較低群體 ÷ 較高群體，低於 80% 可能構成間接歧視</td><td>法律合規審查</td></tr>
 </table></div>
 </div></section>
-<section class="slide" id="p4" data-name="動手玩營區" hidden><div class="slide-in">
+<section class="slide" data-say="來，動手玩！亂點也沒關係，熊不會告你。" id="p4" data-name="動手玩營區" hidden><div class="slide-in">
 <h2><small>HANDS-ON</small>動手玩營區</h2>
 <p class="lead">點營區裡的露營者改結果，記分板的紅綠燈即時變化。上一頁選的帳篷會亮起對應那一行。</p>
 <div class="btns" id="presets"></div>
 <div class="camps" id="camps"></div>
 <div class="legend" aria-label="圖例">
-  <span><i style="background:var(--gold)"></i>🎒 有帶齊裝備（實際符合資格）</span>
-  <span><i style="background:#8b968a"></i>🥾 沒帶齊（實際不符合）</span>
-  <span>🔥 管理員給了好營位</span><span>✕ 沒給好營位</span><span><b>點露營者</b>：依序切換 4 種狀態</span>
+  <span><i style="background:var(--gold)"></i><span class="ic" data-prop="backpack"></span>有帶齊裝備（實際符合資格）</span>
+  <span><i style="background:#8b968a"></i><span class="ic" data-prop="boots"></span>沒帶齊（實際不符合）</span>
+  <span><span class="ic" data-prop="fire"></span>管理員給了好營位（模型預測核准）</span><span>圖示變淡 = 沒給好營位</span><span><b>點露營者</b>：依序切換 4 種狀態</span>
 </div>
 <div class="card"><table id="board">
   <thead><tr><th>帳篷</th><th>看什麼</th><th>A 營區</th><th>B 營區</th><th>差距／比值</th><th>判定</th></tr></thead><tbody></tbody></table>
@@ -176,39 +199,39 @@ footer{text-align:center;color:var(--mute);padding:30px 0 80px;font-size:14px}
 <div class="verdict" id="verdict"></div>
 <div class="speaker">💬 講者提示：先按「比例相同，但漏掉好人」，讓大家看到 Demographic Parity 亮綠燈、Equal Opportunity 卻亮紅燈。再按「機會相同，但誤放不均」，讓 Equal Opportunity 過關、Equalized Odds 沒過。重點：<b>四個指標不會同時被滿足，要依場景選。</b></div>
 </div></section>
-<section class="slide" id="p5" data-name="四兄弟的限制" hidden><div class="slide-in">
+<section class="slide" data-say="每種公平都有代價。天下沒有白烤的棉花糖。" id="p5" data-name="四兄弟的限制" hidden><div class="slide-in">
 <h2><small>LIMITS</small>各自的限制（考題常考）</h2>
 <div class="grid g2" style="margin-top:14px">
-  <div class="card"><b style="color:var(--gold)">⚖️ Demographic Parity</b><p class="mini">只追求比例相等，不管實際資格，可能犧牲個案預測準確性。</p></div>
-  <div class="card"><b style="color:var(--gold)">🎒 Equal Opportunity</b><p class="mini">只看正例的正確預測，沒管負例的誤判比例。</p></div>
-  <div class="card"><b style="color:var(--gold)">🔦 Equalized Odds</b><p class="mini">最嚴格，實務上難以完全達成，可能犧牲整體效能。</p></div>
-  <div class="card"><b style="color:var(--gold)">📏 Disparate Impact</b><p class="mini">只看結果比例，無法指出偏差的具體原因或來源。</p></div>
+  <div class="card"><div class="cards-ic"><span data-prop="balance"></span><div><b style="color:var(--gold)">Demographic Parity</b><p class="mini">只追求比例相等，不管實際資格，可能犧牲個案預測準確性。</p></div></div></div>
+  <div class="card"><div class="cards-ic"><span data-prop="backpack"></span><div><b style="color:var(--gold)">Equal Opportunity</b><p class="mini">只看正例的正確預測，沒管負例的誤判比例。</p></div></div></div>
+  <div class="card"><div class="cards-ic"><span data-prop="lantern"></span><div><b style="color:var(--gold)">Equalized Odds</b><p class="mini">最嚴格，實務上難以完全達成，可能犧牲整體效能。</p></div></div></div>
+  <div class="card"><div class="cards-ic"><span data-prop="thermos"></span><div><b style="color:var(--gold)">Disparate Impact</b><p class="mini">只看結果比例，無法指出偏差的具體原因或來源。</p></div></div></div>
 </div>
 <div class="note"><b>易混淆：Equal Opportunity vs Equalized Odds</b><br>Equal Opportunity 只看 TPR；Equalized Odds 同時看 TPR 與 FPR，所以更嚴格。</div>
 </div></section>
-<section class="slide" id="p6" data-name="三步驟開伙" hidden><div class="slide-in">
+<section class="slide" data-say="被抓到偏心之後，可以在備料、煮食、上菜三個時間點補救。" id="p6" data-name="三步驟開伙" hidden><div class="slide-in">
 <h2><small>PART 2 · 三步驟開伙</small>三階段去偏</h2>
 <p class="lead">發現偏見之後要處理，可以在<b>備料（資料）→ 煮食（訓練）→ 上菜（輸出）</b>三個時間點動手。</p>
 <div class="card"><table>
   <tr><th>階段</th><th>何時動手</th><th>代表方法</th><th>一句話</th></tr>
-  <tr><td>① 備料 · 前處理</td><td>資料進模型之前</td><td>重新抽樣、特徵去偏、匿名化與泛化</td><td>先把食材配平</td></tr>
-  <tr><td>② 煮食 · 中處理</td><td>模型訓練當中</td><td>公平性約束、對抗式去偏、公平性正規化</td><td>煮的時候就加規矩</td></tr>
-  <tr><td>③ 上菜 · 後處理</td><td>模型輸出之後</td><td>門檻調整、結果校準</td><td>不動模型，只修結果</td></tr>
+  <tr><td><span class="ic" data-prop="cooler"></span>① 備料 · 前處理</td><td>資料進模型之前</td><td>重新抽樣、特徵去偏、匿名化與泛化</td><td>先把食材配平</td></tr>
+  <tr><td><span class="ic" data-prop="pot"></span>② 煮食 · 中處理</td><td>模型訓練當中</td><td>公平性約束、對抗式去偏、公平性正規化</td><td>煮的時候就加規矩</td></tr>
+  <tr><td><span class="ic" data-prop="mug"></span>③ 上菜 · 後處理</td><td>模型輸出之後</td><td>門檻調整、結果校準</td><td>不動模型，只修結果</td></tr>
 </table></div>
 </div></section>
-<section class="slide" id="p7" data-name="① 備料（前處理）" hidden><div class="slide-in">
-<h2><small>STEP 1</small>① 備料｜資料前處理</h2><div id="stage0"></div>
+<section class="slide" data-say="食材不均勻，煮出來當然偏。先配平再開火！" id="p7" data-name="① 備料（前處理）" hidden><div class="slide-in">
+<h2><small>STEP 1</small><span class="ic" data-prop="cooler"></span>① 備料｜資料前處理</h2><div id="stage0"></div>
 </div></section>
-<section class="slide" id="p8" data-name="② 煮食（中處理）" hidden><div class="slide-in">
-<h2><small>STEP 2</small>② 煮食｜模型內部處理</h2><div id="stage1"></div>
+<section class="slide" data-say="一邊煮一邊試吃，把公平放進鍋子裡。" id="p8" data-name="② 煮食（中處理）" hidden><div class="slide-in">
+<h2><small>STEP 2</small><span class="ic" data-prop="pot"></span>② 煮食｜模型內部處理</h2><div id="stage1"></div>
 </div></section>
-<section class="slide" id="p9" data-name="③ 上菜（後處理）" hidden><div class="slide-in">
-<h2><small>STEP 3</small>③ 上菜｜模型後處理</h2><div id="stage2"></div><div class="trap">⚠️ 考試卡點（來自你的錯題筆記）：如果法規禁止在訓練期使用敏感屬性，就只能在<b>後處理</b>調整，不能靠前處理或中處理。</div>
+<section class="slide" data-say="菜都端出來了？那只好在盤子上動手腳。" id="p9" data-name="③ 上菜（後處理）" hidden><div class="slide-in">
+<h2><small>STEP 3</small><span class="ic" data-prop="mug"></span>③ 上菜｜模型後處理</h2><div id="stage2"></div><div class="trap">⚠️ 考試卡點（來自你的錯題筆記）：如果法規禁止在訓練期使用敏感屬性，就只能在<b>後處理</b>調整，不能靠前處理或中處理。</div>
 </div></section>
-<section class="slide" id="p10" data-name="上菜體驗" hidden><div class="slide-in">
-<h2><small>HANDS-ON</small>🍽 門檻調整 vs 結果校準</h2>
+<section class="slide" data-say="拉拉看！門檻調太低，沒帶裝備的人也擠進來，營火要塞爆了。" id="p10" data-name="上菜體驗" hidden><div class="slide-in">
+<h2><small>HANDS-ON</small><span class="ic" data-prop="mug"></span>門檻調整 vs 結果校準</h2>
 <p class="mini">兩個營區各 10 人，數字是模型給的分數，黃框是實際有資格的人，綠色是被核准，紅色是沒資格卻被核准。A 營區門檻固定 60 分，B 營區分數整體偏低（模型有偏見）。</p>
-<div class="btns"><button class="b on" id="modeT">調整門檻（改「判斷標準」）</button><button class="b" id="modeC">結果校準（改「分數」）</button></div>
+<div class="btns"><button class="b on" id="modeT"><span data-prop="ruler" data-s="22"></span>調整門檻（改尺）</button><button class="b" id="modeC"><span data-prop="hangscale" data-s="22"></span>結果校準（改秤）</button></div>
 <label for="slider" id="sliderLabel"></label>
 <input type="range" id="slider">
 <div class="sim">
@@ -218,7 +241,7 @@ footer{text-align:center;color:var(--mute);padding:30px 0 80px;font-size:14px}
 <div class="note" id="simNote"></div>
 <div class="speaker">💬 講者提示：把 B 營區門檻從 60 拉到 55，看漏掉的好人減少；拉到 50 以下紅色誤放出現，說明「補償過頭會誤放」。切到校準模式，門檻不動、分數 +5，效果相似但邏輯不同。</div>
 </div></section>
-<section class="slide" id="p11" data-name="考場速查" hidden><div class="slide-in">
+<section class="slide" data-say="背這頁就夠了。考場上看到題目，就想起熊。" id="p11" data-name="考場速查" hidden><div class="slide-in">
 <h2><small>CHEAT SHEET</small>易混淆速查</h2>
 <div class="grid g2" style="margin-top:14px">
   <div class="card"><b style="color:var(--gold)">門檻調整 vs 結果校準</b><p class="mini" style="margin:6px 0 0">門檻調整：改判斷標準，例如核准門檻 60 降到 55。<br>結果校準：門檻不動，改分數，例如 60 分重新校準成 65 分，讓相同分數在不同群體代表相同意義。<br>口訣：<b>門檻調整改尺，校準改秤。</b></p></div>
@@ -227,14 +250,15 @@ footer{text-align:center;color:var(--mute);padding:30px 0 80px;font-size:14px}
   <div class="card"><b style="color:var(--gold)">前處理 / 中處理 / 後處理</b><p class="mini" style="margin:6px 0 0">看「什麼時候動手」：資料進模型前、訓練過程中、模型輸出後。</p></div>
 </div>
 </div></section>
-<section class="slide" id="p12" data-name="營火問答" hidden><div class="slide-in">
+<section class="slide" data-say="烤棉花糖時間！答對烤得金黃，答錯……會有焦味。" id="p12" data-name="營火問答" hidden><div class="slide-in">
 <h2><small>CAMPFIRE QUIZ</small>營火問答<span id="score" style="font-size:.6em;color:var(--gold)"></span></h2>
-<p class="lead">請聽眾舉手選答案，再點選項揭曉。</p>
+<p class="lead">請聽眾舉手選答案，再點選項揭曉。答對烤得金黃，答錯會烤焦。</p>
+<div id="ms"></div>
 <div id="quizBox"></div>
 <div class="btns"><button class="b" id="quizReset">重新開始</button></div>
 </div></section>
-<section class="slide" id="p13" data-name="一句話帶走" hidden><div class="slide-in">
-<div class="hero"><div class="fire" aria-hidden="true">🔥</div><h2>一句話帶走</h2>
+<section class="slide" data-say="營火快熄了。記得：公平沒有唯一的答案。晚安！" id="p13" data-name="一句話帶走" hidden><div class="slide-in">
+<div class="hero"><div class="scene" data-scene></div><h2>一句話帶走</h2>
 <p class="lead" style="font-size:1.15em;color:var(--text)">公平沒有唯一的定義，先決定在這個場景裡「公平」要看什麼，再選對應的指標與去偏階段。</p></div>
 <div class="grid g2" style="margin-top:14px">
   <div class="card"><b style="color:var(--gold)">指標怎麼選</b><p class="mini">重視結果比例 → Demographic Parity<br>不能漏掉有資格的人 → Equal Opportunity<br>漏判誤判都要平 → Equalized Odds<br>法律合規檢驗 → Disparate Impact（80%）</p></div>
@@ -244,35 +268,80 @@ footer{text-align:center;color:var(--mute);padding:30px 0 80px;font-size:14px}
 </main>
 <nav class="bar" aria-label="翻頁">
   <button class="navbtn" id="prev" type="button">← 上一頁</button>
-  <div class="mid"><div class="dots" id="dots"></div><span class="where" id="where" aria-live="polite"></span></div>
+  <div class="mid"><div class="dots" id="dots"></div><span class="where"><span id="fm"></span><span id="where" aria-live="polite"></span></span></div>
   <button class="navbtn" id="next" type="button">下一頁 →</button>
 </nav>
 <button class="b fab" id="spBtn" aria-pressed="false">講者提示 (N)</button>
 <script>
+/* ---------- 露營道具插圖（手繪風 SVG）---------- */
+const OL='#1c2b22';
+const PROPS={
+tent:`<polygon points="5,54 32,12 59,54" fill="#f2cd5b" stroke="${OL}" stroke-width="2.5" stroke-linejoin="round"/><polygon points="32,12 59,54 40,54" fill="#d9a93a" stroke="${OL}" stroke-width="2.5" stroke-linejoin="round"/><polygon points="25,54 32,33 39,54" fill="${OL}"/><line x1="32" y1="12" x2="32" y2="4" stroke="${OL}" stroke-width="2.5" stroke-linecap="round"/><polygon points="32,4 42,7 32,10" fill="#e8553d" stroke="${OL}" stroke-width="2"/><line x1="2" y1="54" x2="62" y2="54" stroke="${OL}" stroke-width="2.5" stroke-linecap="round"/>`,
+fire:`<rect x="10" y="48" width="44" height="8" rx="4" fill="#8a5a3b" stroke="${OL}" stroke-width="2.5" transform="rotate(-8 32 52)"/><rect x="10" y="48" width="44" height="8" rx="4" fill="#a36b45" stroke="${OL}" stroke-width="2.5" transform="rotate(8 32 52)"/><path d="M32 6C41 19 51 26 47 40C45 48 39 52 32 52C25 52 19 48 17 40C15 32 23 28 25 19C28 24 30 24 32 6Z" fill="#ff9a3c" stroke="${OL}" stroke-width="2.5" stroke-linejoin="round"/><path d="M32 27C38 34 41 38 38 44C36 48 28 48 26 44C24 38 28 34 32 27Z" fill="#ffe27a" stroke="${OL}" stroke-width="2" stroke-linejoin="round"/>`,
+lantern:`<path d="M23 15Q32 0 41 15" fill="none" stroke="${OL}" stroke-width="2.5" stroke-linecap="round"/><rect x="20" y="14" width="24" height="7" rx="3" fill="#e8553d" stroke="${OL}" stroke-width="2.5"/><rect x="19" y="21" width="26" height="30" rx="5" fill="#ffe27a" stroke="${OL}" stroke-width="2.5"/><path d="M32 26C37 32 38 36 36 40C34 44 30 44 28 40C26 36 29 32 32 26Z" fill="#ff9a3c" stroke="${OL}" stroke-width="2"/><rect x="18" y="51" width="28" height="7" rx="3" fill="#e8553d" stroke="${OL}" stroke-width="2.5"/>`,
+backpack:`<path d="M24 14Q24 6 32 6Q40 6 40 14" fill="none" stroke="${OL}" stroke-width="2.5"/><rect x="13" y="14" width="38" height="44" rx="12" fill="#6fae5a" stroke="${OL}" stroke-width="2.5"/><path d="M13 30Q32 40 51 30" fill="none" stroke="${OL}" stroke-width="2.5"/><rect x="21" y="40" width="22" height="14" rx="4" fill="#4d8a40" stroke="${OL}" stroke-width="2.5"/><circle cx="32" cy="34" r="3" fill="#f2cd5b" stroke="${OL}" stroke-width="2"/><rect x="8" y="26" width="6" height="18" rx="3" fill="#e8553d" stroke="${OL}" stroke-width="2"/><rect x="50" y="26" width="6" height="18" rx="3" fill="#e8553d" stroke="${OL}" stroke-width="2"/>`,
+thermos:`<rect x="19" y="12" width="26" height="46" rx="7" fill="#e9f4f8" stroke="${OL}" stroke-width="2.5"/><path d="M19.5 28H44.5V51a6.5 6.5 0 0 1-6.5 6.5H26A6.5 6.5 0 0 1 19.5 51Z" fill="#7cc5e8"/><rect x="19" y="12" width="26" height="46" rx="7" fill="none" stroke="${OL}" stroke-width="2.5"/><rect x="22" y="3" width="20" height="11" rx="4" fill="#e8553d" stroke="${OL}" stroke-width="2.5"/><line x1="19" y1="28" x2="45" y2="28" stroke="${OL}" stroke-width="2" stroke-dasharray="3 3"/><text x="32" y="46" text-anchor="middle" font-size="12" font-weight="700" fill="${OL}" font-family="sans-serif">80%</text>`,
+flashlight:`<polygon points="46,24 62,12 62,52 46,40" fill="#ffe27a" opacity=".55"/><rect x="4" y="24" width="30" height="16" rx="4" fill="#7a8a80" stroke="${OL}" stroke-width="2.5"/><polygon points="34,20 48,24 48,40 34,44" fill="#f2cd5b" stroke="${OL}" stroke-width="2.5" stroke-linejoin="round"/><rect x="12" y="29" width="8" height="6" rx="2" fill="#e8553d" stroke="${OL}" stroke-width="2"/>`,
+compass:`<circle cx="32" cy="32" r="25" fill="#f3ecd9" stroke="${OL}" stroke-width="2.5"/><circle cx="32" cy="32" r="19" fill="none" stroke="${OL}" stroke-width="1.5" stroke-dasharray="2 3"/><polygon points="32,12 38,32 26,32" fill="#e8553d" stroke="${OL}" stroke-width="2" stroke-linejoin="round"/><polygon points="32,52 38,32 26,32" fill="#fff" stroke="${OL}" stroke-width="2" stroke-linejoin="round"/><circle cx="32" cy="32" r="3" fill="${OL}"/><text x="32" y="10" text-anchor="middle" font-size="8" font-weight="700" fill="${OL}" font-family="sans-serif">N</text>`,
+pot:`<path d="M10 30H54V46A9 9 0 0 1 45 55H19A9 9 0 0 1 10 46Z" fill="#8f9c94" stroke="${OL}" stroke-width="2.5" stroke-linejoin="round"/><rect x="8" y="24" width="48" height="8" rx="4" fill="#b3beb6" stroke="${OL}" stroke-width="2.5"/><circle cx="32" cy="22" r="3.5" fill="#e8553d" stroke="${OL}" stroke-width="2"/><rect x="2" y="34" width="9" height="5" rx="2.5" fill="#6b776f" stroke="${OL}" stroke-width="2"/><rect x="53" y="34" width="9" height="5" rx="2.5" fill="#6b776f" stroke="${OL}" stroke-width="2"/><path d="M22 16Q18 11 22 6M32 14Q28 9 32 4M42 16Q38 11 42 6" fill="none" stroke="#b5c2b0" stroke-width="2.5" stroke-linecap="round"/>`,
+mug:`<path d="M14 26H44V46A9 9 0 0 1 35 55H23A9 9 0 0 1 14 46Z" fill="#ff9a3c" stroke="${OL}" stroke-width="2.5" stroke-linejoin="round"/><path d="M44 31H50A6 6 0 0 1 50 45H44" fill="none" stroke="${OL}" stroke-width="2.5"/><ellipse cx="29" cy="26" rx="15" ry="5" fill="#8a5a3b" stroke="${OL}" stroke-width="2.5"/><rect x="21" y="14" width="10" height="10" rx="3" fill="#fff" stroke="${OL}" stroke-width="2"/><rect x="29" y="11" width="10" height="10" rx="3" fill="#f3ecd9" stroke="${OL}" stroke-width="2"/>`,
+cooler:`<rect x="6" y="26" width="52" height="30" rx="5" fill="#7cc5e8" stroke="${OL}" stroke-width="2.5"/><rect x="4" y="18" width="56" height="12" rx="5" fill="#fff" stroke="${OL}" stroke-width="2.5"/><path d="M22 18V14Q22 10 26 10H38Q42 10 42 14V18" fill="none" stroke="${OL}" stroke-width="2.5"/><rect x="26" y="38" width="12" height="9" rx="2" fill="#e9f4f8" stroke="${OL}" stroke-width="2"/>`,
+ruler:`<g transform="rotate(-25 32 32)"><rect x="2" y="22" width="60" height="20" rx="3" fill="#f2cd5b" stroke="${OL}" stroke-width="2.5"/><path d="M10 22v8M18 22v5M26 22v8M34 22v5M42 22v8M50 22v5" stroke="${OL}" stroke-width="2" stroke-linecap="round"/></g>`,
+balance:`<line x1="32" y1="12" x2="32" y2="54" stroke="#f3ecd9" stroke-width="3.5" stroke-linecap="round"/><rect x="20" y="52" width="24" height="6" rx="3" fill="#8a5a3b" stroke="${OL}" stroke-width="2.5"/><line x1="8" y1="18" x2="56" y2="18" stroke="#f3ecd9" stroke-width="4" stroke-linecap="round"/><circle cx="32" cy="12" r="4" fill="#f2cd5b" stroke="${OL}" stroke-width="2"/><path d="M8 18L2 36H14ZM56 18L50 36H62Z" fill="none" stroke="#f3ecd9" stroke-width="2.5" stroke-linejoin="round"/><path d="M0 36Q8 46 16 36ZM48 36Q56 46 64 36Z" fill="#6fae5a" stroke="${OL}" stroke-width="2.5" stroke-linejoin="round"/>`,
+hangscale:`<path d="M32 3V9" stroke="${OL}" stroke-width="3" stroke-linecap="round"/><circle cx="32" cy="22" r="14" fill="#f3ecd9" stroke="${OL}" stroke-width="2.5"/><path d="M32 22L38 15" stroke="#e8553d" stroke-width="3" stroke-linecap="round"/><circle cx="32" cy="22" r="2" fill="${OL}"/><path d="M32 36V42M20 42H44" stroke="${OL}" stroke-width="2.5" stroke-linecap="round"/><path d="M18 46H46L42 58H22Z" fill="#6fae5a" stroke="${OL}" stroke-width="2.5" stroke-linejoin="round"/>`,
+stick:`<line x1="6" y1="58" x2="48" y2="16" stroke="#8a5a3b" stroke-width="4" stroke-linecap="round"/><rect x="40" y="6" width="16" height="14" rx="5" fill="#f3ecd9" stroke="${OL}" stroke-width="2.5" transform="rotate(45 48 13)"/><rect x="32" y="14" width="16" height="14" rx="5" fill="#fff" stroke="${OL}" stroke-width="2.5" transform="rotate(45 40 21)"/>`,
+boots:`<path d="M18 8H34V30L52 38Q58 41 58 48V54H14V8Z" fill="#9b6a43" stroke="${OL}" stroke-width="2.5" stroke-linejoin="round"/><rect x="12" y="52" width="48" height="8" rx="3" fill="${OL}"/><path d="M18 14H34M28 36L34 33M26 42L33 39" stroke="${OL}" stroke-width="2.5" stroke-linecap="round"/>`,
+pine:`<polygon points="32,4 48,26 38,26 52,44 12,44 26,26 16,26" fill="#2f6b45" stroke="${OL}" stroke-width="2.5" stroke-linejoin="round"/><rect x="28" y="44" width="8" height="14" fill="#8a5a3b" stroke="${OL}" stroke-width="2.5"/>`,
+map:`<path d="M6 12L22 8L42 14L58 10V52L42 56L22 50L6 54Z" fill="#f3ecd9" stroke="${OL}" stroke-width="2.5" stroke-linejoin="round"/><path d="M22 8V50M42 14V56" stroke="${OL}" stroke-width="1.8"/><path d="M10 40Q18 24 28 34T50 22" fill="none" stroke="#e8553d" stroke-width="2.5" stroke-dasharray="4 3" stroke-linecap="round"/><path d="M48 18L54 26M54 18L48 26" stroke="#e8553d" stroke-width="3" stroke-linecap="round"/>`,
+axe:`<line x1="14" y1="58" x2="44" y2="12" stroke="#8a5a3b" stroke-width="5" stroke-linecap="round"/><path d="M34 8Q54 4 58 22Q46 22 40 28Z" fill="#9aa59a" stroke="${OL}" stroke-width="2.5" stroke-linejoin="round"/>`,
+binoculars:`<rect x="6" y="22" width="20" height="30" rx="8" fill="#3d5246" stroke="${OL}" stroke-width="2.5"/><rect x="38" y="22" width="20" height="30" rx="8" fill="#3d5246" stroke="${OL}" stroke-width="2.5"/><rect x="24" y="30" width="16" height="10" fill="#6b776f" stroke="${OL}" stroke-width="2.5"/><rect x="8" y="12" width="16" height="12" rx="4" fill="#9aa59a" stroke="${OL}" stroke-width="2.5"/><rect x="40" y="12" width="16" height="12" rx="4" fill="#9aa59a" stroke="${OL}" stroke-width="2.5"/><circle cx="16" cy="46" r="4" fill="#7cc5e8"/><circle cx="48" cy="46" r="4" fill="#7cc5e8"/>`
+};
+function P(name,size){const s=size?` style="width:${size}px;height:${size}px"`:'';return `<svg class="prop" viewBox="0 0 64 64" aria-hidden="true"${s}>${PROPS[name]||''}</svg>`;}
+function bearSvg(mood){
+  const mouth=mood==='sad'?`<path d="M26 47Q32 42 38 47" fill="none" stroke="${OL}" stroke-width="2.5" stroke-linecap="round"/>`:mood==='happy'?`<path d="M25 44Q32 54 39 44Z" fill="#e8553d" stroke="${OL}" stroke-width="2.5" stroke-linejoin="round"/>`:`<path d="M27 45Q32 49 37 45" fill="none" stroke="${OL}" stroke-width="2.5" stroke-linecap="round"/>`;
+  return `<svg class="bear" viewBox="0 0 64 64" aria-hidden="true"><circle cx="13" cy="22" r="8" fill="#8a5a3b" stroke="${OL}" stroke-width="2.5"/><circle cx="51" cy="22" r="8" fill="#8a5a3b" stroke="${OL}" stroke-width="2.5"/><circle cx="32" cy="36" r="22" fill="#a36b45" stroke="${OL}" stroke-width="2.5"/><ellipse cx="32" cy="44" rx="11" ry="8" fill="#e9c9a4" stroke="${OL}" stroke-width="2"/><ellipse cx="32" cy="40" rx="4" ry="3" fill="${OL}"/>${mouth}<circle cx="23" cy="31" r="2.8" fill="${OL}"/><circle cx="41" cy="31" r="2.8" fill="${OL}"/><path d="M12 22Q32 2 52 22Z" fill="#4d8a40" stroke="${OL}" stroke-width="2.5" stroke-linejoin="round"/><rect x="8" y="20" width="48" height="5" rx="2.5" fill="#2f6b45" stroke="${OL}" stroke-width="2.5"/><circle cx="32" cy="13" r="3" fill="#f2cd5b" stroke="${OL}" stroke-width="1.5"/></svg>`;
+}
+function sceneSvg(){
+  const pine=(x,h,c)=>`<polygon points="${x},${200-h} ${x+h*.32},${200-h*.45} ${x+h*.18},${200-h*.45} ${x+h*.4},${200-h*.12} ${x-h*.4},${200-h*.12} ${x-h*.18},${200-h*.45} ${x-h*.32},${200-h*.45}" fill="${c}" stroke="${OL}" stroke-width="2.5" stroke-linejoin="round"/><rect x="${x-5}" y="${200-h*.12}" width="10" height="${h*.12}" fill="#8a5a3b" stroke="${OL}" stroke-width="2"/>`;
+  return `<svg class="scene-svg" viewBox="0 0 640 220" role="img" aria-label="營地插圖：帳篷、營火與松樹"><circle cx="540" cy="40" r="22" fill="#f3ecd9"/><circle cx="550" cy="34" r="20" fill="#0a1420"/>
+  <path d="M0 200Q120 150 240 185T460 170T640 195V220H0Z" fill="#12231a" stroke="${OL}" stroke-width="2.5"/>
+  ${pine(70,130,'#2f6b45')}${pine(130,100,'#3b7d52')}${pine(560,140,'#2f6b45')}${pine(610,95,'#3b7d52')}
+  <g transform="translate(160 118) scale(1.7)">${PROPS.tent}</g>
+  <g transform="translate(300 128) scale(1.5)">${PROPS.fire}</g>
+  <circle cx="348" cy="190" r="46" fill="#ff9a3c" opacity=".16"/>
+  <g transform="translate(420 140) scale(1.2)">${PROPS.backpack}</g>
+  <g transform="translate(470 146) scale(1.1)">${PROPS.lantern}</g>
+  <g transform="translate(248 150) scale(1.3)">${PROPS.thermos}</g></svg>`;
+}
+function stickSvg(state){
+  const f=state==='good'?'#e8a64a':state==='burnt'?'#3a2f2a':'#fff';
+  return `<svg class="prop stk" viewBox="0 0 64 64" aria-hidden="true"><line x1="6" y1="58" x2="48" y2="16" stroke="#8a5a3b" stroke-width="4" stroke-linecap="round"/><rect x="40" y="6" width="16" height="14" rx="5" fill="${f}" stroke="${OL}" stroke-width="2.5" transform="rotate(45 48 13)"/><rect x="32" y="14" width="16" height="14" rx="5" fill="${f}" stroke="${OL}" stroke-width="2.5" transform="rotate(45 40 21)"/></svg>`;
+}
+
 const $=s=>document.querySelector(s);
 const r2=x=>Math.round(x*100)/100;
 const pct=x=>x==null?'—':Math.round(x*100)+'%';
 
 /* ---------- 指標帳篷 ---------- */
 const METRICS=[
- {id:'dp',name:'比例帳',en:'Demographic Parity',line:'兩區拿到好營位的「比例」要一樣',
+ {icon:'balance',id:'dp',name:'天秤帳篷',en:'Demographic Parity',line:'兩區拿到好營位的「比例」要一樣',
   look:'各群體獲得正向預測的整體比例',when:'招聘、入學等重視結果平等的場景',lim:'不管實際資格，只追求比例相等，可能犧牲個案準確性',emoji:'⚖️'},
- {id:'eo',name:'機會帳',en:'Equal Opportunity',line:'有帶齊裝備的人，兩區被選中的機率要一樣',
+ {icon:'backpack',id:'eo',name:'背包帳篷',en:'Equal Opportunity',line:'有帶齊裝備的人，兩區被選中的機率要一樣',
   look:'真正該被選的人中，被正確選中的比例（TPR）',when:'醫療診斷、社會福利核准：不能漏掉真正需要的人',lim:'只看正例，沒管沒資格的人被誤放的比例',emoji:'🎒'},
- {id:'eodds',name:'均衡帳',en:'Equalized Odds',line:'被選中率（TPR）與誤放率（FPR）兩個都要一樣',
+ {icon:'lantern',id:'eodds',name:'提燈帳篷',en:'Equalized Odds',line:'被選中率（TPR）與誤放率（FPR）兩個都要一樣',
   look:'TPR 與 FPR 兩者在各群體都要一致',when:'司法判決、信用評估等敏感領域',lim:'最嚴格，實務難完全達成，可能犧牲整體效能',emoji:'🔦'},
- {id:'di',name:'八成帳',en:'Disparate Impact',line:'比例較低的營區 ÷ 比例較高的營區 ≥ 80%',
+ {icon:'thermos',id:'di',name:'水壺帳篷',en:'Disparate Impact',line:'比例較低的營區 ÷ 比例較高的營區 ≥ 80%',
   look:'群體間獲得正向結果的比例比值，低於 80% 可能構成間接歧視',when:'法律合規審查（招聘、公平貸款）',lim:'只看結果比例，看不出偏差從哪來',emoji:'📏'}
 ];
 const tentSvg='<svg viewBox="0 0 64 48" aria-hidden="true"><path d="M4 44 L32 6 L60 44Z" fill="#f2cd5b" opacity=".9"/><path d="M32 6 L32 44 L20 44Z" fill="#c9a43a"/><path d="M26 44 L32 26 L38 44Z" fill="#12231a"/></svg>';
 let focus='dp';
 function buildTents(){
-  $('#tents').innerHTML=METRICS.map(m=>`<button class="tent" data-id="${m.id}" aria-pressed="${m.id===focus}">${tentSvg}<h3>${m.emoji} ${m.name}</h3><div class="en">${m.en}</div><p>${m.line}</p></button>`).join('');
+  $('#tents').innerHTML=METRICS.map(m=>`<button class="tent" data-id="${m.id}" aria-pressed="${m.id===focus}">${P(m.icon)}<h3>${m.name}</h3><div class="en">${m.en}</div><p>${m.line}</p></button>`).join('');
   document.querySelectorAll('.tent').forEach(b=>b.onclick=()=>{focus=b.dataset.id;buildTents();renderFocus();render();});
 }
 function renderFocus(){
   const m=METRICS.find(x=>x.id===focus);
-  $('#focusBox').innerHTML=`<b>${m.emoji} ${m.name}｜${m.en}</b><dl><dt>比較什麼</dt><dd>${m.look}</dd><dt>適用</dt><dd>${m.when}</dd><dt>限制</dt><dd>${m.lim}</dd></dl>`;
+  $('#focusBox').innerHTML=`<b>${P(m.icon,30)} ${m.name}｜${m.en}</b><dl><dt>比較什麼</dt><dd>${m.look}</dd><dt>適用</dt><dd>${m.when}</dd><dt>限制</dt><dd>${m.lim}</dd></dl>`;
 }
 
 /* ---------- 營區操作 ---------- */
@@ -292,17 +361,17 @@ function stats(arr){
   return {ppr:(QA+UA)/arr.length,tpr:Q?QA/Q:null,fpr:U?UA/U:null,Q,U};
 }
 function buildPresets(){
-  $('#presets').innerHTML=Object.entries(PRESETS).map(([k,p])=>`<button class="b" data-k="${k}">${p.name}</button>`).join('')+'<button class="b" id="rand">🎲 隨機分配</button>';
+  $('#presets').innerHTML=Object.entries(PRESETS).map(([k,p])=>`<button class="b" data-k="${k}">${p.name}</button>`).join('')+'<button class="b" id="rand">'+P('compass',22)+'隨機分配</button>';
   document.querySelectorAll('#presets [data-k]').forEach(b=>b.onclick=()=>{const p=PRESETS[b.dataset.k];state={A:parse(p.A),B:parse(p.B)};render();});
   $('#rand').onclick=()=>{const rnd=()=>Array.from({length:10},()=>ORDER[Math.floor(Math.random()*4)]);state={A:rnd(),B:rnd()};render();};
 }
 function campHtml(key,title){
-  const chips=state[key].map((s,i)=>`<button class="chip ${s[0]} ${s[1]}" data-k="${key}" data-i="${i}" aria-label="${title}第${i+1}位：${s[0]==='Q'?'有資格':'無資格'}，${s[1]==='A'?'已核准':'未核准'}">${s[0]==='Q'?'🎒':'🥾'}${s[1]==='A'?'<span class="fl">🔥</span>':''}</button>`).join('');
+  const chips=state[key].map((s,i)=>`<button class="chip ${s[0]} ${s[1]}" data-k="${key}" data-i="${i}" aria-label="${title}第${i+1}位：${s[0]==='Q'?'有資格':'無資格'}，${s[1]==='A'?'已核准':'未核准'}">${s[0]==='Q'?P('backpack'):P('boots')}${s[1]==='A'?'<span class="fl">'+P('fire')+'</span>':''}</button>`).join('');
   const st=stats(state[key]);
   return `<div class="card camp"><h3>${title}</h3><div class="mini">好營位 ${Math.round(st.ppr*10)}／10 位｜有資格 ${st.Q} 位｜無資格 ${st.U} 位</div><div class="chips">${chips}</div></div>`;
 }
 function render(){
-  $('#camps').innerHTML=campHtml('A','🌲 A 營區')+campHtml('B','🌊 B 營區');
+  $('#camps').innerHTML=campHtml('A',P('pine',26)+' A 營區')+campHtml('B',P('tent',26)+' B 營區');
   document.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{
     const arr=state[b.dataset.k],i=+b.dataset.i;arr[i]=ORDER[(ORDER.indexOf(arr[i])+1)%4];render();});
   const a=stats(state.A),b=stats(state.B);
@@ -315,19 +384,19 @@ function render(){
   const eoddsOk=(eoOk==null||fpOk==null)?null:(eoOk&&fpOk);
   const diOk=ratio==null?null:ratio>=0.8;
   const rows=[
-   ['dp','比例帳','好營位比例',pct(a.ppr),pct(b.ppr),dpD==null?'—':'差 '+Math.round(dpD*100)+' 點',lamp(dpOk)],
-   ['eo','機會帳','有資格者被選中率 TPR',pct(a.tpr),pct(b.tpr),eoD==null?'—':'差 '+Math.round(eoD*100)+' 點',lamp(eoOk)],
-   ['eodds','均衡帳','無資格者誤放率 FPR（另需 TPR 一致）',pct(a.fpr),pct(b.fpr),fpD==null?'—':'FPR 差 '+Math.round(fpD*100)+' 點',lamp(eoddsOk)],
-   ['di','八成帳','好營位比例的比值（低÷高）',pct(a.ppr),pct(b.ppr),ratio==null?'—':ratio.toFixed(2),ratio==null?lamp(null):(diOk?'<span class="lamp ok">✔ 達 0.8</span>':'<span class="lamp bad">⚠ 低於 0.8</span>')]
+   ['dp','天秤帳篷','好營位比例',pct(a.ppr),pct(b.ppr),dpD==null?'—':'差 '+Math.round(dpD*100)+' 點',lamp(dpOk)],
+   ['eo','背包帳篷','有資格者被選中率 TPR',pct(a.tpr),pct(b.tpr),eoD==null?'—':'差 '+Math.round(eoD*100)+' 點',lamp(eoOk)],
+   ['eodds','提燈帳篷','無資格者誤放率 FPR（另需 TPR 一致）',pct(a.fpr),pct(b.fpr),fpD==null?'—':'FPR 差 '+Math.round(fpD*100)+' 點',lamp(eoddsOk)],
+   ['di','水壺帳篷','好營位比例的比值（低÷高）',pct(a.ppr),pct(b.ppr),ratio==null?'—':ratio.toFixed(2),ratio==null?lamp(null):(diOk?'<span class="lamp ok">✔ 達 0.8</span>':'<span class="lamp bad">⚠ 低於 0.8</span>')]
   ];
   $('#board tbody').innerHTML=rows.map(r=>`<tr class="${r[0]===focus?'hl':''}"><td><b>${r[1]}</b></td><td>${r[2]}</td><td class="num">${r[3]}</td><td class="num">${r[4]}</td><td class="num">${r[5]}</td><td>${r[6]}</td></tr>`).join('');
   const txt=[];
-  if(dpOk&&!eoOk&&eoOk!=null) txt.push('比例一樣，但真正有資格的人被漏掉的機會不同：Demographic Parity 看不出這個問題。');
-  if(eoOk&&dpOk===false) txt.push('有資格者的被選中率一致，但整體比例不同：因為兩區有資格的人本來就不一樣多，Equal Opportunity 不要求比例相等。');
-  if(eoOk&&!fpOk&&fpOk!=null) txt.push('TPR 一致卻有人被誤放得比較多：Equal Opportunity 通過、Equalized Odds 未過。');
-  if(ratio!=null&&!diOk) txt.push('比例較低的營區只有另一區的 '+Math.round(ratio*100)+'%，進入合規審查的警戒區。');
-  if(!txt.length) txt.push(eoddsOk?'兩區的被選中率與誤放率都接近，這是最嚴格的 Equalized Odds 也通過的狀態。':'點選露營者改變結果，觀察哪一行跟著變色。');
-  $('#verdict').innerHTML=txt.map(t=>`<div>💡 ${t}</div>`).join('');
+  if(dpOk&&!eoOk&&eoOk!=null) txt.push('熊：「兩區我都給一半，很公平吧？」有帶齊裝備卻被漏掉的人：「……」（Demographic Parity 看不出這個問題）');
+  if(eoOk&&dpOk===false) txt.push('有帶裝備的人機會一樣，但好營位比例不同。因為兩區有資格的人本來就不一樣多，Equal Opportunity 不要求比例相等。');
+  if(eoOk&&!fpOk&&fpOk!=null) txt.push('有裝備的人都被照顧到了，但某區沒帶裝備的人也混進營火旁。Equal Opportunity 過關、Equalized Odds 被打槍。');
+  if(ratio!=null&&!diOk) txt.push('水壺只裝到 '+Math.round(ratio*100)+'%，低於八成水位線，合規審查會來敲帳篷。');
+  if(!txt.length) txt.push(eoddsOk?'熊管理員滿意地點頭：被選中率與誤放率都接近，最嚴格的 Equalized Odds 也過了。':'點選露營者改變結果，觀察哪一行跟著變色。');
+  $('#verdict').innerHTML=txt.map(t=>`<div>${P('lantern',26)} ${t}</div>`).join('');
 }
 
 /* ---------- 去偏三階段 ---------- */
@@ -345,9 +414,10 @@ const STAGES=[
   ['結果門檻調整 Threshold Adjustment','模型出分數後，針對不同群體調整正向預測的閾值。直接改變判斷標準。','改「尺」：某群體核准門檻從 60 降到 55。','司法風險評估調整不同族群的判斷閾值，使錯誤率公平。'],
   ['結果校準 Calibration','針對不同群體重新校準預測分數，讓同一分數在不同群體代表相同意義。不改門檻，改分數。','改「秤」：某群體的分數從 60 重新校準成 65。','信用評分在男女族群分別校準，避免同分卻待遇不同。']]}
 ];
+const MI={'資料重新':'balance','特徵去偏':'axe','資料匿名':'map','公平性約':'compass','對抗式去':'binoculars','公平性正':'lantern','結果門檻':'ruler','結果校準':'hangscale'};
 function buildStages(){
   STAGES.forEach((s,i)=>{
-    $('#stage'+i).innerHTML=`<p class="mini"><span class="tag">時機</span>${s.when}</p><div class="grid g2">`+s.methods.map(m=>`<div class="method"><h4>${m[0]}</h4><p>${m[1]}</p><p class="camp-say">⛺ ${m[2]}</p><p class="mini">例：${m[3]}</p></div>`).join('')+'</div>'+(s.warn?`<div class="note">${s.warn}</div>`:'');
+    $('#stage'+i).innerHTML=`<p class="mini"><span class="tag">時機</span>${s.when}</p><div class="grid g2">`+s.methods.map(m=>`<div class="method"><h4>${P(MI[m[0].slice(0,4)],34)} ${m[0]}</h4><p>${m[1]}</p><p class="camp-say">⛺ ${m[2]}</p><p class="mini">例：${m[3]}</p></div>`).join('')+'</div>'+(s.warn?`<div class="note">${s.warn}</div>`:'');
   });
 }
 
@@ -373,7 +443,7 @@ function sim(){
   }
   const a=draw('#rowA',SC.A,thrA,0,'#statA'),b=draw('#rowB',SC.B,thrB,off,'#statB');
   let msg=mode==='T'?'門檻調整：改的是「判斷標準」，分數本身不變。':'結果校準：門檻不動，改的是「分數」，讓同分在不同群體代表一樣的意義。';
-  if(b.fp>0) msg+=' 紅色代表沒資格卻被核准：補償過頭，會產生新的誤放。';
+  if(b.fp>0) msg+=' 紅色代表沒資格卻被核准：補償過頭，營火邊擠進沒帶裝備的人。';
   else if(b.tp<a.tp) msg+=' B 營區還有有資格的人被漏掉，可以再調整。';
   else msg+=' 兩區的 TPR 已經拉平。';
   $('#simNote').textContent=msg;
@@ -391,14 +461,22 @@ const QUIZ=[
  {q:'工程師在訓練目標函數中，額外加入一項「各群體錯誤率差距」的懲罰。這屬於哪個階段與方法？',o:['備料階段的特徵去偏處理，移除高相關的敏感特徵','煮食階段的公平性正規化，加入額外的公平性損失項','煮食階段的對抗式去偏，同時訓練一個猜性別的網路','上菜階段的結果校準，讓同一分數在各群體意義相同'],a:1,e:'在目標函數加公平性損失項，就是中處理的公平性正規化。對抗式去偏是另外訓練一個猜敏感特徵的網路。'},
  {q:'某模型門檻不變，但把 B 群體的 60 分重新校準成 65 分，讓同分在兩群體代表相同意義。這是？',o:['結果校準，改的是分數，不是判斷標準','結果門檻調整，改的是判斷標準，不是分數','對抗式去偏，讓主模型無法推斷敏感特徵','資料重新抽樣，讓各群體的資料分佈更均衡'],a:0,e:'門檻不動、改分數，是結果校準。口訣：門檻調整是改尺，校準是改秤。'}
 ];
-let answered=0,correct=0;
+let answered=0,correct=0,results=[];
+const GOOD=['金黃酥脆！熊給你一顆。','答對！營火都亮了一點。','漂亮，熊偷偷記下來了。'];
+const BAD=['焦了焦了……但失敗是最好的調味料。','哎呀！這顆交給熊吃，你再烤一次。','沒關係，錯過一次就不會錯第二次。'];
+function drawMs(r,pop){
+  $('#ms').innerHTML=QUIZ.map((_,i)=>`<span class="${i===pop?'pop':''}">${stickSvg(r[i]||'')}</span>`).join('')+(r.filter(Boolean).length===QUIZ.length?`<span class="rank">${rankOf(r)}</span>`:'');
+}
+function rankOf(r){const g=r.filter(x=>x==='good').length;return g===QUIZ.length?'營火大師！棉花糖全金黃':g>=4?'資深露營者，只焦了一點點':'新手露營者，再烤一輪就熟了';}
+
 function buildQuiz(){
-  answered=0;correct=0;
+  results=[];answered=0;correct=0;setSay('烤棉花糖時間！答對烤得金黃，答錯……會有焦味。','','#p12');drawMs([]);
   $('#quizBox').innerHTML=QUIZ.map((x,qi)=>`<div class="card qz" id="q${qi}"><h3>Q${qi+1}. ${x.q}</h3><div class="opts">${x.o.map((t,oi)=>`<button data-q="${qi}" data-o="${oi}">${'ABCD'[oi]}. ${t}</button>`).join('')}</div><div class="exp" hidden></div></div>`).join('');
   document.querySelectorAll('.opts button').forEach(b=>b.onclick=()=>{
     const qi=+b.dataset.q,oi=+b.dataset.o,x=QUIZ[qi],box=$('#q'+qi);
     box.querySelectorAll('button').forEach((bb,i)=>{bb.disabled=true;if(i===x.a)bb.classList.add('right');});
     if(oi===x.a)correct++;else b.classList.add('wrong');
+    results[qi]=oi===x.a?'good':'burnt';drawMs(results,qi);setSay(oi===x.a?GOOD[qi%GOOD.length]:BAD[qi%BAD.length],oi===x.a?'happy':'sad');
     answered++;
     const ex=box.querySelector('.exp');ex.hidden=false;ex.textContent=(oi===x.a?'✔ 答對了。':'✘ 正確答案是 '+'ABCD'[x.a]+'。')+x.e;
     $('#score').textContent=`　目前 ${correct}／${answered}`;
@@ -411,6 +489,10 @@ $('#quizReset').onclick=buildQuiz;
 function toggleSp(){const on=document.body.classList.toggle('sp');$('#spBtn').setAttribute('aria-pressed',on);}
 $('#spBtn').onclick=toggleSp;
 document.addEventListener('keydown',e=>{if((e.key==='n'||e.key==='N')&&!/INPUT|TEXTAREA/.test(e.target.tagName))toggleSp();});
+function setSay(t,mood,sel){const m=document.querySelector((sel||'.slide:not([hidden])')+' .mascot');if(!m)return;m.querySelector('.bubble').textContent=t;m.querySelector('.bw').innerHTML=bearSvg(mood||'');}
+document.querySelectorAll('.slide').forEach(sl=>{const m=document.createElement('div');m.className='mascot';m.innerHTML='<span class="bw">'+bearSvg('')+'</span><div class="bubble">'+sl.dataset.say+'</div>';sl.querySelector('.slide-in').prepend(m);});
+document.querySelectorAll('[data-prop]').forEach(e=>{e.innerHTML=P(e.dataset.prop,e.dataset.s);});
+document.querySelectorAll('[data-scene]').forEach(e=>{e.innerHTML=sceneSvg();});
 const slides=[...document.querySelectorAll('.slide')];
 const stage=$('#stage'),dots=$('#dots'),where=$('#where'),prev=$('#prev'),next=$('#next');
 slides.forEach((s,i)=>{const d=document.createElement('button');d.type='button';d.setAttribute('aria-label','第 '+(i+1)+' 頁：'+s.dataset.name);d.onclick=()=>go(i);dots.appendChild(d);});
@@ -420,6 +502,7 @@ function go(i){
   slides.forEach((s,k)=>{s.hidden=k!==i;s.classList.remove('enter');});
   void slides[i].offsetWidth;slides[i].classList.add('enter');
   idx=i;stage.scrollTop=0;
+  $('#fm').innerHTML=P('fire',16+Math.round(18*i/(slides.length-1)));
   [...dots.children].forEach((d,k)=>d.setAttribute('aria-current',String(k===i)));
   where.textContent=(i+1)+'/'+slides.length+'　'+slides[i].dataset.name;
   prev.disabled=i===0;next.disabled=i===slides.length-1;
