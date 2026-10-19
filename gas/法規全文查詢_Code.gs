@@ -92,13 +92,18 @@ function fetchSingleArticle(pcode, flno) {
   }
   const html = res.getContentText();
   const name = matchOne(html, /<a id="hlLawName"[^>]*>([^<]+)<\/a>/) || matchOne(html, /<title>\s*([^<]+?)-全國法規資料庫/);
-  const raw = matchOne(html, /<div class="col-data"><div class="law-article">([\s\S]*?)<\/div>\s*<\/div><\/div>/);
-  if (!raw) throw new Error('查無此條號（pcode=' + pcode + ', flno=' + flno + '）');
+
+  const startIdx = html.indexOf('law-article');
+  if (startIdx === -1) throw new Error('查無此條號（pcode=' + pcode + ', flno=' + flno + '）');
+  const endIdx = html.indexOf('clearfix', startIdx);
+  const segment = html.slice(startIdx, endIdx === -1 ? html.length : endIdx);
+  const text = extractLines(segment);
+  if (!text) throw new Error('查無此條號（pcode=' + pcode + ', flno=' + flno + '）');
 
   return {
     pcode,
     name: name ? name.trim() : '',
-    article: { no: flno, text: extractLines(raw) },
+    article: { no: flno, text },
     sourceUrl: url,
   };
 }

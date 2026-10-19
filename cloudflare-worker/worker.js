@@ -20,22 +20,67 @@ const LAW_BASE = 'https://law.moj.gov.tw/LawClass/';
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET,OPTIONS',
+  'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
   'Content-Type': 'application/json; charset=utf-8',
 };
 
+const IMAGE_TTL_SECONDS = 21600; // 6小時
+
 export default {
-  async fetch(request) {
+  async fetch(request, env) {
     if (request.method === 'OPTIONS') {
       return new Response(null, { headers: CORS_HEADERS });
     }
 
     const url = new URL(request.url);
+
+    // ── 圖片：上傳（POST /upload，body: {data, mimeType}）──
+    if (request.method === 'POST' && url.pathname === '/upload') {
+      try {
+        const body = await request.json();
+        if (!body.data) throw new Error('缺少圖片資料');
+        const id = crypto.randomUUID();
+        await env.IMAGES.put(id, body.data, {
+          expirationTtl: IMAGE_TTL_SECONDS,
+          metadata: { mimeType: body.mimeType || 'image/png' },
+        });
+        return json({ ok: true, url: `${url.origin}/img/${id}` });
+      } catch (err) {
+        return json({ ok: false, error: err.message });
+      }
+    }
+
+    // ── 圖片：讀取（GET /img/{id}）──
+    if (request.method === 'GET' && url.pathname.startsWith('/img/')) {
+      const id = url.pathname.replace('/img/', '');
+      const stored = await env.IMAGES.getWithMetadata(id);
+      if (!stored.value) {
+        return new Response('Not found', { status: 404, headers: CORS_HEADERS });
+      }
+      const mimeType = (stored.metadata && stored.metadata.mimeType) || 'image/png';
+      const bytes = base64ToBytes(stored.value);
+      return new Response(bytes, {
+        headers: { 'Content-Type': mimeType, 'Access-Control-Allow-Origin': '*' },
+      });
+    }
+
+    const lat = url.searchParams.get('lat');
+    const lon = url.searchParams.get('lon');
+
+    if (lat && lon) {
+      try {
+        const data = await reverseGeocode(lat, lon);
+        return json({ ok: true, ...data });
+      } catch (err) {
+        return json({ ok: false, error: err.message });
+      }
+    }
+
     const pcode = (url.searchParams.get('pcode') || '').trim();
     const flno = (url.searchParams.get('flno') || '').trim();
 
     if (!pcode) {
-      return json({ ok: false, error: '缺少 pcode 參數' });
+      return json({ ok: false, error: '缺少 pcode 參數（法規查詢）或 lat/lon 參數（定位查詢）' });
     }
 
     try {
@@ -46,6 +91,28 @@ export default {
     }
   },
 };
+
+function base64ToBytes(base64) {
+  const binString = atob(base64);
+  const bytes = new Uint8Array(binString.length);
+  for (let i = 0; i < binString.length; i++) {
+    bytes[i] = binString.charCodeAt(i);
+  }
+  return bytes;
+}
+
+// ── GPS 反查所在縣市 ──────────────────────────────────
+async function reverseGeocode(lat, lon) {
+  const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&accept-language=zh-TW`;
+  const res = await fetch(url, {
+    headers: { 'User-Agent': 'OscarSecretaryBot/1.0 (contact: oscarclon1112@gmail.com)' },
+  });
+  if (!res.ok) throw new Error('定位服務連線失敗（HTTP ' + res.status + '）');
+  const data = await res.json();
+  const address = data.address || {};
+  const city = address.city || address.county || null;
+  return { city };
+}
 
 function json(obj) {
   return new Response(JSON.stringify(obj), { headers: CORS_HEADERS });
@@ -83,13 +150,18 @@ async function fetchSingleArticle(pcode, flno) {
 
   const name = matchOne(html, /<a id="hlLawName"[^>]*>([^<]+)<\/a>/)
     || matchOne(html, /<title>\s*([^<]+?)-全國法規資料庫/);
-  const raw = matchOne(html, /<div class="col-data"><div class="law-article">([\s\S]*?)<\/div>\s*<\/div><\/div>/);
-  if (!raw) throw new Error('查無此條號（pcode=' + pcode + ', flno=' + flno + '）');
+
+  const startIdx = html.indexOf('law-article');
+  if (startIdx === -1) throw new Error('查無此條號（pcode=' + pcode + ', flno=' + flno + '）');
+  const endIdx = html.indexOf('clearfix', startIdx);
+  const segment = html.slice(startIdx, endIdx === -1 ? html.length : endIdx);
+  const text = extractLines(segment);
+  if (!text) throw new Error('查無此條號（pcode=' + pcode + ', flno=' + flno + '）');
 
   return {
     pcode,
     name: name ? name.trim() : '',
-    article: { no: flno, text: extractLines(raw) },
+    article: { no: flno, text },
     sourceUrl: url,
   };
 }
