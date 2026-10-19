@@ -295,12 +295,10 @@ tr:hover td{background:var(--bg3)}
 <div class="overlay" id="login-modal">
   <div class="modal">
     <h2>🔐 管理者登入</h2>
-    <p>請輸入帳號與密碼以存取編輯功能</p>
-    <label>帳號（Email）</label>
-    <input type="email" id="email-input" placeholder="your@email.com" onkeydown="if(event.key==='Enter')document.getElementById('pw-input').focus()">
-    <label style="margin-top:10px">密碼</label>
+    <p>請輸入存取密碼以啟用編輯與雲端同步</p>
+    <label>存取密碼</label>
     <input type="password" id="pw-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
-    <div class="err" id="pw-err">❌ 帳號或密碼錯誤，請再試一次</div>
+    <div class="err" id="pw-err">❌ 存取密碼錯誤，請再試一次</div>
     <div class="btn-row">
       <button class="btn btn-g" onclick="closeLogin()">取消</button>
       <button class="btn btn-p" onclick="doLogin()">登入</button>
@@ -391,13 +389,26 @@ tr:hover td{background:var(--bg3)}
 const GAS_URL = ''; // 示範版未串接後端 API，請填入你自己的 GAS Web App 網址
 
 // ═══════════════════════════════════════════════════════
-// Supabase 雲端設定
+// 雲端同步設定（Google Sheets + GAS，取代原本的 Supabase）
+// 部署方式見 gas/法規登記後端_Code.gs 檔頭說明；部署後把網址貼到 SYNC_URL。
+// 存取密碼不寫在這裡：每次「管理者登入」時手動輸入，只存在這個分頁的記憶體裡。
 // ═══════════════════════════════════════════════════════
-const SUPABASE_URL = 'https://kalaeubsgfyvhecyyuti.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthbGFldWJzZ2Z5dmhlY3l5dXRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU4MzYxMTUsImV4cCI6MjEwMTQxMjExNX0.He3dV1_KMcdao5dQN7VLjppdy8E2kclbWwuXYA5yYr0';
-let COMPANY_ID = null; // 登入後從 JWT user_metadata 動態取得
+const SYNC_URL = 'https://script.google.com/macros/s/AKfycbyPSyz1qfRt0TOtg4BwhD_rI6czmM4MzJZhHDgy56nQxJPZIL2RjaAcG0yWpvrhfRFN3w/exec'; // 法規登記後端網頁應用程式網址（不是機密：沒有存取密碼什麼都讀不到）
+const COMPANY_ID = 'oscar';
 const LAW_DATA_KEY = 'law_data_v1';
-let SESSION_TOKEN = null; // 登入後存放 Supabase user JWT
+let API_TOKEN = null; // 登入後暫存的存取密碼（不寫入 localStorage）
+
+// 呼叫 GAS 後端。用 text/plain 送出，避免瀏覽器的跨網域預檢（preflight）失敗。
+async function cloudCall(action, extra) {
+  if (!SYNC_URL) throw new Error('尚未設定雲端同步網址（SYNC_URL）');
+  const res = await fetch(SYNC_URL, {
+    method: 'POST',
+    headers: {'Content-Type': 'text/plain;charset=utf-8'},
+    body: JSON.stringify(Object.assign({action, token: API_TOKEN, company_id: COMPANY_ID}, extra || {}))
+  });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  return res.json();
+}
 
 // ═══════════════════════════════════════════════════════
 // 產業別標籤（跟法規白話文轉換工具共用同一套代碼）
@@ -554,7 +565,7 @@ async function sha256(str) {
 }
 
 // ═══════════════════════════════════════════════════════
-// 資料持久化：localStorage + Supabase 雲端
+// 資料持久化：localStorage + Google Sheets 雲端
 // ═══════════════════════════════════════════════════════
 function saveLocal(){
   const toSave={};
@@ -562,44 +573,37 @@ function saveLocal(){
   try{localStorage.setItem(LAW_DATA_KEY,JSON.stringify(toSave));}catch(e){}
 }
 
-async function supabaseSave(){
-  if(!SESSION_TOKEN){toast('⚠ 請先登入管理者才能同步');return;}
-  const sbHeaders={
-    'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SESSION_TOKEN,
-    'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'
-  };
+async function cloudSave(){
+  if(!API_TOKEN){toast('⚠ 請先登入管理者才能同步');return;}
   const records=[];
   Object.keys(DATA).forEach(cat=>{
     DATA[cat].rows.forEach(row=>{
       records.push({
-        company_id:COMPANY_ID,category:cat,law_code:row.p||'',
+        category:cat,law_code:row.p||'',
         law_name:row.n||'',pub_date:row.pub||null,mod_date:row.mod||null,
         applicable:row.a||'Y',industry:row.ind||[],status:row.status||null,
-        reason:row.reason||null,review_date:row.r||null,next_review:row.c||null,
-        updated_at:new Date().toISOString()
+        reason:row.reason||null,review_date:row.r||null,next_review:row.c||null
       });
     });
   });
   try{
-    const res=await fetch(`${SUPABASE_URL}/rest/v1/law_records?on_conflict=company_id,category,law_code`,
-      {method:'POST',headers:sbHeaders,body:JSON.stringify(records)});
-    if(res.ok)toast('☁ 已同步至雲端');
-    else{const err=await res.text();toast('⚠ 雲端同步失敗：'+err);}
+    const out=await cloudCall('save',{records});
+    if(out.ok)toast('☁ 已同步至雲端');
+    else toast('⚠ 雲端同步失敗：'+(out.error||'未知錯誤'));
   }catch(e){toast('⚠ 雲端連線錯誤：'+e.message);}
 }
 
-function saveAll(){saveLocal();supabaseSave();}
+function saveAll(){saveLocal();if(API_TOKEN)cloudSave();}
 
-async function supabaseLoad(){
-  const sbHeaders={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SESSION_TOKEN};
+async function cloudLoad(){
   try{
-    const res=await fetch(`${SUPABASE_URL}/rest/v1/law_records?company_id=eq.${COMPANY_ID}&select=*`,{headers:sbHeaders});
-    if(!res.ok){toast('⚠ 雲端載入失敗：'+res.status);return;}
-    const rows=await res.json();
-    if(!rows.length){toast('☁ 雲端首次使用，自動同步本地資料...');await supabaseSave();return;}
+    const out=await cloudCall('load');
+    if(!out.ok){toast('⚠ 雲端載入失敗：'+(out.error||'未知錯誤'));return;}
+    const rows=out.records||[];
+    if(!rows.length){toast('☁ 雲端首次使用，自動同步本地資料...');await cloudSave();return;}
     // 若雲端筆數少於本機，補推完整資料
     const localCount=Object.values(DATA).reduce((s,c)=>s+c.rows.length,0);
-    if(rows.length<localCount){await supabaseSave();}
+    if(rows.length<localCount){await cloudSave();}
     const grouped={};
     rows.forEach(r=>{
       if(!grouped[r.category])grouped[r.category]={};
@@ -722,6 +726,7 @@ function sortBy(c) {
 function toggleAdmin() {
   if (isAdmin) {
     isAdmin = false;
+    API_TOKEN = null;
     applyAdminUI();
     toast('👋 已登出管理者模式');
   } else {
@@ -731,34 +736,29 @@ function toggleAdmin() {
 }
 
 async function doLogin() {
-  const email = document.getElementById('email-input').value.trim();
-  const pw = document.getElementById('pw-input').value;
+  const pw = document.getElementById('pw-input').value.trim();
   const btn = document.querySelector('#login-modal .btn-p');
+  if (!pw) { document.getElementById('pw-err').style.display = 'block'; return; }
   btn.disabled = true;
+  API_TOKEN = pw;
   try {
-    const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
-      method: 'POST',
-      headers: {'apikey': SUPABASE_KEY, 'Content-Type': 'application/json'},
-      body: JSON.stringify({email, password: pw})
-    });
-    if (res.ok) {
-      const data = await res.json();
-      SESSION_TOKEN = data.access_token;
-      COMPANY_ID = data.user?.user_metadata?.company_id || null;
-      if (!COMPANY_ID) { toast('⚠ 此帳號尚未設定公司代碼，請聯絡系統管理員'); btn.disabled=false; return; }
+    const out = await cloudCall('ping');
+    if (out.ok) {
       isAdmin = true;
-      document.getElementById('email-input').value = '';
       document.getElementById('pw-input').value = '';
       document.getElementById('pw-err').style.display = 'none';
       document.getElementById('login-modal').classList.remove('show');
       applyAdminUI();
       toast('🔓 管理者模式已啟用');
-      supabaseLoad();
+      cloudLoad();
     } else {
+      API_TOKEN = null;
       document.getElementById('pw-err').style.display = 'block';
       document.getElementById('pw-input').select();
     }
   } catch(e) {
+    API_TOKEN = null;
+    document.getElementById('pw-err').textContent = '❌ ' + e.message;
     document.getElementById('pw-err').style.display = 'block';
   } finally {
     btn.disabled = false;
@@ -767,7 +767,6 @@ async function doLogin() {
 
 function closeLogin() {
   document.getElementById('login-modal').classList.remove('show');
-  document.getElementById('email-input').value = '';
   document.getElementById('pw-input').value = '';
   document.getElementById('pw-err').style.display = 'none';
 }
