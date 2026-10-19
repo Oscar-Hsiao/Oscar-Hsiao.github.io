@@ -219,6 +219,9 @@ tr:hover td{background:var(--bg3)}
     <button class="btn btn-r" onclick="resetAll()">
       ↺ 還原預設
     </button>
+    <button class="btn btn-g" id="btn-cloud" onclick="openCloudModal()">
+      ☁ 連接雲端
+    </button>
   </div>
 
   <!-- 一般使用者：只能匯出 -->
@@ -295,13 +298,28 @@ tr:hover td{background:var(--bg3)}
 <div class="overlay" id="login-modal">
   <div class="modal">
     <h2>🔐 管理者登入</h2>
-    <p>請輸入存取密碼以啟用編輯與雲端同步</p>
-    <label>存取密碼</label>
+    <p>請輸入管理者密碼以啟用編輯功能</p>
+    <label>管理者密碼</label>
     <input type="password" id="pw-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
-    <div class="err" id="pw-err">❌ 存取密碼錯誤，請再試一次</div>
+    <div class="err" id="pw-err">❌ 管理者密碼錯誤，請再試一次</div>
     <div class="btn-row">
       <button class="btn btn-g" onclick="closeLogin()">取消</button>
       <button class="btn btn-p" onclick="doLogin()">登入</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CLOUD MODAL（連接雲端：另外輸入後端存取密碼）═══ -->
+<div class="overlay" id="cloud-modal">
+  <div class="modal">
+    <h2>☁ 連接雲端</h2>
+    <p>輸入「後端存取密碼」，把資料同步到 Google 試算表。密碼只存在這個分頁的記憶體，重新整理或登出後要再輸入一次。</p>
+    <label>後端存取密碼</label>
+    <input type="password" id="cloud-pw-input" placeholder="••••••••" autocomplete="off" onkeydown="if(event.key==='Enter')doConnectCloud()">
+    <div class="err" id="cloud-err">❌ 存取密碼錯誤，請再試一次</div>
+    <div class="btn-row">
+      <button class="btn btn-g" onclick="closeCloud()">取消</button>
+      <button class="btn btn-p" id="cloud-go" onclick="doConnectCloud()">連接</button>
     </div>
   </div>
 </div>
@@ -391,7 +409,9 @@ const GAS_URL = ''; // 示範版未串接後端 API，請填入你自己的 GAS 
 // ═══════════════════════════════════════════════════════
 // 雲端同步設定（Google Sheets + GAS，取代原本的 Supabase）
 // 部署方式見 gas/法規登記後端_Code.gs 檔頭說明；部署後把網址貼到 SYNC_URL。
-// 存取密碼不寫在這裡：每次「管理者登入」時手動輸入，只存在這個分頁的記憶體裡。
+// 存取密碼不寫在這裡：管理者登入後，按「☁ 連接雲端」另外輸入，只存在這個分頁的記憶體裡。
+// 管理者密碼（示範站公開的 demo1234）只用來切換編輯權限，程式內只存雜湊值，與雲端存取密碼是兩把不同的鑰匙。
+const ADMIN_HASH = '0ead2060b65992dca4769af601a1b3a35ef38cfad2c2c465bb160ea764157c5d'; // SHA-256 of demo1234
 // ═══════════════════════════════════════════════════════
 const SYNC_URL = 'https://script.google.com/macros/s/AKfycbyPSyz1qfRt0TOtg4BwhD_rI6czmM4MzJZhHDgy56nQxJPZIL2RjaAcG0yWpvrhfRFN3w/exec'; // 法規登記後端網頁應用程式網址（不是機密：沒有存取密碼什麼都讀不到）
 const COMPANY_ID = 'oscar';
@@ -735,34 +755,78 @@ function toggleAdmin() {
   }
 }
 
+async function sha256Hex(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// 管理者登入：只在本機比對雜湊，不連後端。登入後可編輯；要同步雲端另外按「☁ 連接雲端」
 async function doLogin() {
   const pw = document.getElementById('pw-input').value.trim();
-  const btn = document.querySelector('#login-modal .btn-p');
-  if (!pw) { document.getElementById('pw-err').style.display = 'block'; return; }
-  btn.disabled = true;
+  const err = document.getElementById('pw-err');
+  if (!pw) { err.style.display = 'block'; return; }
+  let ok = false;
+  try { ok = (await sha256Hex(pw)) === ADMIN_HASH; } catch (e) { err.textContent = '❌ 此瀏覽器不支援登入驗證（需要 https 網址）'; err.style.display = 'block'; return; }
+  if (ok) {
+    isAdmin = true;
+    document.getElementById('pw-input').value = '';
+    err.style.display = 'none';
+    document.getElementById('login-modal').classList.remove('show');
+    applyAdminUI();
+    toast('🔓 管理者模式已啟用（資料只存在這個瀏覽器；要同步到雲端請按「☁ 連接雲端」）', 5000);
+  } else {
+    err.textContent = '❌ 管理者密碼錯誤，請再試一次';
+    err.style.display = 'block';
+    document.getElementById('pw-input').select();
+  }
+}
+
+// ── 連接雲端：另外輸入後端存取密碼，用 ping 驗證，成功才載入／同步 ──
+function openCloudModal() {
+  if (!isAdmin) return;
+  if (API_TOKEN) { toast('☁ 已經連接雲端了（登出管理者會中斷連線）'); return; }
+  document.getElementById('cloud-modal').classList.add('show');
+  setTimeout(() => document.getElementById('cloud-pw-input').focus(), 100);
+}
+function closeCloud() {
+  document.getElementById('cloud-modal').classList.remove('show');
+  document.getElementById('cloud-pw-input').value = '';
+  document.getElementById('cloud-err').style.display = 'none';
+}
+async function doConnectCloud() {
+  const pw = document.getElementById('cloud-pw-input').value.trim();
+  const err = document.getElementById('cloud-err');
+  const btn = document.getElementById('cloud-go');
+  if (!pw) { err.textContent = '❌ 請輸入存取密碼'; err.style.display = 'block'; return; }
+  btn.disabled = true; btn.textContent = '連接中…（可能要 10 秒）';
   API_TOKEN = pw;
   try {
     const out = await cloudCall('ping');
     if (out.ok) {
-      isAdmin = true;
-      document.getElementById('pw-input').value = '';
-      document.getElementById('pw-err').style.display = 'none';
-      document.getElementById('login-modal').classList.remove('show');
-      applyAdminUI();
-      toast('🔓 管理者模式已啟用');
+      closeCloud();
+      updateCloudBtn();
+      toast('☁ 已連接雲端，載入中…（第一次可能要 10～20 秒）', 4000);
       cloudLoad();
     } else {
       API_TOKEN = null;
-      document.getElementById('pw-err').style.display = 'block';
-      document.getElementById('pw-input').select();
+      err.textContent = '❌ 存取密碼錯誤，請再試一次';
+      err.style.display = 'block';
+      document.getElementById('cloud-pw-input').select();
     }
-  } catch(e) {
+  } catch (e) {
     API_TOKEN = null;
-    document.getElementById('pw-err').textContent = '❌ ' + e.message;
-    document.getElementById('pw-err').style.display = 'block';
+    err.textContent = '❌ ' + e.message;
+    err.style.display = 'block';
   } finally {
-    btn.disabled = false;
+    btn.disabled = false; btn.textContent = '連接';
   }
+}
+function updateCloudBtn() {
+  const b = document.getElementById('btn-cloud');
+  if (!b) return;
+  b.textContent = API_TOKEN ? '☁ 雲端已連接' : '☁ 連接雲端';
+  b.style.background = API_TOKEN ? '#E6F4EA' : '';
+  b.style.color = API_TOKEN ? '#346538' : '';
 }
 
 function closeLogin() {
@@ -772,6 +836,7 @@ function closeLogin() {
 }
 
 function applyAdminUI() {
+  updateCloudBtn();
   const btnAdmin = document.getElementById('btn-admin');
   const adminBtns = document.getElementById('admin-btns');
   const pubExport = document.getElementById('btn-export-pub');
