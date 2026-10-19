@@ -234,10 +234,20 @@ input:focus,select:focus{outline:2px solid var(--blue);border-color:transparent}
 // 資料
 // ═══════════════════════════════════════════════
 const STAFF_KEY='train_staff', RECORD_KEY='train_records', CERTREQ_KEY='train_certreq', META_KEY='train_meta';
-const JB_KEY_STORE='jb_master_key', JB_BIN_STORE='jb_bin_id';
-function jbKey(){return localStorage.getItem(JB_KEY_STORE)||'';}
-function jbBin(){return localStorage.getItem(JB_BIN_STORE)||'';}
-const JSONBIN_BASE='https://api.jsonbin.io/v3/b';
+const GAS_URL_STORE='gas_url', GAS_TOKEN_STORE='gas_token', GAS_VER_STORE='gas_ver';
+// 後端網址不是機密（沒有存取密碼什麼都讀不到），所以寫成預設值；存取密碼只存在使用者自己的瀏覽器。
+const GAS_DEFAULT_URL='https://script.google.com/macros/s/AKfycbzCEoxhdkDIoFj0J8GJ4i0JnaTwuPO2H_WJ2Z6KW8IrH_4RfxM3TOkra_RJ17tlxiZ8/exec';
+function gasUrl(){return localStorage.getItem(GAS_URL_STORE)||GAS_DEFAULT_URL;}
+function gasToken(){return localStorage.getItem(GAS_TOKEN_STORE)||'';}
+function gasVer(){const v=localStorage.getItem(GAS_VER_STORE);return v===null?null:Number(v);}
+// 呼叫 Google 試算表後端。用 text/plain 送出，避免瀏覽器的跨網域預檢（preflight）失敗。
+async function gasCall(action,extra,url,token){
+  const u=url||gasUrl(),t=token||gasToken();
+  if(!u||!t)throw new Error('尚未設定雲端同步網址與存取密碼');
+  const res=await fetch(u,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify(Object.assign({action,token:t},extra||{}))});
+  return await res.json();
+}
 
 // 法定 / 常見需回訓證照
 // 示範企業為「第一類事業單位（非營造業）」，勞工人數180人，落於100~300人區間：
@@ -385,36 +395,41 @@ migrateCertNames();
 function saveAll(){
   META.lastUpdated=new Date().toISOString();
   saveJSON(STAFF_KEY,STAFF);saveJSON(RECORD_KEY,RECORDS);saveJSON(CERTREQ_KEY,CERTS);saveJSON(META_KEY,META);
-  jsonbinSave();
+  cloudSave();
 }
 
-async function jsonbinLoad(){
-  const key=jbKey(),bin=jbBin();
-  if(!key||!bin)return;
+function applyCloudData(d){
+  STAFF=d.staff||[];RECORDS=(d.records||[]).map(r=>Object.assign({},r,{certId:r.certId||null}));
+  CERTS=(d.certs&&d.certs.length)?d.certs:CERTS;META=Object.assign(META,d.meta||{});
+  migrateCertNames();
+  saveJSON(STAFF_KEY,STAFF);saveJSON(RECORD_KEY,RECORDS);saveJSON(CERTREQ_KEY,CERTS);saveJSON(META_KEY,META);
+}
+// 回傳：'loaded'（已套用雲端資料）｜'empty'（雲端還沒有資料）｜'off'（沒設定）｜'error'
+async function cloudLoad(quiet){
+  if(!gasUrl()||!gasToken())return 'off';
   try{
-    const res=await fetch(`${JSONBIN_BASE}/${bin}/latest`,{headers:{'X-Master-Key':key}});
-    const j=await res.json();
-    if(j.record){
-      const d=j.record;
-      STAFF=d.staff||STAFF;RECORDS=d.records||RECORDS;
-      CERTS=d.certs||CERTS;META=Object.assign(META,d.meta||{});
-      migrateCertNames();
-      saveJSON(STAFF_KEY,STAFF);saveJSON(RECORD_KEY,RECORDS);saveJSON(CERTREQ_KEY,CERTS);saveJSON(META_KEY,META);
-      toast('已從雲端載入最新資料','info');
-    }
-  }catch(e){console.warn('JSONBin load failed',e);}
+    const d=await gasCall('load');
+    if(!d.ok){if(!quiet)toast('⚠ 雲端載入失敗：'+(d.error||'未知錯誤'),'error');return 'error';}
+    localStorage.setItem(GAS_VER_STORE,String(d.version));
+    if(!(d.staff||[]).length&&!(d.records||[]).length){return 'empty';}
+    applyCloudData(d);
+    if(!quiet)toast('已從雲端載入最新資料','info');
+    return 'loaded';
+  }catch(e){console.warn('雲端載入失敗',e);if(!quiet)toast('⚠ 雲端連線錯誤：'+e.message,'error');return 'error';}
 }
-
-function jsonbinSave(){
-  const key=jbKey(),bin=jbBin();
-  if(!key||!bin)return;
-  fetch(`${JSONBIN_BASE}/${bin}`,{method:'PUT',
-    headers:{'Content-Type':'application/json','X-Master-Key':key},
-    body:JSON.stringify({staff:STAFF,records:RECORDS,certs:CERTS,meta:META})
-  }).then(r=>r.json()).then(j=>{
-    if(j.metadata)toast('☁ 已同步至雲端','info');
-    else toast('⚠ 雲端同步失敗：'+JSON.stringify(j),'error');
-  }).catch(e=>toast('⚠ 雲端連線錯誤：'+e.message,'error'));
+// 一次只送一筆，且帶上載入時的版本號：別台裝置已更新的話會被擋下，不會互相蓋掉
+let _cloudChain=Promise.resolve();
+function cloudSave(){
+  if(!gasUrl()||!gasToken())return;
+  if(gasVer()===null){toast('☁ 尚未和雲端對齊：請到「⚙ 雲端設定」按「從雲端載入」或「上傳本機資料」','info');return;}
+  _cloudChain=_cloudChain.then(async()=>{
+    try{
+      const r=await gasCall('save',{data:{staff:STAFF,records:RECORDS,certs:CERTS,meta:META},expected_version:gasVer()});
+      if(r.ok){localStorage.setItem(GAS_VER_STORE,String(r.version));toast('☁ 已同步至雲端','info');}
+      else if(r.error==='conflict')toast('⚠ 雲端有較新的版本（可能是別台裝置改的），這次修改沒有存到雲端。請到「⚙ 雲端設定」按「從雲端載入」後再改','error');
+      else toast('⚠ 雲端同步失敗：'+(r.error||'未知錯誤'),'error');
+    }catch(e){toast('⚠ 雲端連線錯誤：'+e.message,'error');}
+  });
 }
 
 // ═══════════════════════════════════════════════
@@ -1171,83 +1186,86 @@ function pageLegal(){
 }
 
 function pageSystem(){
-  const k=jbKey(),b=jbBin();
+  const u=gasUrl(),t=gasToken(),v=gasVer();
   document.getElementById('main').innerHTML=`
     <div class="page-header"><div>
       <div class="page-title">⚙ 雲端同步設定</div>
-      <div class="page-sub">資料將同步至 JSONBin.io，換電腦或給客戶使用時不會遺失。</div>
+      <div class="page-sub">資料同步到你自己的 Google 試算表，換電腦或給客戶使用時不會遺失。</div>
     </div></div>
-    <div class="card" style="max-width:560px">
-      <div class="section-title">JSONBin 連線資訊</div>
-      <div class="form-group"><div class="form-label">X-Master-Key</div>
-        <input id="jbKeyInput" type="password" value="${esc(k)}" placeholder="$2a$10$..." style="width:100%;font-family:monospace;font-size:12px">
+    <div class="card" style="max-width:600px">
+      <div class="section-title">Google 試算表後端連線資訊</div>
+      <div class="form-group"><div class="form-label">網頁應用程式網址</div>
+        <input id="gasUrlInput" type="text" value="${esc(u)}" placeholder="https://script.google.com/macros/s/.../exec" style="width:100%;font-family:monospace;font-size:12px">
       </div>
-      <div class="form-group" style="margin-top:8px"><div class="form-label">Bin ID</div>
-        <input id="jbBinInput" type="text" value="${esc(b)}" placeholder="6a520d79da38895dfe4eb805" style="width:100%;font-family:monospace;font-size:12px">
+      <div class="form-group" style="margin-top:8px"><div class="form-label">存取密碼</div>
+        <input id="gasTokenInput" type="password" value="${esc(t)}" placeholder="初始化時顯示的那組密碼" style="width:100%;font-family:monospace;font-size:12px" autocomplete="off">
       </div>
-      <div style="display:flex;gap:8px;margin-top:16px">
-        <button class="btn btn-primary" onclick="saveJbConfig()">💾 儲存設定</button>
-        <button class="btn btn-ghost" onclick="testJbConfig()">🔗 測試連線</button>
-        <button class="btn btn-ghost" onclick="loadFromJb()">⬇ 立即從雲端載入</button>
+      <div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="saveGasConfig()">💾 儲存設定</button>
+        <button class="btn btn-ghost" onclick="testGasConfig()">🔗 測試連線</button>
+        <button class="btn btn-ghost" onclick="loadFromCloud()">⬇ 從雲端載入</button>
+        <button class="btn btn-ghost" onclick="uploadToCloud()">⬆ 上傳本機資料</button>
       </div>
-      <div id="jbStatus" style="margin-top:12px;font-size:13px;color:var(--text2)"></div>
+      <div id="gasStatus" style="margin-top:12px;font-size:13px;color:var(--text2)">${v===null?'尚未和雲端對齊':'目前雲端版本：第 '+v+' 版'}</div>
     </div>
-    <div class="card" style="max-width:560px;margin-top:16px">
+    <div class="card" style="max-width:600px;margin-top:16px">
       <div class="section-title">說明</div>
       <div style="font-size:13px;color:var(--text2);line-height:1.8">
-        <p>1. 到 <strong>jsonbin.io</strong> 免費註冊帳號</p>
-        <p>2. 點左欄「API Keys」，複製 X-Master-Key</p>
-        <p>3. 此工具會自動建立 Bin（儲存空間），或貼入已有的 Bin ID</p>
-        <p>4. 設定完成後每次存檔都會自動同步到雲端</p>
-        <p style="color:var(--yellow)">⚠ 請勿將 Key 分享給他人，每個客戶應有自己的帳號</p>
+        <p>1. 到 script.google.com 新增專案，貼上 <strong>gas/教育訓練後端_Code.gs</strong> 的內容</p>
+        <p>2. 執行「初始化」並授權，會自動建立試算表與存取密碼（密碼只顯示一次，請存進密碼管理員）</p>
+        <p>3. 部署為「網頁應用程式」，執行身分「我」、存取權「所有人」（沒有密碼讀不到資料）</p>
+        <p>4. 把網址與密碼貼在上面，按「儲存設定」→「測試連線」</p>
+        <p>5. 第一次請選：雲端已有資料按「從雲端載入」；雲端是空的按「上傳本機資料」</p>
+        <p>6. 之後每次存檔都會自動同步；兩台裝置同時改時，後存的會被擋下並提示先載入雲端最新版</p>
+        <p style="color:var(--yellow)">⚠ 存取密碼只存在這個瀏覽器，請勿分享給他人；示範用請使用虛構資料</p>
       </div>
     </div>`;
 }
+function gasStatus(html){document.getElementById('gasStatus').innerHTML=html;}
+function readGasInputs(){return {u:document.getElementById('gasUrlInput').value.trim(),t:document.getElementById('gasTokenInput').value.trim()};}
 
-async function saveJbConfig(){
-  const k=document.getElementById('jbKeyInput').value.trim();
-  const b=document.getElementById('jbBinInput').value.trim();
-  if(!k){document.getElementById('jbStatus').textContent='請填入 X-Master-Key';return;}
-  localStorage.setItem(JB_KEY_STORE,k);
-  if(b)localStorage.setItem(JB_BIN_STORE,b);
-  // 如果沒有 Bin ID，自動建立一個
-  if(!b){
-    try{
-      const res=await fetch(JSONBIN_BASE,{method:'POST',
-        headers:{'Content-Type':'application/json','X-Master-Key':k,'X-Bin-Name':'教育訓練系統'},
-        body:JSON.stringify({staff:STAFF,records:RECORDS,certs:CERTS,meta:META})});
-      const j=await res.json();
-      if(j.metadata&&j.metadata.id){
-        localStorage.setItem(JB_BIN_STORE,j.metadata.id);
-        document.getElementById('jbBinInput').value=j.metadata.id;
-        document.getElementById('jbStatus').innerHTML='<span style="color:var(--green)">✓ 已自動建立 Bin：'+j.metadata.id+'</span>';
-      }else{document.getElementById('jbStatus').innerHTML='<span style="color:var(--red)">建立失敗，請確認 Key 是否正確</span>';}
-    }catch(e){document.getElementById('jbStatus').innerHTML='<span style="color:var(--red)">連線錯誤：'+e.message+'</span>';}
-  }else{
-    document.getElementById('jbStatus').innerHTML='<span style="color:var(--green)">✓ 設定已儲存</span>';
-  }
+function saveGasConfig(){
+  const {u,t}=readGasInputs();
+  if(!u||!t){gasStatus('請填入網址與存取密碼');return;}
+  if(!/^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec$/.test(u)){gasStatus('<span style="color:var(--red)">網址格式不對：應該是 https://script.google.com/macros/s/…/exec</span>');return;}
+  localStorage.setItem(GAS_URL_STORE,u);localStorage.setItem(GAS_TOKEN_STORE,t);
+  localStorage.removeItem(GAS_VER_STORE); // 換了後端，要重新對齊
+  gasStatus('<span style="color:var(--green)">✓ 設定已儲存。請按「測試連線」，再選「從雲端載入」或「上傳本機資料」</span>');
 }
 
-async function testJbConfig(){
-  const k=document.getElementById('jbKeyInput').value.trim();
-  const b=document.getElementById('jbBinInput').value.trim();
-  if(!k||!b){document.getElementById('jbStatus').textContent='請先填入 Key 與 Bin ID';return;}
-  document.getElementById('jbStatus').textContent='測試中...';
+async function testGasConfig(){
+  const {u,t}=readGasInputs();
+  if(!u||!t){gasStatus('請先填入網址與存取密碼');return;}
+  gasStatus('測試中...');
   try{
-    const res=await fetch(`${JSONBIN_BASE}/${b}/latest`,{headers:{'X-Master-Key':k}});
-    const j=await res.json();
-    if(j.record)document.getElementById('jbStatus').innerHTML='<span style="color:var(--green)">✓ 連線成功！雲端有資料</span>';
-    else document.getElementById('jbStatus').innerHTML='<span style="color:var(--yellow)">⚠ 連線成功，但 Bin 是空的</span>';
-  }catch(e){document.getElementById('jbStatus').innerHTML='<span style="color:var(--red)">✗ 連線失敗：'+e.message+'</span>';}
+    const r=await gasCall('ping',{},u,t);
+    if(r.ok)gasStatus('<span style="color:var(--green)">✓ 連線成功，密碼正確</span>');
+    else gasStatus('<span style="color:var(--red)">✗ '+esc(r.error==='Unauthorized'?'存取密碼不對':(r.error||'連線失敗'))+'</span>');
+  }catch(e){gasStatus('<span style="color:var(--red)">✗ 連線失敗：'+esc(e.message)+'</span>');}
 }
 
-async function loadFromJb(){
-  await jsonbinLoad();
-  renderMain();
+async function loadFromCloud(){
+  const r=await cloudLoad(true);
+  if(r==='loaded'){toast('已從雲端載入最新資料','info');pageSystem();renderNav&&renderNav();}
+  else if(r==='empty'){gasStatus('<span style="color:var(--yellow)">⚠ 雲端還沒有資料。要把這台的資料放上去，請按「上傳本機資料」</span>');}
+  else if(r==='off'){gasStatus('請先填入並儲存網址與存取密碼');}
+  else{gasStatus('<span style="color:var(--red)">✗ 載入失敗，請先按「測試連線」檢查</span>');}
 }
 
-// 暴露雲端載入函數給登入 script 使用
-window.gasLoad = jsonbinLoad;
+async function uploadToCloud(){
+  if(!gasUrl()||!gasToken()){gasStatus('請先填入並儲存網址與存取密碼');return;}
+  try{
+    const cur=await gasCall('load');
+    if(!cur.ok){gasStatus('<span style="color:var(--red)">✗ '+esc(cur.error||'連線失敗')+'</span>');return;}
+    if(((cur.staff||[]).length||(cur.records||[]).length)&&!confirm('雲端已經有資料（第 '+cur.version+' 版）。上傳會用這台的資料「完全覆蓋」雲端，確定嗎？'))return;
+    const r=await gasCall('save',{data:{staff:STAFF,records:RECORDS,certs:CERTS,meta:META},expected_version:cur.version});
+    if(r.ok){localStorage.setItem(GAS_VER_STORE,String(r.version));toast('☁ 已上傳本機資料到雲端','info');pageSystem();}
+    else gasStatus('<span style="color:var(--red)">✗ 上傳失敗：'+esc(r.error||'未知錯誤')+'</span>');
+  }catch(e){gasStatus('<span style="color:var(--red)">✗ 連線失敗：'+esc(e.message)+'</span>');}
+}
+
+// 暴露雲端載入函數給登入 script 使用（管理員登入後自動載入）
+window.gasLoad = ()=>cloudLoad(false);
 
 // Init
 renderNav();
