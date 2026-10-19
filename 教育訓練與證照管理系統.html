@@ -1245,6 +1245,7 @@ async function testGasConfig(){
 }
 
 async function loadFromCloud(){
+  gasStatus('⏳ 載入中，請稍候…');
   const r=await cloudLoad(true);
   if(r==='loaded'){toast('已從雲端載入最新資料','info');pageSystem();renderNav&&renderNav();}
   else if(r==='empty'){gasStatus('<span style="color:var(--yellow)">⚠ 雲端還沒有資料。要把這台的資料放上去，請按「上傳本機資料」</span>');}
@@ -1254,12 +1255,13 @@ async function loadFromCloud(){
 
 async function uploadToCloud(){
   if(!gasUrl()||!gasToken()){gasStatus('請先填入並儲存網址與存取密碼');return;}
+  gasStatus('⏳ 上傳中，請稍候…（連 Google 第一次可能要 10～20 秒，請不要關閉或重複按）');
   try{
     const cur=await gasCall('load');
     if(!cur.ok){gasStatus('<span style="color:var(--red)">✗ '+esc(cur.error||'連線失敗')+'</span>');return;}
-    if(((cur.staff||[]).length||(cur.records||[]).length)&&!confirm('雲端已經有資料（第 '+cur.version+' 版）。上傳會用這台的資料「完全覆蓋」雲端，確定嗎？'))return;
+    if(((cur.staff||[]).length||(cur.records||[]).length)&&!confirm('雲端已經有資料（第 '+cur.version+' 版）。上傳會用這台的資料「完全覆蓋」雲端，確定嗎？')){gasStatus('已取消上傳');return;}
     const r=await gasCall('save',{data:{staff:STAFF,records:RECORDS,certs:CERTS,meta:META},expected_version:cur.version});
-    if(r.ok){localStorage.setItem(GAS_VER_STORE,String(r.version));toast('☁ 已上傳本機資料到雲端','info');pageSystem();}
+    if(r.ok){localStorage.setItem(GAS_VER_STORE,String(r.version));toast('☁ 已上傳本機資料到雲端','info');pageSystem();gasStatus('<span style="color:var(--green)">✓ 上傳完成：人員 '+r.saved.staff+' 筆、證照紀錄 '+r.saved.records+' 筆、證照需求 '+r.saved.certs+' 筆（雲端第 '+r.version+' 版）</span>');}
     else gasStatus('<span style="color:var(--red)">✗ 上傳失敗：'+esc(r.error||'未知錯誤')+'</span>');
   }catch(e){gasStatus('<span style="color:var(--red)">✗ 連線失敗：'+esc(e.message)+'</span>');}
 }
