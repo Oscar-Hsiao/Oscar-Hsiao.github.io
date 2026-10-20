@@ -88,6 +88,13 @@ function doPost(e) {
   }
 }
 
+// 試算表會把「113/08/15」「1974/11/29」這類字串自動轉成日期（還會因時區差一天）。
+// 所以寫入前一律把資料欄位設成「純文字」格式；萬一讀到舊的日期型儲存格，轉回斜線格式文字。
+function cellText_(v) {
+  if (v instanceof Date) return Utilities.formatDate(v, Session.getScriptTimeZone(), 'yyyy/MM/dd');
+  return v;
+}
+
 function loadRecords_(companyId) {
   const sh = getSheet_();
   const last = sh.getLastRow();
@@ -97,7 +104,7 @@ function loadRecords_(companyId) {
     const o = {};
     HEADERS.forEach((h, i) => {
       let v = r[i];
-      if (v instanceof Date) v = Utilities.formatDate(v, 'Asia/Taipei', 'yyyy-MM-dd');
+      v = cellText_(v);
       o[h] = (v === '' ? null : v);
     });
     o.industry = o.industry ? String(o.industry).split(',').filter(Boolean) : [];
@@ -128,11 +135,17 @@ function saveRecords_(companyId, records) {
       if (key in index) existing[index[key]] = row;
       else { appendRows.push(row); index[key] = existing.length + appendRows.length - 1; }
     });
-    if (existing.length) sh.getRange(2, 1, existing.length, HEADERS.length).setValues(existing);
+    if (existing.length) {
+      const range = sh.getRange(2, 1, existing.length, HEADERS.length);
+      range.setNumberFormat('@');                                   // 純文字，避免日期被自動轉型
+      range.setValues(existing.map(row => row.map(cellText_)));
+    }
     if (appendRows.length) {
       const need = sh.getLastRow() + appendRows.length;   // 試算表預設只有 1000 列，不夠就自動加列
       if (sh.getMaxRows() < need) sh.insertRowsAfter(sh.getMaxRows(), need - sh.getMaxRows());
-      sh.getRange(sh.getLastRow() + 1, 1, appendRows.length, HEADERS.length).setValues(appendRows);
+      const arange = sh.getRange(sh.getLastRow() + 1, 1, appendRows.length, HEADERS.length);
+      arange.setNumberFormat('@');
+      arange.setValues(appendRows);
     }
     return records.length;
   } finally {

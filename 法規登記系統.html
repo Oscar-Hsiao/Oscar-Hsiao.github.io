@@ -615,6 +615,7 @@ async function cloudSave(){
 
 function saveAll(){saveLocal();if(API_TOKEN)cloudSave();}
 
+const okDate=v=>typeof v==='string'&&/^\d{2,4}\/\d{1,2}\/\d{1,2}$/.test(v);
 async function cloudLoad(){
   try{
     const out=await cloudCall('load');
@@ -636,8 +637,9 @@ async function cloudLoad(){
         if(!cloud)return;
         if(cloud.status!==null)row.status=cloud.status;
         if(cloud.reason!==null)row.reason=cloud.reason;
-        if(cloud.review_date!==null)row.r=cloud.review_date;
-        if(cloud.next_review!==null)row.c=cloud.next_review;
+        // 日期只採用「113/08/15」這種斜線格式；試算表若把它轉成日期（0113-08-16）就不採用，保留本機原值
+        if(okDate(cloud.review_date))row.r=cloud.review_date;
+        if(okDate(cloud.next_review))row.c=cloud.next_review;
         if(cloud.applicable!==null)row.a=cloud.applicable;
         if(cloud.industry&&cloud.industry.length)row.ind=cloud.industry;
       });
