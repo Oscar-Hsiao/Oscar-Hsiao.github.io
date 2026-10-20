@@ -603,7 +603,8 @@ function saveLocal(){
   try{localStorage.setItem(LAW_DATA_KEY,JSON.stringify(toSave));}catch(e){}
 }
 
-async function cloudSave(){
+// opts.replace=true（只有「↺ 還原預設」會用）：雲端同一個客戶裡這次沒送的舊列一併清掉；一般存檔只新增／更新
+async function cloudSave(opts){
   if(!API_TOKEN){toast('⚠ 請先登入管理者才能同步');return;}
   const records=[];
   Object.keys(DATA).forEach(cat=>{
@@ -617,8 +618,8 @@ async function cloudSave(){
     });
   });
   try{
-    const out=await cloudCall('save',{records});
-    if(out.ok)toast('☁ 已同步至雲端');
+    const out=await cloudCall('save',(opts&&opts.replace)?{records,replace:true}:{records});
+    if(out.ok)toast('☁ 已同步至雲端'+(out.removed>0?'（並清掉 '+out.removed+' 筆舊資料）':''), out.removed>0?5000:undefined);
     else toast('⚠ 雲端同步失敗：'+(out.error||'未知錯誤'));
   }catch(e){toast('⚠ 雲端連線錯誤：'+e.message);}
 }
@@ -987,7 +988,7 @@ async function resetAll() {
   document.getElementById('af').value = '';
   scol = -1; sasc = true; render();
   toast('↺ 已還原成內建預設資料' + (API_TOKEN ? '，正在覆蓋雲端…（約 10～20 秒）' : ''), 4000);
-  if (API_TOKEN) await cloudSave();
+  if (API_TOKEN) await cloudSave({ replace: true });
 }
 
 // 按 ESC 關閉 modal

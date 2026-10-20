@@ -80,7 +80,9 @@ function doPost(e) {
     if (p.action === 'load') return respond_({ ok: true, records: loadRecords_(p.company_id) });
     if (p.action === 'save') {
       if (!p.records || !p.records.length) return respond_({ ok: false, error: 'Invalid payload' });
-      return respond_({ ok: true, saved: saveRecords_(p.company_id, p.records) });
+      // replace=true（只有網頁的「↺ 還原預設」會送）：同一個客戶裡，這次沒送來的舊列會被清掉
+      const r = saveRecords_(p.company_id, p.records, p.replace === true);
+      return respond_({ ok: true, saved: r.saved, removed: r.removed });
     }
     return respond_({ ok: false, error: 'Unknown action' });
   } catch (err) {
@@ -112,7 +114,7 @@ function loadRecords_(companyId) {
   });
 }
 
-function saveRecords_(companyId, records) {
+function saveRecords_(companyId, records, replace) {
   const lock = LockService.getScriptLock();
   lock.waitLock(20000);
   try {
@@ -135,6 +137,24 @@ function saveRecords_(companyId, records) {
       if (key in index) existing[index[key]] = row;
       else { appendRows.push(row); index[key] = existing.length + appendRows.length - 1; }
     });
+    if (replace === true && records.length > 0) {
+      // 完整取代：只清「同一個客戶」且這次沒送來的列；其他客戶的資料原樣保留。
+      // （records 為空時前面已被擋下，不可能把整個客戶清空）
+      const payloadKeys = {};
+      records.forEach(r => { payloadKeys[companyId + '|' + (r.category || '') + '|' + (r.law_code || '')] = true; });
+      const all = existing.concat(appendRows).filter(row =>
+        String(row[0]) !== companyId || payloadKeys[row[0] + '|' + row[1] + '|' + row[2]]);
+      const removed = existing.length + appendRows.length - all.length;
+      const maxRows = sh.getMaxRows();
+      if (maxRows > 1) sh.getRange(2, 1, maxRows - 1, HEADERS.length).clearContent();
+      if (all.length) {
+        if (sh.getMaxRows() < all.length + 1) sh.insertRowsAfter(sh.getMaxRows(), all.length + 1 - sh.getMaxRows());
+        const wr = sh.getRange(2, 1, all.length, HEADERS.length);
+        wr.setNumberFormat('@');
+        wr.setValues(all.map(row => row.map(cellText_)));
+      }
+      return { saved: records.length, removed: removed };
+    }
     if (existing.length) {
       const range = sh.getRange(2, 1, existing.length, HEADERS.length);
       range.setNumberFormat('@');                                   // 純文字，避免日期被自動轉型
@@ -147,7 +167,7 @@ function saveRecords_(companyId, records) {
       arange.setNumberFormat('@');
       arange.setValues(appendRows);
     }
-    return records.length;
+    return { saved: records.length, removed: 0 };
   } finally {
     lock.releaseLock();
   }
