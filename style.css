@@ -35,7 +35,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
 .sb-btn .label-short{display:none;width:100%;text-align:center}
 .sb-icon{flex-shrink:0;width:22px;text-align:center;font-size:19px;color:rgba(255,255,255,.4);transition:color .15s}
 .sb-btn:hover .sb-icon,.sb-btn.active .sb-icon{color:rgba(255,255,255,.75)}
-.sb-chevron{flex:1;text-align:right;font-size:16px;color:rgba(255,255,255,.35);transition:transform .2s ease}
+.sb-chevron{margin-left:auto;flex:none;text-align:center;width:16px;font-size:16px;color:rgba(255,255,255,.35);transition:transform .2s ease}
 .sb-acc-head.open .sb-chevron{transform:rotate(90deg)}
 .sb-acc-body{max-height:0;overflow:hidden;transition:max-height .22s ease}
 .sb-acc-body.open{max-height:1500px}
