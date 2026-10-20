@@ -313,9 +313,13 @@ tr:hover td{background:var(--bg3)}
 <div class="overlay" id="cloud-modal">
   <div class="modal">
     <h2>☁ 連接雲端</h2>
-    <p>輸入「後端存取密碼」，把資料同步到 Google 試算表。密碼只存在這個分頁的記憶體，重新整理或登出後要再輸入一次。</p>
+    <p>輸入「後端存取密碼」，把資料同步到 Google 試算表。</p>
     <label>後端存取密碼</label>
     <input type="password" id="cloud-pw-input" placeholder="••••••••" autocomplete="off" onkeydown="if(event.key==='Enter')doConnectCloud()">
+    <label style="display:flex;align-items:flex-start;gap:8px;margin-top:10px;font-size:13px;cursor:pointer;font-weight:400">
+      <input type="checkbox" id="cloud-remember" style="width:auto;margin-top:3px">
+      <span>記住這台電腦（下次管理者登入後自動連雲端）<br><span style="color:var(--text3);font-size:12px">只在你自己的電腦勾選；密碼會存在這個瀏覽器，公用電腦請不要勾。</span></span>
+    </label>
     <div class="err" id="cloud-err">❌ 存取密碼錯誤，請再試一次</div>
     <div class="btn-row">
       <button class="btn btn-g" onclick="closeCloud()">取消</button>
@@ -416,7 +420,10 @@ const ADMIN_HASH = '0ead2060b65992dca4769af601a1b3a35ef38cfad2c2c465bb160ea76415
 const SYNC_URL = 'https://script.google.com/macros/s/AKfycbyPSyz1qfRt0TOtg4BwhD_rI6czmM4MzJZhHDgy56nQxJPZIL2RjaAcG0yWpvrhfRFN3w/exec'; // 法規登記後端網頁應用程式網址（不是機密：沒有存取密碼什麼都讀不到）
 const COMPANY_ID = 'oscar';
 const LAW_DATA_KEY = 'law_data_v1';
-let API_TOKEN = null; // 登入後暫存的存取密碼（不寫入 localStorage）
+let API_TOKEN = null; // 目前連線用的存取密碼（預設只在分頁記憶體；使用者勾「記住這台電腦」才會存進這個瀏覽器的 localStorage）
+const TOKEN_STORE = 'law_cloud_token';
+function savedToken(){ try{ return localStorage.getItem(TOKEN_STORE)||''; }catch(e){ return ''; } }
+function rememberToken(t){ try{ if(t) localStorage.setItem(TOKEN_STORE,t); else localStorage.removeItem(TOKEN_STORE); }catch(e){} }
 
 // 呼叫 GAS 後端。用 text/plain 送出，避免瀏覽器的跨網域預檢（preflight）失敗。
 async function cloudCall(action, extra) {
@@ -775,7 +782,9 @@ async function doLogin() {
     err.style.display = 'none';
     document.getElementById('login-modal').classList.remove('show');
     applyAdminUI();
-    toast('🔓 管理者模式已啟用（資料只存在這個瀏覽器；要同步到雲端請按「☁ 連接雲端」）', 5000);
+    const st = savedToken();
+    if (st) { autoConnectCloud(st); }
+    else toast('🔓 管理者模式已啟用（資料只存在這個瀏覽器；要同步到雲端請按「☁ 連接雲端」）', 5000);
   } else {
     err.textContent = '❌ 管理者密碼錯誤，請再試一次';
     err.style.display = 'block';
@@ -784,9 +793,33 @@ async function doLogin() {
 }
 
 // ── 連接雲端：另外輸入後端存取密碼，用 ping 驗證，成功才載入／同步 ──
+async function autoConnectCloud(token) {
+  API_TOKEN = token;
+  try {
+    const out = await cloudCall('ping');
+    if (out.ok) {
+      updateCloudBtn();
+      toast('🔓 管理者模式已啟用，☁ 已自動連接雲端，載入中…（第一次可能要 10～20 秒）', 5000);
+      cloudLoad();
+      return;
+    }
+    API_TOKEN = null; rememberToken('');   // 密碼已失效（例如重設過）→ 忘記它，請重新輸入
+    updateCloudBtn();
+    toast('⚠ 已記住的存取密碼失效了，請按「☁ 連接雲端」重新輸入', 6000);
+  } catch (e) {
+    API_TOKEN = null;                       // 只是網路問題：保留已記住的密碼，下次再試
+    updateCloudBtn();
+    toast('⚠ 暫時連不上雲端（' + e.message + '），可稍後按「☁ 連接雲端」重試', 6000);
+  }
+}
 function openCloudModal() {
   if (!isAdmin) return;
-  if (API_TOKEN) { toast('☁ 已經連接雲端了（登出管理者會中斷連線）'); return; }
+  if (API_TOKEN) {
+    if (confirm('目前已連接雲端。要中斷連線並「忘記」這台電腦上記住的存取密碼嗎？\n（之後要再按「☁ 連接雲端」輸入密碼）')) {
+      API_TOKEN = null; rememberToken(''); updateCloudBtn(); toast('☁ 已中斷雲端連線，並忘記存取密碼');
+    }
+    return;
+  }
   document.getElementById('cloud-modal').classList.add('show');
   setTimeout(() => document.getElementById('cloud-pw-input').focus(), 100);
 }
@@ -794,6 +827,7 @@ function closeCloud() {
   document.getElementById('cloud-modal').classList.remove('show');
   document.getElementById('cloud-pw-input').value = '';
   document.getElementById('cloud-err').style.display = 'none';
+  document.getElementById('cloud-remember').checked = false;
 }
 async function doConnectCloud() {
   const pw = document.getElementById('cloud-pw-input').value.trim();
@@ -805,6 +839,7 @@ async function doConnectCloud() {
   try {
     const out = await cloudCall('ping');
     if (out.ok) {
+      rememberToken(document.getElementById('cloud-remember').checked ? pw : '');
       closeCloud();
       updateCloudBtn();
       toast('☁ 已連接雲端，載入中…（第一次可能要 10～20 秒）', 4000);
@@ -826,7 +861,7 @@ async function doConnectCloud() {
 function updateCloudBtn() {
   const b = document.getElementById('btn-cloud');
   if (!b) return;
-  b.textContent = API_TOKEN ? '☁ 雲端已連接' : '☁ 連接雲端';
+  b.textContent = API_TOKEN ? (savedToken() ? '☁ 雲端已連接（已記住）' : '☁ 雲端已連接') : '☁ 連接雲端';
   b.style.background = API_TOKEN ? '#E6F4EA' : '';
   b.style.color = API_TOKEN ? '#346538' : '';
 }
