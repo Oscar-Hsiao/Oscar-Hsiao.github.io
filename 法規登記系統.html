@@ -568,6 +568,9 @@ const DATA = {
   ]}
 };
 
+// 內建預設資料的原始副本（「↺ 還原預設」用；要在下面被本機資料覆蓋之前先複製）
+const DEFAULT_ROWS = JSON.parse(JSON.stringify(Object.fromEntries(Object.keys(DATA).map(k => [k, DATA[k].rows]))));
+
 // 從 localStorage 還原已儲存的資料列（覆蓋 DEFAULT DATA）
 (function(){
   try{
@@ -622,7 +625,8 @@ async function cloudSave(){
 
 function saveAll(){saveLocal();if(API_TOKEN)cloudSave();}
 
-const okDate=v=>typeof v==='string'&&/^\d{2,4}\/\d{1,2}\/\d{1,2}$/.test(v);
+// 清點／登錄日期固定是民國年三位「113/08/15」；四位數年份（0113/08/16）是試算表把它誤轉成日期的結果，不採用
+const okDate=v=>typeof v==='string'&&/^\d{3}\/\d{2}\/\d{2}$/.test(v);
 async function cloudLoad(){
   try{
     const out=await cloudCall('load');
@@ -970,10 +974,20 @@ function exportCSV() {
   a.click();
 }
 
-function resetAll() {
+// 「↺ 還原預設」：把所有法規資料還原成內建預設（合規狀態、備註、日期等回到出廠）。
+// 已連接雲端時，雲端也會一起被覆蓋（同時把雲端舊的錯誤格式資料重寫成純文字）。
+async function resetAll() {
+  if (!isAdmin) return;
+  const msg = '要把所有法規資料還原成「內建預設」嗎？\n你在這個瀏覽器改過的合規狀態、備註、日期都會被覆蓋，無法復原。'
+            + (API_TOKEN ? '\n\n目前已連接雲端，雲端的資料也會一起被覆蓋。' : '');
+  if (!confirm(msg)) return;
+  Object.keys(DATA).forEach(k => { DATA[k].rows = JSON.parse(JSON.stringify(DEFAULT_ROWS[k])); });
+  saveLocal();
   document.getElementById('q').value = '';
   document.getElementById('af').value = '';
   scol = -1; sasc = true; render();
+  toast('↺ 已還原成內建預設資料' + (API_TOKEN ? '，正在覆蓋雲端…（約 10～20 秒）' : ''), 4000);
+  if (API_TOKEN) await cloudSave();
 }
 
 // 按 ESC 關閉 modal
