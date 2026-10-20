@@ -11,6 +11,8 @@
 </head>
 <body>
 
+<button id="navBtn" aria-label="開啟選單" onclick="document.body.classList.add('nav-open')">☰</button>
+<div id="navMask" onclick="document.body.classList.remove('nav-open')"></div>
 <div id="sidebar">
   <div class="sb-logo">
     <button class="sb-toggle" onclick="toggleSidebar()" title="收起／展開選單">‹</button>
@@ -44,7 +46,18 @@ function toggleSidebar(){
   document.body.classList.toggle('sidebar-collapsed');
   localStorage.setItem('sidebarCollapsed',document.body.classList.contains('sidebar-collapsed')?'1':'0');
 }
-if(localStorage.getItem('sidebarCollapsed')==='1')document.body.classList.add('sidebar-collapsed');
+const mobileMQ=window.matchMedia('(max-width:900px)');
+function applyCollapse(){
+  // 手機版用抽屜選單，不套用電腦版的收合狀態
+  const c=!mobileMQ.matches&&localStorage.getItem('sidebarCollapsed')==='1';
+  document.body.classList.toggle('sidebar-collapsed',c);
+  if(!mobileMQ.matches)document.body.classList.remove('nav-open');
+}
+applyCollapse();mobileMQ.addEventListener('change',applyCollapse);
+document.getElementById('nav').addEventListener('click',e=>{
+  // 點到分頁連結就收起抽屜；點折頁標題則保持開啟
+  if(mobileMQ.matches&&e.target.closest('.sb-btn')&&!e.target.closest('.sb-acc-head'))document.body.classList.remove('nav-open');
+});
 
 let expandedNav={articles:currentSection.startsWith('articles-'),tools:false};
 function toggleNavGroup(id){
