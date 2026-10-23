@@ -14,6 +14,9 @@
 //   試算表 ID、存取密碼 → 指令碼屬性（專案設定 → 指令碼屬性），不寫進程式碼
 // ═══════════════════════════════════════════════════════
 
+// 後端版本標記：每次改程式請一起改，部署後打開網址（GET）就能確認線上跑的是不是新版
+const BACKEND_VERSION = '2026-10-23-replace';
+
 const SHEET_NAME = 'law_records';
 const HEADERS = ['company_id','category','law_code','law_name','pub_date','mod_date',
                  'applicable','industry','status','reason','review_date','next_review','updated_at'];
@@ -67,7 +70,7 @@ function safeEqual_(a, b) {
 }
 
 function doGet() {
-  return respond_({ ok: true, service: '法規登記後端' }); // 不回任何資料
+  return respond_({ ok: true, service: '法規登記後端', version: BACKEND_VERSION }); // 只回服務名稱與版本，不回任何資料
 }
 
 function doPost(e) {
