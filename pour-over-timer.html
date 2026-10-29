@@ -109,10 +109,11 @@ button:active{transform:scale(.98)}
   <select id="preset"></select>
 
   <div class="row2">
-    <div><label class="f" for="dripper">濾杯／器具</label><input id="dripper" type="text" list="drippers" placeholder="例：Hario V60" autocomplete="off"></div>
+    <div><label class="f" for="dripperSel">濾杯／器具</label><select id="dripperSel"></select></div>
     <div><label class="f" for="roast">焙度</label><select id="roast"><option value="">未指定</option><option>淺焙</option><option>中焙</option><option>深焙</option></select></div>
   </div>
-  <datalist id="drippers"><option value="Hario V60"><option value="Hario V60（陶瓷）"><option value="Hario V60（金屬）"><option value="Hario V60（塑膠）"><option value="Kalita Wave"><option value="Origami"><option value="Chemex"><option value="Hario Switch"><option value="AeroPress"></datalist>
+  <input id="dripper" type="text" placeholder="輸入你的濾杯或器具名稱" autocomplete="off" style="display:none;margin-top:10px">
+  <p class="note" id="dripperNote"></p>
   <label class="f" for="grind">研磨</label><input id="grind" type="text" placeholder="例：中細（像細砂糖）" autocomplete="off">
   <label class="f" for="bean">豆子</label><input id="bean" type="text" placeholder="例：衣索比亞 水洗 淺焙" autocomplete="off">
   <p class="note" id="gearNote"></p>
@@ -201,6 +202,14 @@ const GEAR = {
   three:    { dripper:"", roast:"", grind:"", bean:"", gearNote:"" }
 };
 // 粕谷哲：焙度改了水溫跟著換（來源：淺焙 93°C、中焙 88°C、深焙 83°C）
+/* 濾杯清單（常見款；沒有你的就選「其他」自己填）。value 就是存進配方與紀錄的文字 */
+const DRIPPERS = [
+  ["Hario V60", ["Hario V60", "Hario V60（陶瓷）", "Hario V60（玻璃）", "Hario V60（金屬）", "Hario V60（塑膠）"]],
+  ["Kalita", ["Kalita Wave 蛋糕濾杯（155）", "Kalita Wave 蛋糕濾杯（185）", "Kalita 梯形三孔（101／102）"]],
+  ["摺紙", ["Origami 摺紙濾杯"]],
+  ["其他常見款", ["Melitta 單孔梯形濾杯", "Chemex", "Hario Switch", "Clever 聰明濾杯", "法蘭絨（濾布）", "AeroPress"]]
+];
+const DRIPPER_ALL = DRIPPERS.flatMap(g => g[1]);
 const TEMP_BY_ROAST = { kasuya: { "淺焙":93, "中焙":88, "深焙":83 } };
 
 const PRESETS = {
@@ -308,6 +317,28 @@ function buildPresetSelect(){
   }
   sel.value = state.id;
 }
+function buildDripperSelect(){
+  const sel = $("dripperSel"); sel.innerHTML = '<option value="">未指定</option>';
+  DRIPPERS.forEach(([label, items]) => {
+    const g = document.createElement("optgroup"); g.label = label;
+    items.forEach(v => { const o = document.createElement("option"); o.value = v; o.textContent = v; g.appendChild(o); });
+    sel.appendChild(g);
+  });
+  const o = document.createElement("option"); o.value = "__other"; o.textContent = "其他（自己填）…"; sel.appendChild(o);
+}
+function setDripper(val){
+  val = val || ""; state.dripper = val;
+  const sel = $("dripperSel"), txt = $("dripper");
+  if(val === "" || DRIPPER_ALL.includes(val)){ sel.value = val; txt.style.display = "none"; txt.value = ""; }
+  else { sel.value = "__other"; txt.style.display = ""; txt.value = val; }
+  dripperHint();
+}
+function dripperHint(){
+  const d = state.dripper || "";
+  $("dripperNote").textContent = (d && !/V60/i.test(d))
+    ? "提醒：大師的配方多半是用 V60 沖的。換成別的濾杯，水流和滴濾速度會不同，第一次沖完如果偏酸或偏苦，先微調研磨粗細，再改水溫。（粕谷哲 4:6 的來源說這個拆法也能用在其他濾杯。）"
+    : "";
+}
 function loadPreset(id){
   let src;
   if(id.startsWith("r")) src = recipes[+id.slice(1)]; else src = PRESETS[id];
@@ -316,7 +347,7 @@ function loadPreset(id){
   state = { id, dose:src.dose, ratio:src.ratio, temp:src.temp, steps:clone(src.steps),
             dripper:gr.dripper || "", roast:gr.roast || "", grind:gr.grind || "", bean:gr.bean || "" };
   $("dose").value = state.dose; $("ratio").value = state.ratio; $("temp").value = state.temp;
-  $("dripper").value = state.dripper; $("roast").value = state.roast; $("grind").value = state.grind; $("bean").value = state.bean;
+  setDripper(state.dripper); $("roast").value = state.roast; $("grind").value = state.grind; $("bean").value = state.bean;
   $("gearNote").textContent = id.startsWith("r") ? "" : (gr.gearNote || "");
   $("presetNote").textContent = src.note || "";
   $("delRecipe").style.display = id.startsWith("r") ? "" : "none";
@@ -344,7 +375,14 @@ function summary(){
   else { n.className = "note"; n.textContent = "各段水量加起來 100%。"; }
 }
 $("preset").onchange = e => loadPreset(e.target.value);
-for(const id of ["dripper","grind","bean"]) $(id).oninput = e => { state[id] = e.target.value.trim(); };
+for(const id of ["grind","bean"]) $(id).oninput = e => { state[id] = e.target.value.trim(); };
+$("dripperSel").onchange = e => {
+  const v = e.target.value;
+  if(v === "__other"){ $("dripper").style.display = ""; $("dripper").focus(); state.dripper = $("dripper").value.trim(); }
+  else { $("dripper").style.display = "none"; state.dripper = v; }
+  dripperHint();
+};
+$("dripper").oninput = e => { state.dripper = e.target.value.trim(); dripperHint(); };
 $("roast").onchange = e => {
   state.roast = e.target.value;
   const t = TEMP_BY_ROAST[state.id];
@@ -512,7 +550,7 @@ function back(){ run = null; renderLog(); show("setup"); }
   }catch(e){}
 })();
 
-buildPresetSelect(); loadPreset("kasuya"); renderLog();
+buildDripperSelect(); buildPresetSelect(); loadPreset("kasuya"); renderLog();
 </script>
 </body>
 </html>
