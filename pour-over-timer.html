@@ -32,6 +32,7 @@ select{background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),
   background-position:calc(100% - 20px) 55%,calc(100% - 14px) 55%;background-size:6px 6px,6px 6px;background-repeat:no-repeat}
 select:focus,input:focus{outline:none;border-color:var(--copper)}
 .row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.row2{display:grid;grid-template-columns:1.5fr 1fr;gap:10px}
 .sum{display:flex;justify-content:space-between;align-items:baseline;margin:22px 0 6px;padding:16px 18px;border:1px solid var(--line);
   border-radius:16px;background:var(--bg2)}
 .sum b{font-family:var(--serif);font-size:30px;font-weight:500;color:var(--copper2)}
@@ -107,6 +108,15 @@ button:active{transform:scale(.98)}
   <label class="f" for="preset">沖法</label>
   <select id="preset"></select>
 
+  <div class="row2">
+    <div><label class="f" for="dripper">濾杯／器具</label><input id="dripper" type="text" list="drippers" placeholder="例：Hario V60" autocomplete="off"></div>
+    <div><label class="f" for="roast">焙度</label><select id="roast"><option value="">未指定</option><option>淺焙</option><option>中焙</option><option>深焙</option></select></div>
+  </div>
+  <datalist id="drippers"><option value="Hario V60"><option value="Hario V60（陶瓷）"><option value="Hario V60（金屬）"><option value="Hario V60（塑膠）"><option value="Kalita Wave"><option value="Origami"><option value="Chemex"><option value="Hario Switch"><option value="AeroPress"></datalist>
+  <label class="f" for="grind">研磨</label><input id="grind" type="text" placeholder="例：中細（像細砂糖）" autocomplete="off">
+  <label class="f" for="bean">豆子</label><input id="bean" type="text" placeholder="例：衣索比亞 水洗 淺焙" autocomplete="off">
+  <p class="note" id="gearNote"></p>
+
   <div class="row">
     <div><label class="f" for="dose">粉量 g</label><input id="dose" type="number" inputmode="decimal" min="1" step="0.5"></div>
     <div><label class="f" for="ratio">水粉比 1:</label><input id="ratio" type="number" inputmode="decimal" min="1" step="0.5"></div>
@@ -175,6 +185,24 @@ button:active{transform:scale(.98)}
 /* ───────── 沖法預設 ─────────
    數字都是 2026-10-29 打開公開食譜頁核對的；來源寫在每個沖法的說明裡。
    各段水量用「占總水量的 %」，所以改粉量或水粉比，克數會自動重算。 */
+/* 器具／焙度／研磨／豆子：只填來源有寫的，來源沒寫的留空，由你自己填。
+   gearNote 是「大師原本用的」，你改自己的設定時不會被改掉。 */
+const GEAR = {
+  kasuya:   { dripper:"Hario V60", roast:"淺焙", grind:"中粗到粗（來源：類似法壓壺的粗細）", bean:"",
+              gearNote:"來源：Pull & Pour 的 V60 4:6 食譜（淺焙 93°C）。來源沒寫他比賽用的豆子。4:6 的拆法也能用在其他濾杯。" },
+  winton:   { dripper:"Hario V60（金屬）", roast:"淺焙", grind:"中度研磨", bean:"",
+              gearNote:"大師原用：Hario V60 金屬濾杯、Kinu M47 磨豆機；比賽用豆是 Eugenioides（哥倫比亞 Finca Inmaculada，日曬）混水洗 Catucai（厄瓜多），一般人買不到，換成你手上的淺焙豆即可。來源：Wikipedia 冠軍表、Honest Coffee Guide。" },
+  wang:     { dripper:"Hario V60（陶瓷）", roast:"淺焙", grind:"非常細（來源建議篩出約 400μm）", bean:"",
+              gearNote:"大師原用：陶瓷 V60，不預熱濾杯；比賽用豆是巴拿馬 Ninety Plus Geisha（日曬）。來源說這個配方適合淺焙，焙度越深，水粉比要越小、研磨要越粗。來源：Barista Magazine、Long Shot London。" },
+  perger:   { dripper:"Hario V60", roast:"", grind:"中細（像細鹽）", bean:"",
+              gearNote:"大師原用：V60；比賽用豆是巴拿馬 Finca Santa 水洗 Geisha。來源沒寫焙度與濾杯材質。來源：Long Shot London。" },
+  hoffmann: { dripper:"Hario V60", roast:"", grind:"中細（像細砂糖）", bean:"",
+              gearNote:"來源沒寫焙度與濾杯尺寸；水溫 93 到 96°C，淺焙用偏高那一端。來源：LAMOSE、Hario USA。" },
+  three:    { dripper:"", roast:"", grind:"", bean:"", gearNote:"" }
+};
+// 粕谷哲：焙度改了水溫跟著換（來源：淺焙 93°C、中焙 88°C、深焙 83°C）
+const TEMP_BY_ROAST = { kasuya: { "淺焙":93, "中焙":88, "深焙":83 } };
+
 const PRESETS = {
   kasuya: {
     name: "粕谷哲 4:6（2016 世界手沖盃冠軍）", dose: 20, ratio: 15, temp: 93,
@@ -284,8 +312,12 @@ function loadPreset(id){
   let src;
   if(id.startsWith("r")) src = recipes[+id.slice(1)]; else src = PRESETS[id];
   if(!src){ id = "kasuya"; src = PRESETS.kasuya; }
-  state = { id, dose:src.dose, ratio:src.ratio, temp:src.temp, steps:clone(src.steps) };
+  const gr = id.startsWith("r") ? src : (GEAR[id] || {});
+  state = { id, dose:src.dose, ratio:src.ratio, temp:src.temp, steps:clone(src.steps),
+            dripper:gr.dripper || "", roast:gr.roast || "", grind:gr.grind || "", bean:gr.bean || "" };
   $("dose").value = state.dose; $("ratio").value = state.ratio; $("temp").value = state.temp;
+  $("dripper").value = state.dripper; $("roast").value = state.roast; $("grind").value = state.grind; $("bean").value = state.bean;
+  $("gearNote").textContent = id.startsWith("r") ? "" : (gr.gearNote || "");
   $("presetNote").textContent = src.note || "";
   $("delRecipe").style.display = id.startsWith("r") ? "" : "none";
   renderSteps();
@@ -312,6 +344,12 @@ function summary(){
   else { n.className = "note"; n.textContent = "各段水量加起來 100%。"; }
 }
 $("preset").onchange = e => loadPreset(e.target.value);
+for(const id of ["dripper","grind","bean"]) $(id).oninput = e => { state[id] = e.target.value.trim(); };
+$("roast").onchange = e => {
+  state.roast = e.target.value;
+  const t = TEMP_BY_ROAST[state.id];
+  if(t && t[state.roast]){ state.temp = t[state.roast]; $("temp").value = state.temp; }
+};
 for(const id of ["dose","ratio","temp"]) $(id).oninput = e => { state[id] = num(e.target.value, state[id]); renderSteps(); };
 $("stepRows").addEventListener("input", e => {
   const t = e.target; if(!t.dataset.k) return;
@@ -337,7 +375,7 @@ $("addStep").onclick = () => {
 $("saveRecipe").onclick = () => {
   const name = prompt("配方名稱", state.id.startsWith("r") ? recipes[+state.id.slice(1)].name : "我的配方");
   if(!name) return;
-  const r = { name:name.trim(), dose:state.dose, ratio:state.ratio, temp:state.temp, steps:clone(state.steps), note:"我存的配方。" };
+  const r = { name:name.trim(), dose:state.dose, ratio:state.ratio, temp:state.temp, steps:clone(state.steps), dripper:state.dripper, roast:state.roast, grind:state.grind, bean:state.bean, note:"我存的配方。" };
   const same = recipes.findIndex(x => x.name === r.name);
   if(same >= 0) recipes[same] = r; else recipes.push(r);
   if(!store.set("pot_recipes", recipes)) alert("這個瀏覽器不讓我存資料（可能是無痕模式），這次的配方不會保留。");
@@ -356,7 +394,7 @@ function renderLog(){
   box.style.display = ""; list.innerHTML = "";
   logs.slice(-5).reverse().forEach(l => {
     const d = document.createElement("div"); d.className = "li";
-    d.innerHTML = `<div>${l.name}<br><small>${l.date}・${l.dose}g／${l.water}g・${l.temp}°C${l.note ? "・"+l.note : ""}</small></div><div class="stars">${"★".repeat(l.rating)}${"☆".repeat(5-l.rating)}</div>`;
+    d.innerHTML = `<div>${l.name}<br><small>${l.date}・${l.dose}g／${l.water}g・${l.temp}°C${l.dripper ? "・"+l.dripper : ""}${l.roast ? "・"+l.roast : ""}${l.note ? "・"+l.note : ""}</small></div><div class="stars">${"★".repeat(l.rating)}${"☆".repeat(5-l.rating)}</div>`;
     list.appendChild(d);
   });
 }
@@ -395,8 +433,8 @@ function start(){
   try{ ac = ac || new (window.AudioContext || window.webkitAudioContext)(); if(ac.state === "suspended") ac.resume(); }catch(e){ ac = null; }
   run = { p, i:0, stepStart:Date.now(), t0:Date.now(), pausedAt:0, paused:false, warned:-1,
           name: PRESETS[state.id] ? PRESETS[state.id].name : (recipes[+state.id.slice(1)]||{}).name || "自訂",
-          dose:state.dose, temp:state.temp, water:p[p.length-1].cum };
-  $("recName").textContent = run.name + "・" + state.dose + "g／" + Math.round(state.dose*state.ratio) + "g・" + state.temp + "°C";
+          dose:state.dose, temp:state.temp, water:p[p.length-1].cum, dripper:state.dripper, roast:state.roast };
+  $("recName").textContent = run.name + "・" + state.dose + "g／" + Math.round(state.dose*state.ratio) + "g・" + state.temp + "°C" + (state.dripper ? "・" + state.dripper : "") + (state.roast ? "・" + state.roast : "");
   $("bar").innerHTML = p.map(() => "<i><b></b></i>").join("");
   $("pauseBtn").textContent = "暫停";
   show("brew"); lockScreen(); stepBeep(); paintStep();
@@ -433,7 +471,7 @@ function finish(){
   clearInterval(timer); unlockScreen(); doneBeep();
   const secs = Math.round((Date.now() - run.t0) / 1000);
   run.total = secs;
-  $("doneSum").textContent = run.name + "・" + run.dose + "g／" + run.water + "g・" + run.temp + "°C・共 " + fmt(secs);
+  $("doneSum").textContent = run.name + "・" + run.dose + "g／" + run.water + "g・" + run.temp + "°C" + (run.dripper ? "・" + run.dripper : "") + (run.roast ? "・" + run.roast : "") + "・共 " + fmt(secs);
   rating = 0; paintStars(); $("note").value = "";
   show("done");
 }
@@ -455,7 +493,7 @@ $("rate").addEventListener("click", e => { const b = e.target.closest("[data-n]"
 $("saveLog").onclick = () => {
   if(!rating){ alert("先點一下星星打個分數"); return; }
   const d = new Date();
-  logs.push({ date:(d.getMonth()+1) + "/" + d.getDate(), name:run.name, dose:run.dose, water:run.water, temp:run.temp, rating, note:$("note").value.trim() });
+  logs.push({ date:(d.getMonth()+1) + "/" + d.getDate(), name:run.name, dose:run.dose, water:run.water, temp:run.temp, dripper:run.dripper || "", roast:run.roast || "", rating, note:$("note").value.trim() });
   logs = logs.slice(-60);
   if(!store.set("pot_log", logs)) alert("這個瀏覽器不讓我存資料（可能是無痕模式），這杯不會保留。");
   back();
