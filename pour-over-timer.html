@@ -51,6 +51,9 @@ select:focus,input:focus{outline:none;border-color:var(--copper)}
 .btns{display:flex;gap:10px;margin-top:16px}
 button{font:inherit;cursor:pointer;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--cream);padding:13px 16px;font-size:15px}
 button.pri{background:var(--copper);border-color:var(--copper);color:#1c1410;font-weight:600;letter-spacing:.1em}
+.sound{display:flex;gap:10px;align-items:flex-start;margin:20px 0 0;padding:12px 14px;border:1px solid var(--copper);border-radius:14px;background:rgba(201,139,82,.1);color:var(--cream);font-size:14px;line-height:1.6}
+.sound i{font-style:normal;font-size:20px;line-height:1.3}
+.sound-s{text-align:center;color:var(--muted);font-size:12.5px;margin:0 0 10px}
 button.big{width:100%;padding:18px;font-size:19px;margin-top:20px;border-radius:18px}
 button:active{transform:scale(.98)}
 .log{margin-top:26px}.log h3{font-family:var(--serif);font-weight:500;font-size:17px;margin:0 0 8px;color:var(--muted)}
@@ -125,10 +128,11 @@ button:active{transform:scale(.98)}
     <button id="delRecipe" style="display:none">刪除配方</button>
   </div>
 
-  <button class="pri big" id="start">開 始</button>
+  <div class="sound"><i>🔔</i><div><b>請先開聲音</b>：計時換段時會有提示音。把手機音量調大，並確認機身側邊的<b>靜音撥片</b>沒有撥到靜音（露出橘色就是靜音，iPhone 靜音時網頁不會響）。</div></div>
+  <button class="pri big" style="margin-top:14px" id="start">開 始</button>
 
   <div class="log" id="logBox" style="display:none"><h3>最近的沖煮</h3><div id="logList"></div></div>
-  <p class="hint">手機請用 Safari 開啟，點「分享 → 加入主畫面」，就會像 App 一樣全螢幕。<br>聲音提示要先按過「開始」才會響。</p>
+  <p class="hint">手機請用 Safari 開啟，點「分享 → 加入主畫面」，就會像 App 一樣全螢幕。</p>
 </section>
 
 <!-- ② 計時 -->
@@ -145,6 +149,7 @@ button:active{transform:scale(.98)}
     </div>
     <div class="nxt" id="nxt"></div>
   </div>
+  <p class="sound-s">🔔 沒聽到提示音？檢查音量與側邊靜音撥片</p>
   <div class="ctrl">
     <button id="endBtn">結束</button>
     <button class="pri" id="pauseBtn">暫停</button>
