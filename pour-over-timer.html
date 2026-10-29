@@ -32,6 +32,8 @@ select{background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),
   background-position:calc(100% - 20px) 55%,calc(100% - 14px) 55%;background-size:6px 6px,6px 6px;background-repeat:no-repeat}
 select:focus,input:focus{outline:none;border-color:var(--copper)}
 .row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.stepind{color:var(--copper);font-size:13px;letter-spacing:.12em;margin:4px 0 0}
+button.back{background:none;border:0;color:var(--muted);padding:6px 0;margin:2px 0 0;font-size:14px}
 .row2{display:grid;grid-template-columns:1.5fr 1fr;gap:10px}
 .sum{display:flex;justify-content:space-between;align-items:baseline;margin:22px 0 6px;padding:16px 18px;border:1px solid var(--line);
   border-radius:16px;background:var(--bg2)}
@@ -100,10 +102,11 @@ button:active{transform:scale(.98)}
 <body>
 <div class="wrap">
 
-<!-- ① 設定 -->
-<section id="setup" class="screen on">
+<!-- ① 第一頁：選沖法、器具、豆子 -->
+<section id="pick" class="screen on">
+  <div class="stepind">1／3　選沖法與器具</div>
   <h1>手沖計時</h1>
-  <p class="sub">選沖法、設定粉量，按開始。</p>
+  <p class="sub">先選沖法，再填濾杯和豆子。</p>
 
   <label class="f" for="preset">沖法</label>
   <select id="preset"></select>
@@ -117,6 +120,19 @@ button:active{transform:scale(.98)}
   <label class="f" for="grind">研磨</label><input id="grind" type="text" placeholder="例：中細（像細砂糖）" autocomplete="off">
   <label class="f" for="bean">豆子</label><input id="bean" type="text" placeholder="例：衣索比亞 水洗 淺焙" autocomplete="off">
   <p class="note" id="gearNote"></p>
+
+  <button class="pri big" id="toSetup">下一步：粉量與水量 →</button>
+
+  <div class="log" id="logBox" style="display:none"><h3>最近的沖煮</h3><div id="logList"></div></div>
+  <p class="hint">手機請用 Safari 開啟，點「分享 → 加入主畫面」，就會像 App 一樣全螢幕。</p>
+</section>
+
+<!-- ② 第二頁：粉量、水粉比、水溫與每一段 -->
+<section id="setup" class="screen">
+  <div class="stepind">2／3　粉量與水量</div>
+  <button class="back" id="toPick">← 上一步</button>
+  <h1 id="setupTitle" style="font-size:22px"></h1>
+  <p class="sub" id="setupSub"></p>
 
   <div class="row">
     <div><label class="f" for="dose">粉量 g</label><input id="dose" type="number" inputmode="decimal" min="1" step="0.5"></div>
@@ -140,13 +156,10 @@ button:active{transform:scale(.98)}
   </div>
 
   <div class="sound"><i>🔔</i><div><b>請先開聲音</b>：計時換段時會有提示音。把手機音量調大，並確認機身側邊的<b>靜音撥片</b>沒有撥到靜音（露出橘色就是靜音，iPhone 靜音時網頁不會響）。</div></div>
-  <button class="pri big" style="margin-top:14px" id="start">開 始</button>
-
-  <div class="log" id="logBox" style="display:none"><h3>最近的沖煮</h3><div id="logList"></div></div>
-  <p class="hint">手機請用 Safari 開啟，點「分享 → 加入主畫面」，就會像 App 一樣全螢幕。</p>
+  <button class="pri big" style="margin-top:14px" id="start">開 始 沖 煮</button>
 </section>
 
-<!-- ② 計時 -->
+<!-- ③ 第三頁：沖煮與倒數 -->
 <section id="brew" class="screen">
   <div class="bar" id="bar"></div>
   <div class="top"><span id="recName"></span><span>已過 <b id="elapsed" style="color:var(--cream);font-weight:500">0:00</b></span></div>
@@ -463,7 +476,7 @@ document.addEventListener("visibilitychange", () => { if(document.visibilityStat
 let run = null, timer = null;
 const CIRC = 565.49;
 
-function show(id){ ["setup","brew","done"].forEach(s => $(s).classList.toggle("on", s === id)); window.scrollTo(0,0); }
+function show(id){ ["pick","setup","brew","done"].forEach(s => $(s).classList.toggle("on", s === id)); window.scrollTo(0,0); }
 
 function start(){
   const p = plan();
@@ -537,7 +550,15 @@ $("saveLog").onclick = () => {
   back();
 };
 $("again").onclick = () => back();
-function back(){ run = null; renderLog(); show("setup"); }
+function back(){ run = null; renderLog(); show("pick"); }   // 沖完回第一頁，準備下一杯
+function curName(){ return PRESETS[state.id] ? PRESETS[state.id].name : ((recipes[+state.id.slice(1)] || {}).name || "自訂"); }
+function toSetup(){
+  $("setupTitle").textContent = curName();
+  $("setupSub").textContent = [state.dripper, state.roast, state.grind].filter(Boolean).join("・") || "還沒填濾杯與焙度，可以回上一步補";
+  show("setup");
+}
+$("toSetup").onclick = toSetup;
+$("toPick").onclick = () => show("pick");
 
 /* ───────── 加入主畫面用的圖示（執行時畫出來）───────── */
 (function icon(){
