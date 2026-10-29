@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1c1410">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="手沖計時">
+<link rel="apple-touch-icon" id="touchIcon" href="">
+<title>手沖計時器</title>
+<style>
+:root{
+  --bg:#1c1410; --bg2:#261b15; --card:#2d211a; --line:#4a382c;
+  --cream:#f1e6d3; --muted:#a8957f; --copper:#c98b52; --copper2:#e0a872; --ok:#8fb083; --warn:#d6735a;
+  --serif:"Iowan Old Style","Palatino","Songti TC","Noto Serif TC","PMingLiU",Georgia,serif;
+  --sans:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--cream);font-family:var(--sans)}
+body{padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  background:radial-gradient(1200px 700px at 50% -10%,#3a2a20 0%,var(--bg) 60%);min-height:100dvh}
+.wrap{max-width:520px;margin:0 auto;padding:20px 20px 40px}
+h1{font-family:var(--serif);font-weight:500;font-size:28px;letter-spacing:.08em;margin:8px 0 2px}
+.sub{color:var(--muted);font-size:14px;margin:0 0 22px}
+.screen{display:none}.screen.on{display:block}
+label.f{display:block;color:var(--muted);font-size:13px;margin:16px 0 6px;letter-spacing:.05em}
+select,input[type=number],input[type=text]{width:100%;background:var(--card);color:var(--cream);border:1px solid var(--line);
+  border-radius:12px;padding:13px 14px;font:inherit;font-size:17px;appearance:none;-webkit-appearance:none}
+select{background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);
+  background-position:calc(100% - 20px) 55%,calc(100% - 14px) 55%;background-size:6px 6px,6px 6px;background-repeat:no-repeat}
+select:focus,input:focus{outline:none;border-color:var(--copper)}
+.row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.sum{display:flex;justify-content:space-between;align-items:baseline;margin:22px 0 6px;padding:16px 18px;border:1px solid var(--line);
+  border-radius:16px;background:var(--bg2)}
+.sum b{font-family:var(--serif);font-size:30px;font-weight:500;color:var(--copper2)}
+.sum span{color:var(--muted);font-size:13px}
+.steps{margin-top:8px;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--bg2)}
+.st{display:grid;grid-template-columns:28px 1fr 64px 64px 30px;gap:8px;align-items:center;padding:10px 12px;border-top:1px solid var(--line)}
+.st:first-child{border-top:0}
+.st .n{color:var(--copper);font-family:var(--serif);font-size:18px;text-align:center}
+.st .g{font-size:15px}.st .g small{display:block;color:var(--muted);font-size:12px}
+.st input{padding:8px 6px;font-size:15px;text-align:center;border-radius:9px}
+.st .x{background:none;border:0;color:var(--muted);font-size:20px;padding:0}
+.sth{display:grid;grid-template-columns:28px 1fr 64px 64px 30px;gap:8px;padding:8px 12px;color:var(--muted);font-size:11px;letter-spacing:.06em}
+.sth span:nth-child(3),.sth span:nth-child(4){text-align:center}
+.note{color:var(--muted);font-size:12.5px;line-height:1.6;margin:8px 2px}
+#presetNote{white-space:pre-line}
+.note.bad{color:var(--warn)}
+.btns{display:flex;gap:10px;margin-top:16px}
+button{font:inherit;cursor:pointer;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--cream);padding:13px 16px;font-size:15px}
+button.pri{background:var(--copper);border-color:var(--copper);color:#1c1410;font-weight:600;letter-spacing:.1em}
+button.big{width:100%;padding:18px;font-size:19px;margin-top:20px;border-radius:18px}
+button:active{transform:scale(.98)}
+.log{margin-top:26px}.log h3{font-family:var(--serif);font-weight:500;font-size:17px;margin:0 0 8px;color:var(--muted)}
+.li{display:flex;justify-content:space-between;gap:10px;padding:10px 2px;border-top:1px solid var(--line);font-size:14px}
+.li:first-of-type{border-top:0}.li small{color:var(--muted)}
+.stars{color:var(--copper2);letter-spacing:2px;white-space:nowrap}
+
+/* 計時畫面 */
+#brew{min-height:calc(100dvh - 60px);display:none;flex-direction:column}
+#brew.on{display:flex}
+.bar{display:flex;gap:5px;margin:6px 0 4px}
+.bar i{flex:1;height:4px;border-radius:3px;background:var(--line);overflow:hidden;display:block}
+.bar i b{display:block;height:100%;width:0;background:var(--copper)}
+.bar i.done b{width:100%}
+.top{display:flex;justify-content:space-between;color:var(--muted);font-size:13px;margin-top:8px}
+.mid{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:10px 0}
+.stname{font-family:var(--serif);font-size:22px;letter-spacing:.1em;color:var(--muted);margin:0 0 4px}
+.pour{font-family:var(--serif);font-size:76px;line-height:1.05;font-weight:500;color:var(--cream)}
+.pour small{font-size:30px;color:var(--copper2);margin-left:4px}
+.cum{color:var(--muted);font-size:15px;margin:6px 0 20px}
+.ring{position:relative;width:230px;height:230px}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:8}
+.ring .tr{stroke:var(--line)}.ring .pg{stroke:var(--copper);stroke-linecap:round;transition:stroke-dashoffset .12s linear}
+.ring .t{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring .t b{font-family:var(--serif);font-size:62px;font-weight:500;font-variant-numeric:tabular-nums}
+.ring .t span{color:var(--muted);font-size:13px;margin-top:2px}
+.nxt{color:var(--muted);font-size:14px;margin-top:18px;min-height:20px}
+.ctrl{display:grid;grid-template-columns:1fr 1.4fr 1fr;gap:10px}
+.ctrl button{padding:17px 8px;font-size:16px}
+.glow{animation:glow .9s ease-out}
+@keyframes glow{0%{text-shadow:0 0 0 #0000}30%{text-shadow:0 0 28px var(--copper)}100%{text-shadow:0 0 0 #0000}}
+
+/* 完成 */
+.done-t{font-family:var(--serif);font-size:34px;letter-spacing:.1em;margin:26px 0 6px;text-align:center}
+.done-s{color:var(--muted);text-align:center;margin:0 0 26px}
+.rate{display:flex;justify-content:center;gap:8px;margin:10px 0 18px}
+.rate button{font-size:30px;padding:6px 8px;border:0;background:none;color:var(--line)}
+.rate button.on{color:var(--copper2)}
+.hint{color:var(--muted);font-size:12px;text-align:center;margin-top:30px;line-height:1.7}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ① 設定 -->
+<section id="setup" class="screen on">
+  <h1>手沖計時</h1>
+  <p class="sub">選沖法、設定粉量，按開始。</p>
+
+  <label class="f" for="preset">沖法</label>
+  <select id="preset"></select>
+
+  <div class="row">
+    <div><label class="f" for="dose">粉量 g</label><input id="dose" type="number" inputmode="decimal" min="1" step="0.5"></div>
+    <div><label class="f" for="ratio">水粉比 1:</label><input id="ratio" type="number" inputmode="decimal" min="1" step="0.5"></div>
+    <div><label class="f" for="temp">水溫 °C</label><input id="temp" type="number" inputmode="numeric" min="60" max="100"></div>
+  </div>
+
+  <div class="sum"><div><span>總水量</span><br><b id="totalW">—</b></div><div style="text-align:right"><span>總時間</span><br><b id="totalT">—</b></div></div>
+
+  <div class="steps">
+    <div class="sth"><span>#</span><span>這一段</span><span>水量 %</span><span>秒數</span><span></span></div>
+    <div id="stepRows"></div>
+  </div>
+  <p class="note" id="pctNote"></p>
+  <p class="note" id="presetNote"></p>
+
+  <div class="btns">
+    <button id="addStep">＋ 加一段</button>
+    <button id="saveRecipe">存成我的配方</button>
+    <button id="delRecipe" style="display:none">刪除配方</button>
+  </div>
+
+  <button class="pri big" id="start">開 始</button>
+
+  <div class="log" id="logBox" style="display:none"><h3>最近的沖煮</h3><div id="logList"></div></div>
+  <p class="hint">手機請用 Safari 開啟，點「分享 → 加入主畫面」，就會像 App 一樣全螢幕。<br>聲音提示要先按過「開始」才會響。</p>
+</section>
+
+<!-- ② 計時 -->
+<section id="brew" class="screen">
+  <div class="bar" id="bar"></div>
+  <div class="top"><span id="recName"></span><span>已過 <b id="elapsed" style="color:var(--cream);font-weight:500">0:00</b></span></div>
+  <div class="mid">
+    <div class="stname" id="stName"></div>
+    <div class="pour"><span id="pourG">0</span><small>g</small></div>
+    <div class="cum" id="cum"></div>
+    <div class="ring">
+      <svg viewBox="0 0 200 200"><circle class="tr" cx="100" cy="100" r="90"/><circle class="pg" id="pg" cx="100" cy="100" r="90" stroke-dasharray="565.49" stroke-dashoffset="0"/></svg>
+      <div class="t"><b id="left">0:00</b><span id="leftLbl">這一段剩下</span></div>
+    </div>
+    <div class="nxt" id="nxt"></div>
+  </div>
+  <div class="ctrl">
+    <button id="endBtn">結束</button>
+    <button class="pri" id="pauseBtn">暫停</button>
+    <button id="skipBtn">下一段</button>
+  </div>
+</section>
+
+<!-- ③ 完成 -->
+<section id="done" class="screen">
+  <div class="done-t">沖好了</div>
+  <p class="done-s" id="doneSum"></p>
+  <label class="f" style="text-align:center">這杯口感</label>
+  <div class="rate" id="rate"></div>
+  <label class="f" for="note">筆記（選填）</label>
+  <input id="note" type="text" placeholder="例：偏酸，下次水溫高 1°C">
+  <button class="pri big" id="saveLog">存下這杯</button>
+  <button class="big" id="again" style="margin-top:10px">不存，回設定</button>
+</section>
+
+</div>
+
+<script>
+/* ───────── 沖法預設 ─────────
+   數字都是 2026-10-29 打開公開食譜頁核對的；來源寫在每個沖法的說明裡。
+   各段水量用「占總水量的 %」，所以改粉量或水粉比，克數會自動重算。 */
+const PRESETS = {
+  kasuya: {
+    name: "粕谷哲 4:6（2016 世界手沖盃冠軍）", dose: 20, ratio: 15, temp: 93,
+    steps: [
+      {n:"第 1 次注水（酸甜）", pct:20, sec:40},
+      {n:"第 2 次注水（酸甜）", pct:20, sec:40},
+      {n:"第 3 次注水（濃度）", pct:20, sec:40},
+      {n:"第 4 次注水（濃度）", pct:20, sec:30},
+      {n:"第 5 次注水（濃度）", pct:20, sec:30},
+      {n:"等水滴完", pct:0, sec:30}
+    ],
+    note: "粉 20g、水 300g（1:15），5 次各 60g，約 3:30 完成。前兩次（共 40%）調酸甜，後三次（共 60%）調濃淡：想更甜就第一次少、第二次多，想更酸反過來；太濃就把後三次改兩次各 90g，想更濃改四次各 45g（自己改下面的表）。\n水溫：淺焙 93°C、中焙 88°C、深焙 83°C，預設是淺焙。研磨偏粗。\n來源：Pull & Pour Coffee 的 V60 4:6 食譜（注水時間 0:00／0:40／1:20／2:00／2:30）。"
+  },
+  winton: {
+    name: "Matt Winton 五段式（2021 世界手沖盃冠軍）", dose: 20, ratio: 15, temp: 93,
+    steps: [
+      {n:"悶蒸（第 1 次）", pct:20, sec:30},
+      {n:"第 2 次注水", pct:20, sec:30},
+      {n:"第 3 次注水", pct:20, sec:30},
+      {n:"第 4 次注水", pct:20, sec:30},
+      {n:"第 5 次注水，再等水滴完", pct:20, sec:40}
+    ],
+    note: "粉 20g、水 300g（1:15），Hario V60，五次注水水量相同（來源寫 equal，所以各 60g 是推算）。兩壺水：悶蒸階段 93°C，後面階段 88°C 降低萃取；只有一壺水的話，注水之間把壺離開底座讓水溫自然降。\n注意：來源只寫「每次等 30 秒或粉床乾」和總時間 2:40，沒有逐秒時間點，上面的秒數是我照這兩個數字排的，不是他的原始記錄。88°C 是第幾次開始，來源也沒寫。\n來源：Honest Coffee Guide、Wikipedia 世界手沖盃冠軍表。"
+  },
+  wang: {
+    name: "Chad Wang（2017 世界手沖盃冠軍）", dose: 15, ratio: 16.67, temp: 93,
+    steps: [
+      {n:"先注 30g（螺旋）", pct:12, sec:30},
+      {n:"中心注水到 250g", pct:88, sec:45},
+      {n:"等水滴完", pct:0, sec:60}
+    ],
+    note: "粉 15g、水 250g，陶瓷 Hario V60（不預熱）。0:00 螺旋注 30g，0:30 起從中心慢慢注到 250g（約 40 到 45 秒），2:00 到 2:15 滴完。研磨要非常細（來源建議篩出約 400μm）。\n水溫：Barista Magazine 這頁寫 200°F（93°C），另一篇報導寫 92°C，兩邊差 1 度，我用 93。\n來源：Barista Magazine〈Chad Wang’s 2017 World Brewers Cup Championship Recipe〉。"
+  },
+  perger: {
+    name: "Matt Perger（2012 世界手沖盃冠軍）", dose: 12, ratio: 16.67, temp: 97,
+    steps: [
+      {n:"悶蒸 50g（要攪拌）", pct:25, sec:30},
+      {n:"第 2 次注水", pct:25, sec:30},
+      {n:"第 3 次注水", pct:50, sec:20},
+      {n:"等水滴完", pct:0, sec:60}
+    ],
+    note: "粉 12g、水 200g，V60。0:00 悶蒸 50g 並攪拌，0:30 再注 50g，1:00 再注 100g，約 2:20 完成。研磨中細（像細鹽）。\n注意：這是 2012 年比賽用的小份量，水溫 97°C 偏高；來源是 Long Shot London 部落格的轉錄，不是官方文件。每段秒數是我照「等 30 秒再注、總時 2:20」排的。\n來源：Long Shot London〈Matt Perger: The V60 pour over method〉，Il Caffè 食譜表的注水量與總時間一致。"
+  },
+  hoffmann: {
+    name: "James Hoffmann Ultimate V60（2007 世界咖啡師冠軍）", dose: 30, ratio: 16.67, temp: 94,
+    steps: [
+      {n:"悶蒸 60g（0:15 輕輕旋轉）", pct:12, sec:45},
+      {n:"注水到 300g", pct:48, sec:30},
+      {n:"注水到 500g", pct:40, sec:30},
+      {n:"輕輕旋轉，等水滴完", pct:0, sec:105}
+    ],
+    note: "粉 30g、水 500g（兩杯份量），V60，研磨中細（像細砂糖）。悶蒸 60g 到 0:45，之後慢慢繞圈注水，1:15 到 300g、1:45 到 500g，注完輕輕旋轉一下，約 3:30 滴完。\n注意：Hoffmann 拿的是世界咖啡師大賽（2007）冠軍，不是手沖盃。來源頁面兩處時間不一致（有寫 1:15 到 1:30 注完 500g），我用摘要那組。水溫來源寫 93 到 96°C，我取 94。\n來源：LAMOSE、Hario USA 的 Hoffmann V60 食譜頁。"
+  },
+  three: {
+    name: "三段式（自訂起點）", dose: 20, ratio: 16, temp: 92,
+    steps: [
+      {n:"悶蒸", pct:20, sec:40},
+      {n:"第 2 段注水", pct:40, sec:45},
+      {n:"第 3 段注水", pct:40, sec:60},
+      {n:"等水滴完", pct:0, sec:30}
+    ],
+    note: "我自己抓的三段起點（20% / 40% / 40%），不是哪位大師的配方，改成你喜歡的再存成自己的配方。"
+  }
+};
+
+/* ───────── 儲存（localStorage 失敗也能用）───────── */
+const store = {
+  get(k, d){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); return true; }catch(e){ return false; } }
+};
+
+const $ = id => document.getElementById(id);
+let state = { id:"kasuya", dose:20, ratio:15, temp:92, steps:[] };
+let recipes = store.get("pot_recipes", []);
+let logs = store.get("pot_log", []);
+
+const fmt = s => { s = Math.max(0, Math.ceil(s)); return Math.floor(s/60) + ":" + String(s%60).padStart(2,"0"); };
+const clone = o => JSON.parse(JSON.stringify(o));
+const num = (v, d) => { const x = parseFloat(v); return isFinite(x) && x > 0 ? x : d; };
+
+/* 每段實際水量：用累積百分比四捨五入，避免總和對不上 */
+function plan(){
+  const total = state.dose * state.ratio;
+  let cumPct = 0, prev = 0;
+  return state.steps.map(s => {
+    cumPct += s.pct;
+    const cum = Math.round(total * cumPct / 100);
+    const pour = cum - prev; prev = cum;
+    return { name:s.n, sec:s.sec, pct:s.pct, pour, cum };
+  });
+}
+
+/* ───────── 設定畫面 ───────── */
+function buildPresetSelect(){
+  const sel = $("preset"); sel.innerHTML = "";
+  const g1 = document.createElement("optgroup"); g1.label = "內建沖法";
+  for(const k in PRESETS){ const o = document.createElement("option"); o.value = k; o.textContent = PRESETS[k].name; g1.appendChild(o); }
+  sel.appendChild(g1);
+  if(recipes.length){
+    const g2 = document.createElement("optgroup"); g2.label = "我的配方";
+    recipes.forEach((r,i) => { const o = document.createElement("option"); o.value = "r"+i; o.textContent = r.name; g2.appendChild(o); });
+    sel.appendChild(g2);
+  }
+  sel.value = state.id;
+}
+function loadPreset(id){
+  let src;
+  if(id.startsWith("r")) src = recipes[+id.slice(1)]; else src = PRESETS[id];
+  if(!src){ id = "kasuya"; src = PRESETS.kasuya; }
+  state = { id, dose:src.dose, ratio:src.ratio, temp:src.temp, steps:clone(src.steps) };
+  $("dose").value = state.dose; $("ratio").value = state.ratio; $("temp").value = state.temp;
+  $("presetNote").textContent = src.note || "";
+  $("delRecipe").style.display = id.startsWith("r") ? "" : "none";
+  renderSteps();
+}
+function renderSteps(){
+  const p = plan(), box = $("stepRows"); box.innerHTML = "";
+  state.steps.forEach((s,i) => {
+    const d = document.createElement("div"); d.className = "st";
+    d.innerHTML = `<div class="n">${i+1}</div>
+      <div class="g">${s.n}<small>${s.pct ? "注 "+p[i].pour+"g → 累積 "+p[i].cum+"g" : "不注水"}</small></div>
+      <input type="number" inputmode="decimal" min="0" max="100" value="${s.pct}" data-i="${i}" data-k="pct" aria-label="水量百分比">
+      <input type="number" inputmode="numeric" min="5" value="${s.sec}" data-i="${i}" data-k="sec" aria-label="秒數">
+      <button class="x" data-del="${i}" aria-label="刪除這段">×</button>`;
+    box.appendChild(d);
+  });
+  summary();
+}
+function summary(){
+  const total = state.dose * state.ratio;
+  $("totalW").textContent = Math.round(total) + " g";
+  $("totalT").textContent = fmt(state.steps.reduce((a,s)=>a+s.sec,0));
+  const sum = state.steps.reduce((a,s)=>a+s.pct,0), n = $("pctNote");
+  if(Math.abs(sum-100) > .01){ n.className = "note bad"; n.textContent = "各段水量加起來是 " + sum + "%，不是 100%，實際總水量會變成 " + Math.round(total*sum/100) + "g。"; }
+  else { n.className = "note"; n.textContent = "各段水量加起來 100%。"; }
+}
+$("preset").onchange = e => loadPreset(e.target.value);
+for(const id of ["dose","ratio","temp"]) $(id).oninput = e => { state[id] = num(e.target.value, state[id]); renderSteps(); };
+$("stepRows").addEventListener("input", e => {
+  const t = e.target; if(!t.dataset.k) return;
+  state.steps[+t.dataset.i][t.dataset.k] = Math.max(0, parseFloat(t.value) || 0);
+  // 只更新文字，不重畫（避免輸入時掉焦點）
+  const p = plan();
+  document.querySelectorAll("#stepRows .st").forEach((row,i) => {
+    row.querySelector("small").textContent = state.steps[i].pct ? "注 "+p[i].pour+"g → 累積 "+p[i].cum+"g" : "不注水";
+  });
+  summary();
+});
+$("stepRows").addEventListener("click", e => {
+  const b = e.target.closest("[data-del]"); if(!b) return;
+  if(state.steps.length <= 1) return;
+  state.steps.splice(+b.dataset.del, 1); renderSteps();
+});
+$("addStep").onclick = () => {
+  const at = Math.max(0, state.steps.length - 1);   // 插在「等水滴完」前面
+  const last = state.steps[state.steps.length-1];
+  const idx = last && last.pct === 0 ? at : state.steps.length;
+  state.steps.splice(idx, 0, {n:"注水", pct:0, sec:45}); renderSteps();
+};
+$("saveRecipe").onclick = () => {
+  const name = prompt("配方名稱", state.id.startsWith("r") ? recipes[+state.id.slice(1)].name : "我的配方");
+  if(!name) return;
+  const r = { name:name.trim(), dose:state.dose, ratio:state.ratio, temp:state.temp, steps:clone(state.steps), note:"我存的配方。" };
+  const same = recipes.findIndex(x => x.name === r.name);
+  if(same >= 0) recipes[same] = r; else recipes.push(r);
+  if(!store.set("pot_recipes", recipes)) alert("這個瀏覽器不讓我存資料（可能是無痕模式），這次的配方不會保留。");
+  state.id = "r" + (same >= 0 ? same : recipes.length-1);
+  buildPresetSelect(); $("preset").value = state.id; $("delRecipe").style.display = "";
+};
+$("delRecipe").onclick = () => {
+  if(!state.id.startsWith("r")) return;
+  if(!confirm("刪除配方「" + recipes[+state.id.slice(1)].name + "」？")) return;
+  recipes.splice(+state.id.slice(1), 1); store.set("pot_recipes", recipes);
+  state.id = "kasuya"; buildPresetSelect(); loadPreset("kasuya");
+};
+function renderLog(){
+  const box = $("logBox"), list = $("logList");
+  if(!logs.length){ box.style.display = "none"; return; }
+  box.style.display = ""; list.innerHTML = "";
+  logs.slice(-5).reverse().forEach(l => {
+    const d = document.createElement("div"); d.className = "li";
+    d.innerHTML = `<div>${l.name}<br><small>${l.date}・${l.dose}g／${l.water}g・${l.temp}°C${l.note ? "・"+l.note : ""}</small></div><div class="stars">${"★".repeat(l.rating)}${"☆".repeat(5-l.rating)}</div>`;
+    list.appendChild(d);
+  });
+}
+
+/* ───────── 聲音（要在按「開始」的手勢裡建立才響）───────── */
+let ac = null;
+function beep(freq, dur, vol){
+  if(!ac) return;
+  try{
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.type = "sine"; o.frequency.value = freq;
+    g.gain.setValueAtTime(0.0001, ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(vol || .25, ac.currentTime + .02);
+    g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + dur);
+    o.connect(g); g.connect(ac.destination); o.start(); o.stop(ac.currentTime + dur + .05);
+  }catch(e){}
+}
+const tick = () => beep(660, .12, .18), stepBeep = () => { beep(880, .25, .3); setTimeout(()=>beep(1175, .3, .3), 180); };
+const doneBeep = () => [0,260,520].forEach(t => setTimeout(()=>beep(988, .35, .3), t));
+
+/* ───────── 不熄屏 ───────── */
+let wl = null;
+async function lockScreen(){ try{ if("wakeLock" in navigator) wl = await navigator.wakeLock.request("screen"); }catch(e){} }
+function unlockScreen(){ try{ if(wl){ wl.release(); wl = null; } }catch(e){} }
+document.addEventListener("visibilitychange", () => { if(document.visibilityState === "visible" && run && !run.paused) lockScreen(); });
+
+/* ───────── 計時 ───────── */
+let run = null, timer = null;
+const CIRC = 565.49;
+
+function show(id){ ["setup","brew","done"].forEach(s => $(s).classList.toggle("on", s === id)); window.scrollTo(0,0); }
+
+function start(){
+  const p = plan();
+  if(!p.length) return;
+  try{ ac = ac || new (window.AudioContext || window.webkitAudioContext)(); if(ac.state === "suspended") ac.resume(); }catch(e){ ac = null; }
+  run = { p, i:0, stepStart:Date.now(), t0:Date.now(), pausedAt:0, paused:false, warned:-1,
+          name: PRESETS[state.id] ? PRESETS[state.id].name : (recipes[+state.id.slice(1)]||{}).name || "自訂",
+          dose:state.dose, temp:state.temp, water:p[p.length-1].cum };
+  $("recName").textContent = run.name + "・" + state.dose + "g／" + Math.round(state.dose*state.ratio) + "g・" + state.temp + "°C";
+  $("bar").innerHTML = p.map(() => "<i><b></b></i>").join("");
+  $("pauseBtn").textContent = "暫停";
+  show("brew"); lockScreen(); stepBeep(); paintStep();
+  clearInterval(timer); timer = setInterval(loop, 100);
+}
+function paintStep(){
+  const s = run.p[run.i], total = run.p[run.p.length-1].cum, nx = run.p[run.i+1];
+  $("stName").textContent = s.name;
+  $("pourG").textContent = s.pct ? s.pour : "—";
+  $("cum").textContent = s.pct ? "累積 " + s.cum + " / " + total + " g" : "等咖啡液滴完，不用再注水";
+  $("leftLbl").textContent = "這一段剩下";
+  $("nxt").textContent = nx ? "下一段：" + (nx.pct ? "注 " + nx.pour + "g（累積 " + nx.cum + "g）" : nx.name) : "最後一段";
+  $("skipBtn").textContent = nx ? "下一段" : "完成";
+  const pg = $("stName").parentNode.querySelector(".pour"); pg.classList.remove("glow"); void pg.offsetWidth; pg.classList.add("glow");
+  document.querySelectorAll("#bar i").forEach((el,k) => { el.classList.toggle("done", k < run.i); if(k >= run.i) el.firstChild.style.width = "0"; });
+}
+function loop(){
+  if(!run || run.paused) return;
+  const now = Date.now(), s = run.p[run.i];
+  const el = (now - run.stepStart) / 1000, left = s.sec - el;
+  $("left").textContent = fmt(left);
+  $("elapsed").textContent = fmt((now - run.t0) / 1000);
+  $("pg").style.strokeDashoffset = (CIRC * (1 - Math.max(0, left) / s.sec)).toFixed(1);
+  const cur = document.querySelectorAll("#bar i")[run.i]; if(cur) cur.firstChild.style.width = Math.min(100, el / s.sec * 100) + "%";
+  const sec = Math.ceil(left);
+  if(sec <= 3 && sec >= 1 && run.warned !== run.i*100 + sec){ run.warned = run.i*100 + sec; tick(); }
+  if(left <= 0) next();
+}
+function next(){
+  if(run.i >= run.p.length - 1) return finish();
+  run.i++; run.stepStart = Date.now(); run.warned = -1; stepBeep(); paintStep();
+}
+function finish(){
+  clearInterval(timer); unlockScreen(); doneBeep();
+  const secs = Math.round((Date.now() - run.t0) / 1000);
+  run.total = secs;
+  $("doneSum").textContent = run.name + "・" + run.dose + "g／" + run.water + "g・" + run.temp + "°C・共 " + fmt(secs);
+  rating = 0; paintStars(); $("note").value = "";
+  show("done");
+}
+$("pauseBtn").onclick = () => {
+  if(!run) return;
+  if(!run.paused){ run.paused = true; run.pausedAt = Date.now(); $("pauseBtn").textContent = "繼續"; $("leftLbl").textContent = "已暫停"; }
+  else { const d = Date.now() - run.pausedAt; run.stepStart += d; run.t0 += d; run.paused = false; $("pauseBtn").textContent = "暫停"; $("leftLbl").textContent = "這一段剩下"; lockScreen(); }
+};
+$("skipBtn").onclick = () => { if(run && !run.paused) next(); };
+$("endBtn").onclick = () => { if(!confirm("結束這次沖煮？")) return; clearInterval(timer); unlockScreen(); run = null; show("setup"); };
+$("start").onclick = start;
+
+/* ───────── 完成：評分 ───────── */
+let rating = 0;
+function paintStars(){
+  $("rate").innerHTML = [1,2,3,4,5].map(n => `<button data-n="${n}" class="${n <= rating ? "on" : ""}" aria-label="${n} 顆星">★</button>`).join("");
+}
+$("rate").addEventListener("click", e => { const b = e.target.closest("[data-n]"); if(!b) return; rating = +b.dataset.n; paintStars(); });
+$("saveLog").onclick = () => {
+  if(!rating){ alert("先點一下星星打個分數"); return; }
+  const d = new Date();
+  logs.push({ date:(d.getMonth()+1) + "/" + d.getDate(), name:run.name, dose:run.dose, water:run.water, temp:run.temp, rating, note:$("note").value.trim() });
+  logs = logs.slice(-60);
+  if(!store.set("pot_log", logs)) alert("這個瀏覽器不讓我存資料（可能是無痕模式），這杯不會保留。");
+  back();
+};
+$("again").onclick = () => back();
+function back(){ run = null; renderLog(); show("setup"); }
+
+/* ───────── 加入主畫面用的圖示（執行時畫出來）───────── */
+(function icon(){
+  try{
+    const c = document.createElement("canvas"); c.width = c.height = 180; const x = c.getContext("2d");
+    x.fillStyle = "#1c1410"; x.fillRect(0,0,180,180);
+    x.strokeStyle = "#c98b52"; x.lineWidth = 9; x.beginPath(); x.arc(90,90,56,-Math.PI/2, Math.PI*1.2); x.stroke();
+    x.fillStyle = "#f1e6d3"; x.beginPath(); x.moveTo(90,58); x.bezierCurveTo(112,86,112,108,90,118); x.bezierCurveTo(68,108,68,86,90,58); x.fill();
+    $("touchIcon").href = c.toDataURL("image/png");
+  }catch(e){}
+})();
+
+buildPresetSelect(); loadPreset("kasuya"); renderLog();
+</script>
+</body>
+</html>
