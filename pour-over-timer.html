@@ -18,6 +18,8 @@
   --sans:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{touch-action:manipulation}
 html,body{margin:0;height:100%;background:var(--bg);color:var(--cream);font-family:var(--sans)}
 body{padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   background:radial-gradient(1200px 700px at 50% -10%,#3a2a20 0%,var(--bg) 60%);min-height:100dvh}
@@ -44,7 +46,7 @@ button.back{background:none;border:0;color:var(--muted);padding:6px 0;margin:2px
 .st:first-child{border-top:0}
 .st .n{color:var(--copper);font-family:var(--serif);font-size:18px;text-align:center}
 .st .g{font-size:15px}.st .g small{display:block;color:var(--muted);font-size:12px}
-.st input{padding:8px 6px;font-size:15px;text-align:center;border-radius:9px}
+.st input{padding:8px 6px;font-size:16px;text-align:center;border-radius:9px}
 .st .x{background:none;border:0;color:var(--muted);font-size:20px;padding:0}
 .sth{display:grid;grid-template-columns:28px 1fr 64px 64px 30px;gap:8px;padding:8px 12px;color:var(--muted);font-size:11px;letter-spacing:.06em}
 .sth span:nth-child(3),.sth span:nth-child(4){text-align:center}
@@ -357,7 +359,7 @@ const store = {
 };
 
 const $ = id => document.getElementById(id);
-const VERSION = "2026-10-30.3";
+const VERSION = "2026-10-30.4";
 const esc = t => String(t == null ? "" : t).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 let toastT = null;
 function toast(msg, ms){ const t = $("toast"); t.textContent = msg; t.style.display = "block"; clearTimeout(toastT); toastT = setTimeout(() => { t.style.display = "none"; }, ms || 6000); }
