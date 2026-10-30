@@ -231,15 +231,39 @@ const DRIPPERS = [
   ["其他常見款", ["Melitta 單孔梯形濾杯", "Chemex", "Hario Switch", "Clever 聰明濾杯", "法蘭絨（濾布）", "AeroPress"]]
 ];
 const DRIPPER_ALL = DRIPPERS.flatMap(g => g[1]);
-/* 磨豆機：只放有查證的兩支。數字都是第三方來源（兩家廠商都沒有用文字公布手沖刻度），只當起點 */
+/* 磨豆機（2026-10-30 查證）：兩家廠商都沒有用文字公布手沖刻度，數字幾乎都是第三方，各家常互相對不上。
+   起點只寫「多個來源重疊」的範圍；對不上或只有單一來源的，照實標明，不硬湊數字。
+   dial(n)：每圈 n 格、每 10 格一個轉盤數字的換算（1Zpresso 外部調整款）。 */
+const dial = per => c => { const r = Math.floor(c / per), n = Math.floor((c % per) / 10), t = c % 10; return "換算：" + (r ? r + " 圈又" : "") + "轉盤 " + n + "." + t + "（寫法 " + r + "." + n + "." + t + "）"; };
 const GRINDERS = {
-  "Comandante C40": {
-    hint: "刻度＝從零點起算的格數。找零點：磨豆機水平拿著，慢慢鎖緊調整器，到握把不再從 9 點鐘位置掉到 6 點鐘位置的那一格就是零（來源：Complete Home Barista）。\nV60 參考：22 到 25 格是多個來源重疊的範圍，起點可用 24 格；各來源寫的範圍從 16 到 35 格不等。每格約 30 微米（單一第三方，不是官方）。\n注意：我沒找到 Comandante 官方的手沖數字。紅色 Clix（Red Clix）是另一套調整系統，格數不能照這裡用。"
-  },
-  "1Zpresso K-Max": {
-    hint: "刻度＝從零點起算的格數。轉盤有 9 個數字，每個數字之間 10 格，一圈 90 格，每格約 22 微米（來源：1Zpresso 官網刻度表）。調整前先找零點。\nV60 參考：起點約 70 格（轉盤 7），第三方來源寫 50 到 90 格；淺焙偏細、深焙偏粗（Brew Coffee Home、BrewTuner、Honest Coffee Guide 三處接近）。\n注意：官網沒有用文字公布 K-Max 的手沖刻度（在圖片裡我讀不到），這裡的數字都是第三方。",
-    convert: c => { const r = Math.floor(c / 90), n = Math.floor((c % 90) / 10), t = c % 10; return "換算：" + (r ? r + " 圈又" : "") + "轉盤 " + n + "." + t + "（寫法 " + r + "." + n + "." + t + "）"; }
-  }
+  "Comandante C40": { group:"手搖",
+    hint: "刻度＝從零點起算的格數。找零點：磨豆機水平拿著，慢慢鎖緊調整器，到握把不再從 9 點鐘位置掉到 6 點鐘位置的那一格就是零（來源：Complete Home Barista）。\nV60 參考：22 到 25 格是多個來源重疊的範圍，起點可用 24 格；各來源寫的範圍從 16 到 35 格不等。每格約 30 微米（單一第三方，不是官方）。\n注意：我沒找到 Comandante 官方的手沖數字。紅色 Clix（Red Clix）是另一套調整系統，格數不能照這裡用。" },
+  "1Zpresso K-Max": { group:"手搖", convert: dial(90),
+    hint: "刻度＝從零點起算的格數。轉盤有 9 個數字，每個數字之間 10 格，一圈 90 格，每格約 22 微米（來源：1Zpresso 官網刻度表）。調整前先找零點。\nV60 參考：起點約 70 格（轉盤 7），第三方來源寫 50 到 90 格；淺焙偏細、深焙偏粗（Brew Coffee Home、BrewTuner、Honest Coffee Guide 三處接近）。\n注意：官網沒有用文字公布 K-Max 的手沖刻度（在圖片裡我讀不到），這裡的數字都是第三方。" },
+  "1Zpresso K-Ultra": { group:"手搖", convert: dial(100),
+    hint: "刻度＝從零點起算的格數。轉盤有 10 個數字，每個數字之間 10 格，一圈 100 格，每格約 0.02 毫米（來源：1Zpresso 官網刻度表）。\nV60 參考：官網文章寫「約 80 到 90 格當起點」，只是起點不是固定規則（來源：1Zpresso 官網文章）。" },
+  "1Zpresso ZP6": { group:"手搖", convert: dial(90),
+    hint: "刻度＝從零點起算的格數。官網刻度表只列 ZP6 Special：每圈 9 號、90 格，每格 0.022 毫米；一般 ZP6 的構造我沒有查到，換算請自行確認。\nV60 參考：官網文章寫「約 40 到 50 格當起點」（來源：1Zpresso 官網文章）。\n注意：有第三方寫 1.4 到 3.9 號（約 14 到 39 格），和官網的 40 到 50 格對不上，以官網為準。" },
+  "1Zpresso K-Plus／K-Pro": { group:"手搖", convert: dial(90),
+    hint: "刻度＝從零點起算的格數。官網刻度表：每圈 9 號、90 格，每格 0.022 毫米（和 K-Max 同一列）。\n我沒有查到這兩款的手沖刻度，請自己試並記錄，不要直接套用 K-Max 的數字。" },
+  "Timemore 栗子 C2": { group:"手搖",
+    hint: "刻度＝從零點起算的格數（來源：Honest Coffee Guide；零點怎麼定義它沒寫，請看你機器的說明書）。\nV60 參考：起點可用 18 格，這是最多來源一致的數字；各來源寫的範圍從 13 到 28 格不等。有二手資料說廠商手冊寫手沖 18 到 24 格，我沒能確認。\n注意：設定低於 6 格可能讓刀盤變鈍。" },
+  "Timemore 栗子 C3": { group:"手搖",
+    hint: "刻度＝從零點起算的格數。\nV60 參考：來源互相對不上：11 到 18 格、16 到 22 格、另一篇實測 14 格；重疊最多的是 16 到 18 格，可以從 18 格附近試。\n注意：C3S、C3 Pro 的調整系統和原版 C3 不同，格數不能互換。" },
+  "Hario Skerton": { group:"手搖",
+    hint: "刻度＝從零點起算的格數，只有 0 到 9 格左右，每一格差很多（來源：Honest Coffee Guide）。\nV60 參考：2 到 3 格；手沖通用 2 到 5 格。Honest Coffee Guide 與 Barista Life 兩處一致。\n注意：零點怎麼定義來源沒寫。" },
+  "Hario Mini Mill Slim": { group:"手搖",
+    hint: "刻度＝從零點起算的格數：先把調整盤鎖到底，再往回數格（來源：Prima Coffee）。\nV60 參考：來源差了一倍：Honest Coffee Guide 寫 5 到 8 格；Seattle Coffee Gear 針對 Slim PRO 寫 10 到 14 格。沒有可信的起點，請從中間試，並記錄你的結果。" },
+  "Kinu M47": { group:"手搖",
+    hint: "刻度＝圈數：旋轉調整盤，從零點起算。\nV60 參考：零售商寫 3 到 4.5 圈和 4.0 到 5.0 圈，重疊的是 4.0 到 4.5 圈。換成手沖專用刃盤，要比平常再調細約 0.5 到 1 圈（來源：Prima Coffee）。\n注意：我沒找到 Kinu 官方的手沖數字。" },
+  "小富士 Fuji Royal R-220": { group:"手搖",
+    hint: "第 1 格是「卡點」之後第一個可用的刻度（來源原文 chirp position，頁面沒有解釋；來源：Honest Coffee Guide）。\nV60 參考：約 2.5 到 5.5，只有單一來源，沒有第二個來源核對。論壇使用者說鬼齒刀盤在中細研磨很適合手沖；平刀才磨得出義式。\n注意：不同刀盤版本的刻度可能不同，請以你的機器為準。" },
+  "Baratza Encore": { group:"電動",
+    hint: "刻度大約 0 到 40，數字小是細（來源：Honest Coffee Guide，由圖表推斷）。\nV60 參考：各來源差很多：7 到 18、13 到 14、18 到 25、20 到 24，沒有一致的起點。這是我的建議，不是來源：先從 15 左右試，記錄你的結果。\n注意：有二手資料說 Encore ESP 的手冊寫 V60 為 25，我沒能確認，而且 ESP 與一般 Encore 是不同機型。" },
+  "Fellow Ode Gen 2": { group:"電動",
+    hint: "主刻度 1 到 11，數字小是細（來源：Honest Coffee Guide，由表格推斷）。\nV60 參考：起點約 5；來源寫 2.2 到 5.2、4.0 到 6.0、4 到 8，重疊的是 4.0 到 5.2。\n注意：有來源用 1 到 31 的不同編號，請先確認你機器的刻度怎麼標。" },
+  "小飛馬 飛馬牌 600N": { group:"電動",
+    hint: "我沒有查到可信的刻度或手沖範圍：台灣的來源只寫機型介紹，沒有刻度數字。已知（非官方文章）：600N 是 60 毫米平刀，610N 才是鬼齒刀盤，後者較適合手沖。\n請用你旋鈕上的數字自己記錄：沖一杯，就在「刻度」填一次，配合口感調整。601N、610N 請用「其他（自己填）」。" }
 };
 const GRINDER_ALL = Object.keys(GRINDERS);
 const GRINDER_TAIL = "\n數字只是起點，請用自己的豆子微調：偏酸或流速太快就調細，偏苦或流速太慢就調粗（來源：1Zpresso 官網文章）。";
@@ -374,7 +398,11 @@ function dripperHint(){
 }
 function buildGrinderSelect(){
   const sel = $("grinderSel"); sel.innerHTML = '<option value="">未指定</option>';
-  GRINDER_ALL.forEach(v => { const o = document.createElement("option"); o.value = v; o.textContent = v; sel.appendChild(o); });
+  ["手搖","電動"].forEach(grp => {
+    const g = document.createElement("optgroup"); g.label = grp;
+    GRINDER_ALL.filter(n => GRINDERS[n].group === grp).forEach(v => { const o = document.createElement("option"); o.value = v; o.textContent = v; g.appendChild(o); });
+    sel.appendChild(g);
+  });
   const o = document.createElement("option"); o.value = "__other"; o.textContent = "其他（自己填）…"; sel.appendChild(o);
 }
 function setGrinder(val){
