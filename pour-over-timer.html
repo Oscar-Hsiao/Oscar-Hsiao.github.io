@@ -74,28 +74,31 @@ button:active{transform:scale(.98)}
 .stars{color:var(--copper2);letter-spacing:2px;white-space:nowrap}
 
 /* 計時畫面 */
-#brew{min-height:calc(100dvh - 60px);display:none;flex-direction:column}
+#brew{display:none;position:fixed;top:0;bottom:0;left:50%;width:min(100%,520px);transform:translateX(-50%);z-index:5;flex-direction:column;overflow:hidden;
+  padding:calc(env(safe-area-inset-top) + 14px) 20px calc(env(safe-area-inset-bottom) + 16px);
+  background:radial-gradient(1200px 700px at 50% -10%,#3a2a20 0%,var(--bg) 60%) var(--bg)}
 #brew.on{display:flex}
+body.brewing{overflow:hidden}
 .bar{display:flex;gap:5px;margin:6px 0 4px}
 .bar i{flex:1;height:4px;border-radius:3px;background:var(--line);overflow:hidden;display:block}
 .bar i b{display:block;height:100%;width:0;background:var(--copper)}
 .bar i.done b{width:100%}
 .top{display:flex;justify-content:space-between;color:var(--muted);font-size:13px;margin-top:8px}
-.mid{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:10px 0}
-.stname{font-family:var(--serif);font-size:22px;letter-spacing:.1em;color:var(--muted);margin:0 0 4px}
-.pour{font-family:var(--serif);font-size:76px;line-height:1.05;font-weight:500;color:var(--cream)}
-.pour small{font-size:30px;color:var(--copper2);margin-left:4px}
-.cum{color:var(--muted);font-size:15px;margin:6px 0 20px}
-.ring{position:relative;width:230px;height:230px}
+.mid{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:10px 0}
+.stname{font-family:var(--serif);font-size:min(22px,3dvh);letter-spacing:.1em;color:var(--muted);margin:0 0 4px}
+.pour{font-family:var(--serif);font-size:min(76px,9.5dvh);line-height:1.05;font-weight:500;color:var(--cream)}
+.pour small{font-size:min(30px,4dvh);color:var(--copper2);margin-left:4px}
+.cum{color:var(--muted);font-size:15px;margin:6px 0 min(20px,2.2dvh)}
+.ring{position:relative;width:min(230px,27dvh);height:min(230px,27dvh)}
 .ring svg{width:100%;height:100%;transform:rotate(-90deg)}
 .ring circle{fill:none;stroke-width:8}
 .ring .tr{stroke:var(--line)}.ring .pg{stroke:var(--copper);stroke-linecap:round;transition:stroke-dashoffset .12s linear}
 .ring .t{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.ring .t b{font-family:var(--serif);font-size:62px;font-weight:500;font-variant-numeric:tabular-nums}
+.ring .t b{font-family:var(--serif);font-size:min(62px,7.5dvh);font-weight:500;font-variant-numeric:tabular-nums}
 .ring .t span{color:var(--muted);font-size:13px;margin-top:2px}
-.nxt{color:var(--muted);font-size:14px;margin-top:18px;min-height:20px}
+.nxt{color:var(--muted);font-size:14px;margin-top:min(18px,2dvh);min-height:20px}
 .ctrl{display:grid;grid-template-columns:1fr 1.4fr 1fr;gap:10px}
-.ctrl button{padding:17px 8px;font-size:16px}
+.ctrl button{padding:17px 8px;font-size:16px;min-height:56px}
 .glow{animation:glow .9s ease-out}
 @keyframes glow{0%{text-shadow:0 0 0 #0000}30%{text-shadow:0 0 28px var(--copper)}100%{text-shadow:0 0 0 #0000}}
 
@@ -359,7 +362,7 @@ const store = {
 };
 
 const $ = id => document.getElementById(id);
-const VERSION = "2026-10-30.4";
+const VERSION = "2026-10-30.5";
 const esc = t => String(t == null ? "" : t).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 let toastT = null;
 function toast(msg, ms){ const t = $("toast"); t.textContent = msg; t.style.display = "block"; clearTimeout(toastT); toastT = setTimeout(() => { t.style.display = "none"; }, ms || 6000); }
@@ -668,7 +671,7 @@ document.addEventListener("visibilitychange", () => {
 let run = null, timer = null;
 const CIRC = 565.49;
 
-function show(id){ ["pick","setup","brew","done"].forEach(s => $(s).classList.toggle("on", s === id)); window.scrollTo(0,0); }
+function show(id){ ["pick","setup","brew","done"].forEach(s => $(s).classList.toggle("on", s === id)); document.body.classList.toggle("brewing", id === "brew"); window.scrollTo(0,0); }
 
 function start(){
   if(validate().length) { summary(); return; }
