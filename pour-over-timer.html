@@ -133,7 +133,9 @@ button:active{transform:scale(.98)}
   <input id="grinder" type="text" placeholder="輸入你的磨豆機名稱" autocomplete="off" style="display:none;margin-top:10px">
   <p class="note" id="grinderConv"></p>
   <details id="grinderDet" style="display:none"><summary>這台磨豆機的刻度說明與參考起點</summary><p class="note" id="grinderNote"></p></details>
-  <label class="f" for="grind">研磨</label><input id="grind" type="text" placeholder="例：中細（像細砂糖）" autocomplete="off">
+  <label class="f" for="grindSel">研磨粗細</label><select id="grindSel"></select>
+  <input id="grind" type="text" placeholder="輸入你的研磨描述，例如：中細偏粗" autocomplete="off" style="display:none;margin-top:10px">
+  <p class="note" id="grindNote"></p>
   <label class="f" for="bean">豆子</label><input id="bean" type="text" placeholder="例：衣索比亞 水洗 淺焙" autocomplete="off">
   <p class="note" id="gearNote"></p>
 
@@ -220,16 +222,16 @@ button:active{transform:scale(.98)}
 /* 器具／焙度／研磨／豆子：只填來源有寫的，來源沒寫的留空，由你自己填。
    gearNote 是「大師原本用的」，你改自己的設定時不會被改掉。 */
 const GEAR = {
-  kasuya:   { dripper:"Hario V60", roast:"淺焙", grind:"中粗到粗（來源：類似法壓壺的粗細）", bean:"",
-              gearNote:"來源：Pull & Pour 的 V60 4:6 食譜（淺焙 93°C）。來源沒寫他比賽用的豆子。4:6 的拆法也能用在其他濾杯。" },
-  winton:   { dripper:"Hario V60（金屬）", roast:"淺焙", grind:"中度研磨", bean:"",
-              gearNote:"大師原用：Hario V60 金屬濾杯、Kinu M47 磨豆機；比賽用豆是 Eugenioides（哥倫比亞 Finca Inmaculada，日曬）混水洗 Catucai（厄瓜多），一般人買不到，換成你手上的淺焙豆即可。來源：Wikipedia 冠軍表、Honest Coffee Guide。" },
-  wang:     { dripper:"Hario V60（陶瓷）", roast:"淺焙", grind:"非常細（來源建議篩出約 400μm）", bean:"",
-              gearNote:"大師原用：陶瓷 V60，不預熱濾杯；比賽用豆是巴拿馬 Ninety Plus Geisha（日曬）。來源說這個配方適合淺焙，焙度越深，水粉比要越小、研磨要越粗。來源：Barista Magazine、Long Shot London。" },
-  perger:   { dripper:"Hario V60", roast:"", grind:"中細（像細鹽）", bean:"",
-              gearNote:"大師原用：V60；比賽用豆是巴拿馬 Finca Santa 水洗 Geisha。來源沒寫焙度與濾杯材質。來源：Long Shot London。" },
-  hoffmann: { dripper:"Hario V60", roast:"", grind:"中細（像細砂糖）", bean:"",
-              gearNote:"來源沒寫焙度與濾杯尺寸；水溫 93 到 96°C，淺焙用偏高那一端。來源：LAMOSE、Hario USA。" },
+  kasuya:   { dripper:"Hario V60", roast:"淺焙", grind:"中粗", bean:"",
+              gearNote:"研磨：來源寫「粗，類似法壓壺的粗細」（Pull & Pour）和「中粗」（Honest Coffee Guide），這裡選中粗。來源：Pull & Pour 的 V60 4:6 食譜（淺焙 93°C）。來源沒寫他比賽用的豆子。4:6 的拆法也能用在其他濾杯。" },
+  winton:   { dripper:"Hario V60（金屬）", roast:"淺焙", grind:"中", bean:"",
+              gearNote:"研磨：來源寫「中度研磨」，這裡選中。大師原用：Hario V60 金屬濾杯、Kinu M47 磨豆機；比賽用豆是 Eugenioides（哥倫比亞 Finca Inmaculada，日曬）混水洗 Catucai（厄瓜多），一般人買不到，換成你手上的淺焙豆即可。來源：Wikipedia 冠軍表、Honest Coffee Guide。" },
+  wang:     { dripper:"Hario V60（陶瓷）", roast:"淺焙", grind:"細", bean:"",
+              gearNote:"研磨：來源寫「非常細」，建議篩出約 400μm；選單裡沒有完全對應的，這裡先選細，要更細請改選極細。大師原用：陶瓷 V60，不預熱濾杯；比賽用豆是巴拿馬 Ninety Plus Geisha（日曬）。來源說這個配方適合淺焙，焙度越深，水粉比要越小、研磨要越粗。來源：Barista Magazine、Long Shot London。" },
+  perger:   { dripper:"Hario V60", roast:"", grind:"中細", bean:"",
+              gearNote:"研磨：來源寫「中細，像細鹽的粗細」，這裡選中細。大師原用：V60；比賽用豆是巴拿馬 Finca Santa 水洗 Geisha。來源沒寫焙度與濾杯材質。來源：Long Shot London。" },
+  hoffmann: { dripper:"Hario V60", roast:"", grind:"中細", bean:"",
+              gearNote:"研磨：來源寫「中細，像細砂糖」，這裡選中細。來源沒寫焙度與濾杯尺寸；水溫 93 到 96°C，淺焙用偏高那一端。來源：LAMOSE、Hario USA。" },
   three:    { dripper:"", roast:"", grind:"", bean:"", gearNote:"" }
 };
 // 粕谷哲：焙度改了水溫跟著換（來源：淺焙 93°C、中焙 88°C、深焙 83°C）
@@ -241,6 +243,10 @@ const DRIPPERS = [
   ["其他常見款", ["Melitta 單孔梯形濾杯", "Chemex", "Hario Switch", "Clever 聰明濾杯", "法蘭絨（濾布）", "AeroPress"]]
 ];
 const DRIPPER_ALL = DRIPPERS.flatMap(g => g[1]);
+/* 研磨粗細：先給常用的，沒有再自己填 */
+const GRINDS = ["極細", "細", "中細", "中細到中", "中", "中粗", "粗", "極粗"];
+/* 各濾杯常見的研磨粗細（來源：1Zpresso 官網文章：V60 中細、Kalita 中、Chemex 中粗、Origami 中到中細）；沒有資料的濾杯就不顯示 */
+const GRIND_BY_DRIPPER = [[/V60/i, "中細"], [/Kalita/i, "中"], [/Chemex/i, "中粗"], [/Origami/i, "中到中細"]];
 /* 磨豆機（2026-10-30 查證）：兩家廠商都沒有用文字公布手沖刻度，數字幾乎都是第三方，各家常互相對不上。
    起點只寫「多個來源重疊」的範圍；對不上或只有單一來源的，照實標明，不硬湊數字。
    dial(n)：每圈 n 格、每 10 格一個轉盤數字的換算（1Zpresso 外部調整款）。 */
@@ -351,7 +357,7 @@ const store = {
 };
 
 const $ = id => document.getElementById(id);
-const VERSION = "2026-10-30.2";
+const VERSION = "2026-10-30.3";
 const esc = t => String(t == null ? "" : t).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 let toastT = null;
 function toast(msg, ms){ const t = $("toast"); t.textContent = msg; t.style.display = "block"; clearTimeout(toastT); toastT = setTimeout(() => { t.style.display = "none"; }, ms || 6000); }
@@ -404,7 +410,24 @@ function setDripper(val){
   else { sel.value = "__other"; txt.style.display = ""; txt.value = val; }
   dripperHint();
 }
+function buildGrindSelect(){
+  const sel = $("grindSel"); sel.innerHTML = '<option value="">未指定</option>';
+  GRINDS.forEach(v => { const o = document.createElement("option"); o.value = v; o.textContent = v; sel.appendChild(o); });
+  const o = document.createElement("option"); o.value = "__other"; o.textContent = "其他（自己填）…"; sel.appendChild(o);
+}
+function setGrind(val){
+  val = val || ""; state.grind = val;
+  const sel = $("grindSel"), txt = $("grind");
+  if(val === "" || GRINDS.includes(val)){ sel.value = val; txt.style.display = "none"; txt.value = ""; }
+  else { sel.value = "__other"; txt.style.display = ""; txt.value = val; }
+  grindHint();
+}
+function grindHint(){
+  const d = state.dripper || "", hit = GRIND_BY_DRIPPER.find(([re]) => re.test(d));
+  $("grindNote").textContent = hit ? "這個濾杯常見的研磨粗細：" + hit[1] + "（來源：1Zpresso 官網文章），只是起點，依你的豆子微調。" : "";
+}
 function dripperHint(){
+  grindHint();
   const d = state.dripper || "";
   $("dripperNote").textContent = (d && !/V60/i.test(d))
     ? "提醒：大師的配方多半是用 V60 沖的。換成別的濾杯，水流和滴濾速度會不同，第一次沖完如果偏酸或偏苦，先微調研磨粗細，再改水溫。（粕谷哲 4:6 的來源說這個拆法也能用在其他濾杯。）"
@@ -442,7 +465,7 @@ function loadPreset(id){
             dripper:gr.dripper || "", roast:gr.roast || "", grind:gr.grind || "", bean:gr.bean || "",
             grinder:gr.grinder || "", clicks:gr.clicks || "" };
   $("dose").value = state.dose; $("ratio").value = state.ratio; $("temp").value = state.temp;
-  setDripper(state.dripper); setGrinder(state.grinder); $("clicks").value = state.clicks; $("roast").value = state.roast; $("grind").value = state.grind; $("bean").value = state.bean;
+  setDripper(state.dripper); setGrinder(state.grinder); $("clicks").value = state.clicks; $("roast").value = state.roast; setGrind(state.grind); $("bean").value = state.bean;
   $("gearNote").textContent = id.startsWith("r") ? "" : (gr.gearNote || "");
   $("presetNote").textContent = src.note || "";
   $("delRecipe").style.display = id.startsWith("r") ? "" : "none";
@@ -493,7 +516,13 @@ $("grinderSel").onchange = e => {
 };
 $("grinder").oninput = e => { state.grinder = e.target.value.trim(); grinderHint(); };
 $("clicks").oninput = e => { state.clicks = e.target.value.trim(); grinderHint(); };
-for(const id of ["grind","bean"]) $(id).oninput = e => { state[id] = e.target.value.trim(); };
+$("bean").oninput = e => { state.bean = e.target.value.trim(); };
+$("grindSel").onchange = e => {
+  const v = e.target.value;
+  if(v === "__other"){ $("grind").style.display = ""; $("grind").focus(); state.grind = $("grind").value.trim(); }
+  else { $("grind").style.display = "none"; state.grind = v; }
+};
+$("grind").oninput = e => { state.grind = e.target.value.trim(); };
 $("dripperSel").onchange = e => {
   const v = e.target.value;
   if(v === "__other"){ $("dripper").style.display = ""; $("dripper").focus(); state.dripper = $("dripper").value.trim(); }
@@ -817,7 +846,7 @@ $("ver").textContent = "版本 " + VERSION;
   }catch(e){}
 })();
 
-buildDripperSelect(); buildGrinderSelect(); buildPresetSelect(); loadPreset("kasuya"); renderLog();
+buildDripperSelect(); buildGrinderSelect(); buildGrindSelect(); buildPresetSelect(); loadPreset("kasuya"); renderLog();
 </script>
 </body>
 </html>
