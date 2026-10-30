@@ -58,6 +58,12 @@ button.pri{background:var(--copper);border-color:var(--copper);color:#1c1410;fon
 .sound{display:flex;gap:10px;align-items:flex-start;margin:20px 0 0;padding:12px 14px;border:1px solid var(--copper);border-radius:14px;background:rgba(201,139,82,.1);color:var(--cream);font-size:14px;line-height:1.6}
 .sound i{font-style:normal;font-size:20px;line-height:1.3}
 .sound-s{text-align:center;color:var(--muted);font-size:12.5px;margin:0 0 10px}
+button:disabled{opacity:.35;cursor:not-allowed}
+button.mini{padding:8px 12px;font-size:13px;margin-top:8px;color:var(--warn);border-color:var(--warn);background:none}
+.li .x{background:none;border:0;color:var(--muted);font-size:20px;padding:0 4px;line-height:1}
+.li .r{display:flex;align-items:center;gap:4px}
+.tools{display:flex;gap:10px;margin-top:18px}.tools button{flex:1;font-size:14px;padding:11px 8px}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translateX(-50%);max-width:88vw;background:var(--card);border:1px solid var(--copper);color:var(--cream);padding:12px 16px;border-radius:14px;font-size:14px;line-height:1.5;z-index:9;display:none;text-align:center}
 button.big{width:100%;padding:18px;font-size:19px;margin-top:20px;border-radius:18px}
 button:active{transform:scale(.98)}
 .log{margin-top:26px}.log h3{font-family:var(--serif);font-weight:500;font-size:17px;margin:0 0 8px;color:var(--muted)}
@@ -104,6 +110,7 @@ button:active{transform:scale(.98)}
 <div class="wrap">
 
 <!-- ① 第一頁：選沖法、器具、豆子 -->
+<div id="toast" role="status"></div>
 <section id="pick" class="screen on">
   <div class="stepind">1／3　選沖法與器具</div>
   <h1>手沖計時</h1>
@@ -111,6 +118,7 @@ button:active{transform:scale(.98)}
 
   <label class="f" for="preset">沖法</label>
   <select id="preset"></select>
+  <button class="mini" id="delRecipe" style="display:none">刪除這個配方</button>
 
   <div class="row2">
     <div><label class="f" for="dripperSel">濾杯／器具</label><select id="dripperSel"></select></div>
@@ -131,8 +139,10 @@ button:active{transform:scale(.98)}
 
   <button class="pri big" id="toSetup">下一步：粉量與水量 →</button>
 
-  <div class="log" id="logBox" style="display:none"><h3>最近的沖煮</h3><div id="logList"></div></div>
-  <p class="hint">手機請用 Safari 開啟，點「分享 → 加入主畫面」，就會像 App 一樣全螢幕。</p>
+  <div class="log" id="logBox" style="display:none"><h3>最近的沖煮</h3><div id="logList"></div><button id="logMore" class="mini" style="color:var(--muted);border-color:var(--line);display:none"></button></div>
+  <div class="tools"><button id="exportBtn">匯出備份</button><button id="importBtn">匯入備份</button></div>
+  <input id="importFile" type="file" accept="application/json,.json" style="display:none">
+  <p class="hint">手機請用 Safari 開啟，點「分享 → 加入主畫面」，就會像 App 一樣全螢幕。<br>配方和紀錄只存在這支手機，換手機或清除網站資料前，先按「匯出備份」。<br><span id="ver"></span></p>
 </section>
 
 <!-- ② 第二頁：粉量、水粉比、水溫與每一段 -->
@@ -160,10 +170,10 @@ button:active{transform:scale(.98)}
   <div class="btns">
     <button id="addStep">＋ 加一段</button>
     <button id="saveRecipe">存成我的配方</button>
-    <button id="delRecipe" style="display:none">刪除配方</button>
   </div>
 
   <div class="sound"><i>🔔</i><div><b>請先開聲音</b>：計時換段時會有提示音。把手機音量調大，並確認機身側邊的<b>靜音撥片</b>沒有撥到靜音（露出橘色就是靜音，iPhone 靜音時網頁不會響）。</div></div>
+  <p class="note bad" id="startErr"></p>
   <button class="pri big" style="margin-top:14px" id="start">開 始 沖 煮</button>
 </section>
 
@@ -341,6 +351,10 @@ const store = {
 };
 
 const $ = id => document.getElementById(id);
+const VERSION = "2026-10-30.1";
+const esc = t => String(t == null ? "" : t).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let toastT = null;
+function toast(msg, ms){ const t = $("toast"); t.textContent = msg; t.style.display = "block"; clearTimeout(toastT); toastT = setTimeout(() => { t.style.display = "none"; }, ms || 6000); }
 let state = { id:"kasuya", dose:20, ratio:15, temp:92, steps:[] };
 let recipes = store.get("pot_recipes", []);
 let logs = store.get("pot_log", []);
@@ -351,7 +365,7 @@ const num = (v, d) => { const x = parseFloat(v); return isFinite(x) && x > 0 ? x
 
 /* 每段實際水量：用累積百分比四捨五入，避免總和對不上 */
 function plan(){
-  const total = state.dose * state.ratio;
+  const total = (state.dose * state.ratio) || 0;
   let cumPct = 0, prev = 0;
   return state.steps.map(s => {
     cumPct += s.pct;
@@ -439,7 +453,7 @@ function renderSteps(){
   state.steps.forEach((s,i) => {
     const d = document.createElement("div"); d.className = "st";
     d.innerHTML = `<div class="n">${i+1}</div>
-      <div class="g">${s.n}<small>${s.pct ? "注 "+p[i].pour+"g → 累積 "+p[i].cum+"g" : "不注水"}</small></div>
+      <div class="g">${esc(s.n)}<small>${s.pct ? "注 "+p[i].pour+"g → 累積 "+p[i].cum+"g" : "不注水"}</small></div>
       <input type="number" inputmode="decimal" min="0" max="100" value="${s.pct}" data-i="${i}" data-k="pct" aria-label="水量百分比">
       <input type="number" inputmode="numeric" min="5" value="${s.sec}" data-i="${i}" data-k="sec" aria-label="秒數">
       <button class="x" data-del="${i}" aria-label="刪除這段">×</button>`;
@@ -447,13 +461,28 @@ function renderSteps(){
   });
   summary();
 }
+/* 防呆：不合理的數字不讓開始，並把原因寫出來 */
+function validate(){
+  const e = [], st = state.steps;
+  if(!(state.dose >= 5 && state.dose <= 100)) e.push("粉量要在 5 到 100 克之間");
+  if(!(state.ratio >= 5 && state.ratio <= 30)) e.push("水粉比要在 1:5 到 1:30 之間");
+  if(!(state.temp >= 60 && state.temp <= 100)) e.push("水溫要在 60 到 100°C 之間");
+  const sum = st.reduce((a,x) => a + x.pct, 0);
+  if(Math.abs(sum - 100) > .01) e.push("各段水量加起來要是 100%（現在是 " + (Math.round(sum*100)/100) + "%）");
+  if(!st.some(x => x.pct > 0)) e.push("至少要有一段注水");
+  st.forEach((x,i) => { if(!(x.sec >= 5)) e.push("第 " + (i+1) + " 段秒數至少 5 秒"); else if(x.sec > 600) e.push("第 " + (i+1) + " 段秒數不能超過 600 秒"); });
+  return e;
+}
 function summary(){
   const total = state.dose * state.ratio;
-  $("totalW").textContent = Math.round(total) + " g";
-  $("totalT").textContent = fmt(state.steps.reduce((a,s)=>a+s.sec,0));
+  $("totalW").textContent = isFinite(total) ? Math.round(total) + " g" : "—";
+  $("totalT").textContent = fmt(state.steps.reduce((a,s)=>a+(s.sec||0),0));
   const sum = state.steps.reduce((a,s)=>a+s.pct,0), n = $("pctNote");
-  if(Math.abs(sum-100) > .01){ n.className = "note bad"; n.textContent = "各段水量加起來是 " + sum + "%，不是 100%，實際總水量會變成 " + Math.round(total*sum/100) + "g。"; }
+  if(Math.abs(sum-100) > .01){ n.className = "note bad"; n.textContent = "各段水量加起來是 " + (Math.round(sum*100)/100) + "%，不是 100%。"; }
   else { n.className = "note"; n.textContent = "各段水量加起來 100%。"; }
+  const errs = validate(), box = $("startErr");
+  box.innerHTML = errs.length ? "<b>還不能開始：</b><br>" + errs.map(x => "・" + esc(x)).join("<br>") : "";
+  $("start").disabled = errs.length > 0;
 }
 $("preset").onchange = e => loadPreset(e.target.value);
 $("grinderSel").onchange = e => {
@@ -477,7 +506,7 @@ $("roast").onchange = e => {
   const t = TEMP_BY_ROAST[state.id];
   if(t && t[state.roast]){ state.temp = t[state.roast]; $("temp").value = state.temp; }
 };
-for(const id of ["dose","ratio","temp"]) $(id).oninput = e => { state[id] = num(e.target.value, state[id]); renderSteps(); };
+for(const id of ["dose","ratio","temp"]) $(id).oninput = e => { state[id] = parseFloat(e.target.value); renderSteps(); };
 $("stepRows").addEventListener("input", e => {
   const t = e.target; if(!t.dataset.k) return;
   state.steps[+t.dataset.i][t.dataset.k] = Math.max(0, parseFloat(t.value) || 0);
@@ -500,9 +529,10 @@ $("addStep").onclick = () => {
   state.steps.splice(idx, 0, {n:"注水", pct:0, sec:45}); renderSteps();
 };
 $("saveRecipe").onclick = () => {
+  if(validate().length){ alert("先把「還不能開始」列出的問題改好，才能存成配方。"); return; }
   const name = prompt("配方名稱", state.id.startsWith("r") ? recipes[+state.id.slice(1)].name : "我的配方");
-  if(!name) return;
-  const r = { name:name.trim(), dose:state.dose, ratio:state.ratio, temp:state.temp, steps:clone(state.steps), dripper:state.dripper, roast:state.roast, grind:state.grind, bean:state.bean, grinder:state.grinder, clicks:state.clicks, note:"我存的配方。" };
+  if(!name || !name.trim()) return;
+  const r = { name:name.trim().slice(0,30), dose:state.dose, ratio:state.ratio, temp:state.temp, steps:clone(state.steps), dripper:state.dripper, roast:state.roast, grind:state.grind, bean:state.bean, grinder:state.grinder, clicks:state.clicks, note:"我存的配方。" };
   const same = recipes.findIndex(x => x.name === r.name);
   if(same >= 0) recipes[same] = r; else recipes.push(r);
   if(!store.set("pot_recipes", recipes)) alert("這個瀏覽器不讓我存資料（可能是無痕模式），這次的配方不會保留。");
@@ -515,16 +545,32 @@ $("delRecipe").onclick = () => {
   recipes.splice(+state.id.slice(1), 1); store.set("pot_recipes", recipes);
   state.id = "kasuya"; buildPresetSelect(); loadPreset("kasuya");
 };
+let logAll = false;
+function logLine(l){ return [l.date, l.dose + "g／" + l.water + "g", l.temp + "°C", l.dripper, l.roast, l.grinder ? l.grinder + (l.clicks ? " " + l.clicks : "") : "", l.note].filter(Boolean).join("・"); }
 function renderLog(){
-  const box = $("logBox"), list = $("logList");
+  const box = $("logBox"), list = $("logList"), more = $("logMore");
   if(!logs.length){ box.style.display = "none"; return; }
   box.style.display = ""; list.innerHTML = "";
-  logs.slice(-5).reverse().forEach(l => {
+  const rows = logs.map((l,i) => ({ l, i })).reverse();
+  (logAll ? rows : rows.slice(0, 5)).forEach(({ l, i }) => {
     const d = document.createElement("div"); d.className = "li";
-    d.innerHTML = `<div>${l.name}<br><small>${l.date}・${l.dose}g／${l.water}g・${l.temp}°C${l.dripper ? "・"+l.dripper : ""}${l.roast ? "・"+l.roast : ""}${l.grinder ? "・"+l.grinder+(l.clicks ? " "+l.clicks : "") : ""}${l.note ? "・"+l.note : ""}</small></div><div class="stars">${"★".repeat(l.rating)}${"☆".repeat(5-l.rating)}</div>`;
-    list.appendChild(d);
+    const left = document.createElement("div"); left.append(l.name, document.createElement("br"));
+    const sm = document.createElement("small"); sm.textContent = logLine(l); left.appendChild(sm);
+    const right = document.createElement("div"); right.className = "r";
+    const st = document.createElement("span"); st.className = "stars"; st.textContent = "★".repeat(l.rating) + "☆".repeat(5 - l.rating);
+    const x = document.createElement("button"); x.className = "x"; x.dataset.li = i; x.setAttribute("aria-label", "刪除這筆紀錄"); x.textContent = "×";
+    right.append(st, x); d.append(left, right); list.appendChild(d);
   });
+  more.style.display = logs.length > 5 ? "" : "none";
+  more.textContent = logAll ? "只看最近 5 筆" : "看全部（" + logs.length + " 筆）";
 }
+$("logList").addEventListener("click", e => {
+  const b = e.target.closest("[data-li]"); if(!b) return;
+  const i = +b.dataset.li; if(!logs[i]) return;
+  if(!confirm("刪除這筆紀錄？\n" + logs[i].name + "・" + logs[i].date)) return;
+  logs.splice(i, 1); store.set("pot_log", logs); renderLog();
+});
+$("logMore").onclick = () => { logAll = !logAll; renderLog(); };
 
 /* ───────── 聲音（要在按「開始」的手勢裡建立才響）───────── */
 let ac = null;
@@ -546,7 +592,15 @@ const doneBeep = () => [0,260,520].forEach(t => setTimeout(()=>beep(988, .35, .3
 let wl = null;
 async function lockScreen(){ try{ if("wakeLock" in navigator) wl = await navigator.wakeLock.request("screen"); }catch(e){} }
 function unlockScreen(){ try{ if(wl){ wl.release(); wl = null; } }catch(e){} }
-document.addEventListener("visibilitychange", () => { if(document.visibilityState === "visible" && run && !run.paused) lockScreen(); });
+let hiddenAt = 0;
+document.addEventListener("visibilitychange", () => {
+  if(document.visibilityState === "hidden"){ hiddenAt = Date.now(); return; }
+  if(run && !run.paused){
+    lockScreen();
+    if(hiddenAt && Date.now() - hiddenAt > 2000) toast("剛才切到別的畫面或螢幕鎖住，這段時間提示音不會響。請看畫面確認現在是哪一段。", 8000);
+  }
+  hiddenAt = 0;
+});
 
 /* ───────── 計時 ───────── */
 let run = null, timer = null;
@@ -555,6 +609,7 @@ const CIRC = 565.49;
 function show(id){ ["pick","setup","brew","done"].forEach(s => $(s).classList.toggle("on", s === id)); window.scrollTo(0,0); }
 
 function start(){
+  if(validate().length) { summary(); return; }
   const p = plan();
   if(!p.length) return;
   try{ ac = ac || new (window.AudioContext || window.webkitAudioContext)(); if(ac.state === "suspended") ac.resume(); }catch(e){ ac = null; }
@@ -574,7 +629,7 @@ function paintStep(){
   $("cum").textContent = s.pct ? "累積 " + s.cum + " / " + total + " g" : "等咖啡液滴完，不用再注水";
   $("leftLbl").textContent = "這一段剩下";
   $("nxt").textContent = nx ? "下一段：" + (nx.pct ? "注 " + nx.pour + "g（累積 " + nx.cum + "g）" : nx.name) : "最後一段";
-  $("skipBtn").textContent = nx ? "下一段" : "完成";
+  skipArm = 0; $("skipBtn").textContent = nx ? "下一段" : "完成";
   const pg = $("stName").parentNode.querySelector(".pour"); pg.classList.remove("glow"); void pg.offsetWidth; pg.classList.add("glow");
   document.querySelectorAll("#bar i").forEach((el,k) => { el.classList.toggle("done", k < run.i); if(k >= run.i) el.firstChild.style.width = "0"; });
 }
@@ -607,7 +662,15 @@ $("pauseBtn").onclick = () => {
   if(!run.paused){ run.paused = true; run.pausedAt = Date.now(); $("pauseBtn").textContent = "繼續"; $("leftLbl").textContent = "已暫停"; }
   else { const d = Date.now() - run.pausedAt; run.stepStart += d; run.t0 += d; run.paused = false; $("pauseBtn").textContent = "暫停"; $("leftLbl").textContent = "這一段剩下"; lockScreen(); }
 };
-$("skipBtn").onclick = () => { if(run && !run.paused) next(); };
+let skipArm = 0;
+const skipLabel = () => (run && run.i < run.p.length - 1) ? "下一段" : "完成";
+$("skipBtn").onclick = () => {
+  if(!run || run.paused) return;
+  const now = Date.now();
+  if(skipArm && now - skipArm < 3000){ skipArm = 0; $("skipBtn").textContent = skipLabel(); next(); return; }
+  skipArm = now; $("skipBtn").textContent = "再按一次確認";
+  setTimeout(() => { if(skipArm === now){ skipArm = 0; if(run) $("skipBtn").textContent = skipLabel(); } }, 3000);
+};
 $("endBtn").onclick = () => { if(!confirm("結束這次沖煮？")) return; clearInterval(timer); unlockScreen(); run = null; show("setup"); };
 $("start").onclick = start;
 
@@ -635,6 +698,75 @@ function toSetup(){
 }
 $("toSetup").onclick = toSetup;
 $("toPick").onclick = () => show("pick");
+
+/* ───────── 備份：匯出／匯入（配方與紀錄存成檔案，換手機也帶得走）───────── */
+const isNum = (v, lo, hi) => typeof v === "number" && isFinite(v) && v >= lo && v <= hi;
+const str = (v, n) => (typeof v === "string" ? v : "").slice(0, n);
+function cleanRecipe(r){
+  if(!r || typeof r !== "object") return null;
+  const name = str(r.name, 30).trim();
+  if(!name || !isNum(r.dose, 5, 100) || !isNum(r.ratio, 5, 30) || !isNum(r.temp, 60, 100)) return null;
+  if(!Array.isArray(r.steps) || r.steps.length < 1 || r.steps.length > 20) return null;
+  const steps = [];
+  for(const x of r.steps){
+    if(!x || !str(x.n, 1) || !isNum(x.pct, 0, 100) || !isNum(x.sec, 5, 600)) return null;
+    steps.push({ n:str(x.n, 40), pct:x.pct, sec:x.sec });
+  }
+  if(Math.abs(steps.reduce((a,x) => a + x.pct, 0) - 100) > .01 || !steps.some(x => x.pct > 0)) return null;
+  return { name, dose:r.dose, ratio:r.ratio, temp:r.temp, steps, dripper:str(r.dripper, 60), roast:["淺焙","中焙","深焙"].includes(r.roast) ? r.roast : "",
+           grind:str(r.grind, 80), bean:str(r.bean, 80), grinder:str(r.grinder, 60), clicks:str(r.clicks, 30), note:"我存的配方。" };
+}
+function cleanLog(l){
+  if(!l || typeof l !== "object" || !isNum(l.rating, 1, 5) || !isNum(l.dose, 1, 200) || !isNum(l.water, 1, 5000) || !isNum(l.temp, 0, 100)) return null;
+  const name = str(l.name, 60); if(!name) return null;
+  return { date:str(l.date, 10), name, dose:l.dose, water:l.water, temp:l.temp, dripper:str(l.dripper, 60), roast:str(l.roast, 4), grinder:str(l.grinder, 60), clicks:str(l.clicks, 30), rating:Math.round(l.rating), note:str(l.note, 80) };
+}
+function exportJSON(){
+  return JSON.stringify({ app:"pour-over-timer", version:1, exported:new Date().toISOString(), recipes, logs }, null, 1);
+}
+function parseBackup(text){
+  let d; try{ d = JSON.parse(text); }catch(e){ return { error:"這個檔案不是正確的備份檔（讀不出內容）。" }; }
+  if(!d || d.app !== "pour-over-timer" || !Array.isArray(d.recipes) || !Array.isArray(d.logs)) return { error:"這不是手沖計時器的備份檔。" };
+  const rs = d.recipes.map(cleanRecipe), ls = d.logs.map(cleanLog);
+  return { recipes: rs.filter(Boolean), logs: ls.filter(Boolean), skipped: rs.filter(x => !x).length + ls.filter(x => !x).length };
+}
+function applyBackup(b){
+  b.recipes.forEach(r => { const i = recipes.findIndex(x => x.name === r.name); if(i >= 0) recipes[i] = r; else recipes.push(r); });
+  const key = l => [l.date, l.name, l.dose, l.water, l.rating, l.note].join("|"), have = new Set(logs.map(key));
+  b.logs.forEach(l => { if(!have.has(key(l))){ logs.push(l); have.add(key(l)); } });
+  logs = logs.slice(-60);
+  const ok = store.set("pot_recipes", recipes) & store.set("pot_log", logs);
+  buildPresetSelect(); $("preset").value = state.id; renderLog();
+  return ok;
+}
+$("exportBtn").onclick = () => {
+  const d = new Date(), ymd = d.getFullYear() + String(d.getMonth()+1).padStart(2,"0") + String(d.getDate()).padStart(2,"0");
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([exportJSON()], { type:"application/json" }));
+  a.download = "手沖備份_" + ymd + ".json"; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  toast("備份檔已產生：" + recipes.length + " 個配方、" + logs.length + " 筆紀錄。請存到「檔案」或傳給自己。", 7000);
+};
+$("importBtn").onclick = () => $("importFile").click();
+$("importFile").onchange = e => {
+  const f = e.target.files[0]; e.target.value = ""; if(!f) return;
+  if(f.size > 2000000){ alert("檔案太大，不像是備份檔。"); return; }
+  const rd = new FileReader();
+  rd.onload = () => {
+    const b = parseBackup(String(rd.result));
+    if(b.error){ alert(b.error); return; }
+    if(!b.recipes.length && !b.logs.length){ alert("備份檔裡沒有可以匯入的內容" + (b.skipped ? "（有 " + b.skipped + " 筆資料格式不對，已略過）" : "") + "。"); return; }
+    if(!confirm("要匯入 " + b.recipes.length + " 個配方、" + b.logs.length + " 筆紀錄嗎？\n同名的配方會被備份檔的版本取代，其他不會動。" + (b.skipped ? "\n（另有 " + b.skipped + " 筆格式不對，會略過。）" : ""))) return;
+    applyBackup(b); toast("匯入完成。", 4000);
+  };
+  rd.onerror = () => alert("讀不到這個檔案。");
+  rd.readAsText(f);
+};
+
+/* ───────── 離線：Service Worker（只管這一頁，不影響網站其他頁面）───────── */
+if("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")){
+  window.addEventListener("load", () => { navigator.serviceWorker.register("pour-over-sw.js", { scope:location.pathname }).catch(() => {}); });
+}
+$("ver").textContent = "版本 " + VERSION;
 
 /* ───────── 加入主畫面用的圖示（執行時畫出來）───────── */
 (function icon(){
