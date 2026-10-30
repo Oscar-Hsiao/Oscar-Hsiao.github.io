@@ -172,7 +172,7 @@ button:active{transform:scale(.98)}
     <button id="saveRecipe">存成我的配方</button>
   </div>
 
-  <div class="sound"><i>🔔</i><div><b>請先開聲音</b>：計時換段時會有提示音。把手機音量調大，並確認機身側邊的<b>靜音撥片</b>沒有撥到靜音（露出橘色就是靜音，iPhone 靜音時網頁不會響）。</div></div>
+  <div class="sound"><i>🔔</i><div><b>請先開聲音</b>：計時換段時會有提示音。把手機音量調大，並確認機身側邊的<b>靜音撥片</b>沒有撥到靜音（露出橘色就是靜音）。按下面的按鈕，先確認聽得到「叮咚」兩聲，再開始。<br><button class="mini" id="testSound" style="color:var(--cream);border-color:var(--copper);margin-top:10px">🔔 測試聲音</button></div></div>
   <p class="note bad" id="startErr"></p>
   <button class="pri big" style="margin-top:14px" id="start">開 始 沖 煮</button>
 </section>
@@ -351,7 +351,7 @@ const store = {
 };
 
 const $ = id => document.getElementById(id);
-const VERSION = "2026-10-30.1";
+const VERSION = "2026-10-30.2";
 const esc = t => String(t == null ? "" : t).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 let toastT = null;
 function toast(msg, ms){ const t = $("toast"); t.textContent = msg; t.style.display = "block"; clearTimeout(toastT); toastT = setTimeout(() => { t.style.display = "none"; }, ms || 6000); }
@@ -572,18 +572,49 @@ $("logList").addEventListener("click", e => {
 });
 $("logMore").onclick = () => { logAll = !logAll; renderLog(); };
 
-/* ───────── 聲音（要在按「開始」的手勢裡建立才響）───────── */
-let ac = null;
+/* ───────── 聲音 ─────────
+   iPhone 的網頁聲音（Web Audio）預設會被側邊靜音撥片關掉，鎖屏或切到別的 App 回來也會被暫停。
+   做法：①把音訊工作階段設成「播放」②放一段無聲的 <audio>，讓系統當成在播放媒體 ③一定要在按按鈕的當下解鎖
+   ④每次響之前確認音訊在跑，沒有就先喚醒 ⑤回到前景再喚醒一次 */
+let ac = null, keepAudio = null, keepURL = "";
+function silentWavURL(){
+  const rate = 8000, n = rate / 2, buf = new ArrayBuffer(44 + n * 2), v = new DataView(buf);
+  const w = (o, t) => [...t].forEach((c, i) => v.setUint8(o + i, c.charCodeAt(0)));
+  w(0, "RIFF"); v.setUint32(4, 36 + n * 2, true); w(8, "WAVEfmt "); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+  v.setUint32(24, rate, true); v.setUint32(28, rate * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true); w(36, "data"); v.setUint32(40, n * 2, true);
+  return URL.createObjectURL(new Blob([buf], { type:"audio/wav" }));
+}
+function unlockAudio(){
+  try{ if(navigator.audioSession) navigator.audioSession.type = "playback"; }catch(e){}
+  try{
+    if(!keepAudio){ keepURL = silentWavURL(); keepAudio = new Audio(keepURL); keepAudio.loop = true; keepAudio.setAttribute("playsinline", ""); }
+    const pr = keepAudio.play(); if(pr && pr.catch) pr.catch(() => {});
+  }catch(e){}
+  try{
+    ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+    if(ac.state !== "running") ac.resume();
+    const sb = ac.createBufferSource(); sb.buffer = ac.createBuffer(1, 1, 22050); sb.connect(ac.destination); sb.start(0);
+  }catch(e){ ac = null; }
+}
+function stopKeepAudio(){ try{ if(keepAudio) keepAudio.pause(); }catch(e){} }
+function wakeAudio(){
+  try{ if(ac && ac.state !== "running") ac.resume(); }catch(e){}
+  try{ if(keepAudio && run && !run.paused){ const pr = keepAudio.play(); if(pr && pr.catch) pr.catch(() => {}); } }catch(e){}
+}
 function beep(freq, dur, vol){
   if(!ac) return;
-  try{
-    const o = ac.createOscillator(), g = ac.createGain();
-    o.type = "sine"; o.frequency.value = freq;
-    g.gain.setValueAtTime(0.0001, ac.currentTime);
-    g.gain.exponentialRampToValueAtTime(vol || .25, ac.currentTime + .02);
-    g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + dur);
-    o.connect(g); g.connect(ac.destination); o.start(); o.stop(ac.currentTime + dur + .05);
-  }catch(e){}
+  const go = () => {
+    try{
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.type = "sine"; o.frequency.value = freq;
+      g.gain.setValueAtTime(0.0001, ac.currentTime);
+      g.gain.exponentialRampToValueAtTime(vol || .25, ac.currentTime + .02);
+      g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + dur);
+      o.connect(g); g.connect(ac.destination); o.start(); o.stop(ac.currentTime + dur + .05);
+    }catch(e){}
+  };
+  if(ac.state !== "running"){ try{ const pr = ac.resume(); if(pr && pr.then){ pr.then(go).catch(() => {}); return; } }catch(e){} }
+  go();
 }
 const tick = () => beep(660, .12, .18), stepBeep = () => { beep(880, .25, .3); setTimeout(()=>beep(1175, .3, .3), 180); };
 const doneBeep = () => [0,260,520].forEach(t => setTimeout(()=>beep(988, .35, .3), t));
@@ -596,7 +627,7 @@ let hiddenAt = 0;
 document.addEventListener("visibilitychange", () => {
   if(document.visibilityState === "hidden"){ hiddenAt = Date.now(); return; }
   if(run && !run.paused){
-    lockScreen();
+    lockScreen(); wakeAudio();
     if(hiddenAt && Date.now() - hiddenAt > 2000) toast("剛才切到別的畫面或螢幕鎖住，這段時間提示音不會響。請看畫面確認現在是哪一段。", 8000);
   }
   hiddenAt = 0;
@@ -612,7 +643,7 @@ function start(){
   if(validate().length) { summary(); return; }
   const p = plan();
   if(!p.length) return;
-  try{ ac = ac || new (window.AudioContext || window.webkitAudioContext)(); if(ac.state === "suspended") ac.resume(); }catch(e){ ac = null; }
+  unlockAudio();
   run = { p, i:0, stepStart:Date.now(), t0:Date.now(), pausedAt:0, paused:false, warned:-1,
           name: PRESETS[state.id] ? PRESETS[state.id].name : (recipes[+state.id.slice(1)]||{}).name || "自訂",
           dose:state.dose, temp:state.temp, water:p[p.length-1].cum, dripper:state.dripper, roast:state.roast, grinder:state.grinder, clicks:state.clicks };
@@ -650,7 +681,7 @@ function next(){
   run.i++; run.stepStart = Date.now(); run.warned = -1; stepBeep(); paintStep();
 }
 function finish(){
-  clearInterval(timer); unlockScreen(); doneBeep();
+  clearInterval(timer); unlockScreen(); doneBeep(); setTimeout(stopKeepAudio, 1500);
   const secs = Math.round((Date.now() - run.t0) / 1000);
   run.total = secs;
   $("doneSum").textContent = run.name + "・" + run.dose + "g／" + run.water + "g・" + run.temp + "°C" + (run.dripper ? "・" + run.dripper : "") + (run.roast ? "・" + run.roast : "") + (run.grinder ? "・" + run.grinder + (run.clicks ? " " + run.clicks : "") : "") + "・共 " + fmt(secs);
@@ -671,8 +702,15 @@ $("skipBtn").onclick = () => {
   skipArm = now; $("skipBtn").textContent = "再按一次確認";
   setTimeout(() => { if(skipArm === now){ skipArm = 0; if(run) $("skipBtn").textContent = skipLabel(); } }, 3000);
 };
-$("endBtn").onclick = () => { if(!confirm("結束這次沖煮？")) return; clearInterval(timer); unlockScreen(); run = null; show("setup"); };
+$("endBtn").onclick = () => { if(!confirm("結束這次沖煮？")) return; clearInterval(timer); unlockScreen(); stopKeepAudio(); run = null; show("setup"); };
 $("start").onclick = start;
+$("testSound").onclick = () => {
+  unlockAudio();
+  if(!ac){ toast("這個瀏覽器不能播放網頁聲音。請改用 Safari，或看畫面上的倒數。", 8000); return; }
+  stepBeep();
+  setTimeout(stopKeepAudio, 1500);
+  toast("剛才應該有「叮咚」兩聲。沒聽到的話：①把音量調大 ②側邊靜音撥片撥開（不要露出橘色）③再按一次測試。", 9000);
+};
 
 /* ───────── 完成：評分 ───────── */
 let rating = 0;
