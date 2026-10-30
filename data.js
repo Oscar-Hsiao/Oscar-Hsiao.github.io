@@ -13,11 +13,12 @@ const NAV=[
     {id:'tool-bully',label:'職場不法侵害防治工具',href:'職場霸凌防治因應工具.html'},
     {id:'tool-lawmap',label:'職安法子法地圖',href:'職安法子法地圖.html'}
   ]},
-  {id:'ipas',label:'iPAS 備考',icon:'⬡',type:'accordion',children:[
+  {id:'ipas',label:'iPAS AI中級備考',icon:'⬡',type:'accordion',children:[
     {id:'ipas-cv',label:'交叉驗證 · MONARCH',href:'ipas-交叉驗證系統.html'},
     {id:'ipas-overfit',label:'過擬合 3D 模型',href:'ipas-過擬合模型.html'},
     {id:'ipas-prob',label:'機率分布 · Yakiniku',href:'ipas-機率分布.html'},
-    {id:'ipas-fair',label:'公平性與去偏 · 營火',href:'ipas-公平性與去偏.html'}
+    {id:'ipas-fair',label:'公平性與去偏 · 營火',href:'ipas-公平性與去偏.html'},
+    {id:'ipas-mock',label:'科目三模擬考',href:'ipas-s3-mock-exam.html'}
   ]},
   {id:'about',label:'關於我',icon:'ⓘ',type:'link'}
 ];
