@@ -1,0 +1,19 @@
+{
+  "id": "/pour-over-timer.html",
+  "name": "手沖計時器",
+  "short_name": "手沖計時",
+  "description": "手沖咖啡計時器：大師沖法、濾杯與磨豆機刻度、倒數提示音、存自己的配方。",
+  "lang": "zh-Hant",
+  "start_url": "/pour-over-timer.html",
+  "scope": "/pour-over-timer.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1c1410",
+  "theme_color": "#1c1410",
+  "categories": ["food", "lifestyle"],
+  "icons": [
+    { "src": "pour-over-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "pour-over-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "pour-over-icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

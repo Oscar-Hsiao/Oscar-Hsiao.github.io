@@ -1,6 +1,6 @@
 /* 手沖計時器離線用：只管 pour-over-timer.html 這一頁（scope 就是頁面路徑），網站其他頁面完全不受影響。
    有網路時永遠拿最新版並更新快取；沒網路時才用快取。 */
-const CACHE = "pour-over-v1";
+const CACHE = "pour-over-v2";
 const PAGE = new URL(self.registration.scope).pathname;
 
 self.addEventListener("install", e => {

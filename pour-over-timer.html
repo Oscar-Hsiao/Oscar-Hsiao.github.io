@@ -9,6 +9,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="手沖計時">
 <link rel="apple-touch-icon" id="touchIcon" href="">
+<link rel="manifest" href="pour-over-manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="pour-over-icon-192.png">
 <title>手沖計時器</title>
 <style>
 :root{
@@ -152,7 +154,8 @@ body.brewing{overflow:hidden}
   <div class="log" id="logBox" style="display:none"><h3>最近的沖煮</h3><div id="logList"></div><button id="logMore" class="mini" style="color:var(--muted);border-color:var(--line);display:none"></button></div>
   <div class="tools"><button id="exportBtn">匯出備份</button><button id="importBtn">匯入備份</button></div>
   <input id="importFile" type="file" accept="application/json,.json" style="display:none">
-  <p class="hint">手機請用 Safari 開啟，點「分享 → 加入主畫面」，就會像 App 一樣全螢幕。<br>配方和紀錄只存在這支手機，換手機或清除網站資料前，先按「匯出備份」。<br><span id="ver"></span></p>
+  <button class="pri big" id="installBtn" style="display:none;margin-top:18px">📲 安裝成 App</button>
+  <p class="hint"><span id="installHint"></span><br>配方和紀錄只存在這支手機，換手機或清除網站資料前，先按「匯出備份」。<br><span id="ver"></span></p>
 </section>
 
 <!-- ② 第二頁：粉量、水粉比、水溫與每一段 -->
@@ -371,7 +374,7 @@ const store = {
 };
 
 const $ = id => document.getElementById(id);
-const VERSION = "2026-10-30.6";
+const VERSION = "2026-10-30.7";
 const esc = t => String(t == null ? "" : t).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 let toastT = null;
 function toast(msg, ms){ const t = $("toast"); t.textContent = msg; t.style.display = "block"; clearTimeout(toastT); toastT = setTimeout(() => { t.style.display = "none"; }, ms || 6000); }
@@ -854,6 +857,28 @@ $("importFile").onchange = e => {
   rd.onerror = () => alert("讀不到這個檔案。");
   rd.readAsText(f);
 };
+
+/* ───────── 安裝成 App：Android（Chrome）與 iPhone（Safari）───────── */
+let deferredInstall = null;
+const isStandalone = () => (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true;
+function installHint(){
+  const ua = navigator.userAgent, h = $("installHint"), b = $("installBtn");
+  const android = /Android/i.test(ua), ios = !android && (/iPhone|iPad|iPod/i.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1));
+  if(isStandalone()){ h.textContent = ""; b.style.display = "none"; return; }
+  b.style.display = deferredInstall ? "" : "none";
+  if(ios) h.textContent = "iPhone：請用 Safari 開啟，點「分享 → 加入主畫面」，就會像 App 一樣全螢幕。";
+  else if(android) h.textContent = deferredInstall ? "Android：按上面的「安裝成 App」，桌面就會多一個圖示。" : "Android：請用 Chrome 開啟，點右上角「⋮」→「安裝應用程式」（或「加到主畫面」），桌面就會多一個圖示。";
+  else h.textContent = "手機請用 Safari（iPhone）或 Chrome（Android）開啟，再加到主畫面。";
+}
+window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferredInstall = e; installHint(); });
+window.addEventListener("appinstalled", () => { deferredInstall = null; installHint(); toast("已安裝，桌面上會有「手沖計時」。", 5000); });
+$("installBtn").onclick = async () => {
+  if(!deferredInstall) return;
+  deferredInstall.prompt();
+  try{ await deferredInstall.userChoice; }catch(e){}
+  deferredInstall = null; installHint();
+};
+installHint();
 
 /* ───────── 離線：Service Worker（只管這一頁，不影響網站其他頁面）───────── */
 if("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")){
