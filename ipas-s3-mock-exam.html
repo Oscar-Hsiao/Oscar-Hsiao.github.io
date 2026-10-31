@@ -16,6 +16,7 @@ body{margin:0;background:var(--bg);color:var(--text);font:16px/1.7 -apple-system
 .card.plain{border-color:#2c303a}
 .top{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap}
 .clock{font:700 38px/1.1 ui-monospace,Menlo,monospace;letter-spacing:1px}
+.js-clock.warn{color:#ff6b6b}
 .mute{color:var(--mute)}
 .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 16px}
 .tab{background:var(--card);color:var(--text);border:1px solid #3a3d48;border-radius:999px;padding:6px 16px;cursor:pointer;font:inherit}
@@ -144,10 +145,15 @@ function startExam(list, mode){
   S = {view:'exam', qs:list, ans:{}, submitted:false, cur:0, filter:'全部', t0:Date.now(), sec:0, mode};
   clearInterval(timer); timer = setInterval(tick,1000); render();
 }
+const LIMIT = 90*60, WARN = 10*60;   // 整份模擬考 90 分鐘倒數，剩 10 分鐘變紅
+const countdown = () => S.mode==='full' && !S.submitted;
+const clockText = () => countdown() ? fmt(Math.max(0,LIMIT-S.sec)) : fmt(S.sec);
+const clockWarn = () => countdown() && LIMIT-S.sec<=WARN;
 function tick(){
   if(S.view!=='exam'||S.submitted) return;
   S.sec = Math.floor((Date.now()-S.t0)/1000);
-  document.querySelectorAll('.js-clock').forEach(e=>e.textContent=fmt(S.sec));
+  if(countdown() && S.sec>=LIMIT){ S.sec=LIMIT; alert('時間到！系統自動交卷。'); submit(true); return; }
+  document.querySelectorAll('.js-clock').forEach(e=>{ e.textContent=clockText(); e.classList.toggle('warn',clockWarn()); });
 }
 function isRight(q,i){ return S.ans[i]===q.ans; }
 function stats(){
@@ -155,10 +161,10 @@ function stats(){
   S.qs.forEach((q,i)=>{ if(S.ans[i]===undefined) blank++; else if(isRight(q,i)) c++; });
   return {total,c,blank,wrong:S.qs.map((q,i)=>i).filter(i=>!isRight(S.qs[i],i))};
 }
-function submit(){
+function submit(force){
   const st=stats();
-  if(st.blank && !confirm('還有 '+st.blank+' 題沒作答，確定要交卷嗎？')) return;
-  S.sec = Math.floor((Date.now()-S.t0)/1000);
+  if(!force && st.blank && !confirm('還有 '+st.blank+' 題沒作答，確定要交卷嗎？')) return;
+  S.sec = Math.min(Math.floor((Date.now()-S.t0)/1000), S.mode==='full'?LIMIT:Infinity);
   S.submitted=true; clearInterval(timer);
   const book=store.get(KEY_BOOK,{}), today=new Date().toISOString().slice(0,10);
   S.qs.forEach((q,i)=>{
@@ -258,11 +264,11 @@ function examHTML(){
     <div class="row"><button class="btn ghost" data-a="prev">← 上一題</button><button class="btn ghost" data-a="next">下一題 →</button>
     ${S.submitted?'':'<button class="btn" data-a="submit">交卷</button>'}</div></div>`;
   const right = `<div class="card side"><h3>劃記卡<span>${S.submitted?`${st.c} 對／已答 ${done}`:`已答 ${done}／${S.qs.length}`}</span></h3>
-    <p><b>作答時間</b>　<b class="js-clock" style="font-family:ui-monospace,Menlo,monospace">${fmt(S.sec)}</b></p>
+    <p><b>${countdown()?"剩餘時間":"作答時間"}</b>　<b class="js-clock${clockWarn()?" warn":""}" style="font-family:ui-monospace,Menlo,monospace">${clockText()}</b></p>
     <div class="grid">${cells}</div>
     <div class="hint">點格子跳到該題<br>鍵盤：← → 換題，A～D 作答</div>
     <div class="row"><button class="btn ghost" data-a="clear" ${S.submitted?'disabled':''}>清除作答</button><button class="btn ghost" data-a="home">離開</button></div></div>`;
-  return `<div class="card top"><div class="clock js-clock">${fmt(S.sec)}</div><span class="mute">${status}</span></div>${tabsHTML()}<div class="layout"><div>${left}</div>${right}</div>`;
+  return `<div class="card top"><div class="clock js-clock${clockWarn()?" warn":""}">${clockText()}</div><span class="mute">${countdown()?"剩餘時間（共 90 分鐘）· ":""}${status}</span></div>${tabsHTML()}<div class="layout"><div>${left}</div>${right}</div>`;
 }
 
 function bookHTML(){
