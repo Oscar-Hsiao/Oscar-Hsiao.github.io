@@ -28,6 +28,8 @@ h2{margin:0 0 12px;font-size:26px}
 .chip{border:1px solid #3a3d48;border-radius:6px;padding:0 8px;font-size:13px}
 .chip.t{border-color:var(--warn);color:var(--warn)}
 .q{font-size:19px;margin:6px 0 16px}
+.opt span{white-space:pre-wrap}
+.code{background:#14161c;border:1px solid #2c2f3a;border-radius:8px;padding:10px 12px;margin:10px 0 0;overflow-x:auto;font:14px/1.5 ui-monospace,Menlo,Consolas,monospace;white-space:pre;color:#e6e6e6}
 .opt{display:flex;gap:12px;width:100%;text-align:left;background:transparent;color:var(--text);border:1px solid #3a3d48;border-radius:8px;padding:12px 14px;margin:0 0 10px;cursor:pointer;font:inherit}
 .opt:hover{border-color:var(--accent)}
 .opt .k{font:700 15px ui-monospace,Menlo,monospace;color:var(--mute);min-width:18px}
@@ -89,19 +91,40 @@ function shuffleOpts(q){
   const order=rnd([0,1,2,3]);
   return Object.assign({},q,{opts:order.map(k=>q.opts[k]), ans:order.indexOf(q.ans)});
 }
-// 抽題：依各章題庫比例分配名額；每章先抽「沒考過／最久沒考」的題，同批裡再隨機
+// 抽題：Python 13 題，其餘依難度 基礎10／中等15／困難12；每個層級再依各章比例分配，
+// 優先抽沒考過／最久沒考的題，並盡量讓約 3 成是情境題
+const QUOTA = {py:13, d1:10, d2:15, d3:12};
+function pickN(pool, n, seen, scenarioShare){
+  if(n<=0||!pool.length) return [];
+  const sorted = rnd(pool).sort((a,b)=>(seen[a.id]||0)-(seen[b.id]||0));
+  const byCh = {}; sorted.forEach(q=>{ (byCh[q.ch]=byCh[q.ch]||[]).push(q); });
+  const chs = Object.keys(byCh), picked = {}, out = [];
+  chs.forEach(c=>picked[c]=0);
+  const want = Math.round(n*(scenarioShare||0));
+  let scen = 0;
+  for(let k=0;k<n;k++){
+    let best=null, bestGap=-1e9;
+    chs.forEach(c=>{
+      if(!byCh[c].length) return;
+      const gap = n*pool.filter(q=>q.ch==c).length/pool.length - picked[c];
+      if(gap>bestGap){ bestGap=gap; best=c; }
+    });
+    if(best===null) break;
+    let idx = 0;
+    if(scen<want){ const si=byCh[best].findIndex(q=>q.kind==='情境'); if(si>=0) idx=si; }
+    const q = byCh[best].splice(idx,1)[0];
+    if(q.kind==='情境') scen++;
+    picked[best]++; out.push(q);
+  }
+  return out;
+}
 function drawExam(n){
-  const seen=store.get(KEY_SEEN,{}), round=(seen._r||0)+1, byCh={};
-  Q.forEach(q=>{ (byCh[q.ch]=byCh[q.ch]||[]).push(q); });
-  const chs=Object.keys(byCh), quota={}; let given=0;
-  chs.forEach(c=>{ quota[c]=Math.floor(n*byCh[c].length/Q.length); given+=quota[c]; });
-  const frac=chs.slice().sort((a,b)=>(n*byCh[b].length/Q.length%1)-(n*byCh[a].length/Q.length%1));
-  for(let i=0;given<n;i++,given++) quota[frac[i%frac.length]]++;
-  let pick=[];
-  chs.forEach(c=>{
-    const pool=rnd(byCh[c]).sort((a,b)=>(seen[a.id]||0)-(seen[b.id]||0));
-    pick=pick.concat(pool.slice(0,quota[c]));
-  });
+  const seen=store.get(KEY_SEEN,{}), round=(seen._r||0)+1;
+  const py = Q.filter(q=>q.kind==='Python'), rest = Q.filter(q=>q.kind!=='Python');
+  let pick = pickN(py, QUOTA.py, seen, 0);
+  [1,2,3].forEach(d=>{ pick = pick.concat(pickN(rest.filter(q=>q.diff===d), QUOTA['d'+d], seen, 0.3)); });
+  const have = new Set(pick.map(q=>q.id));
+  if(pick.length<n) pick = pick.concat(pickN(Q.filter(q=>!have.has(q.id)), n-pick.length, seen, 0));
   pick.forEach(q=>{ seen[q.id]=round; }); seen._r=round; store.set(KEY_SEEN,seen);
   return rnd(pick).map(shuffleOpts);
 }
@@ -109,6 +132,8 @@ const store = {
   get(k,d){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):d; }catch(e){ return d; } },
   set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
 };
+const DIFF = {1:'基礎',2:'中等',3:'困難'};
+const fmtQ = t => String(t).split('```').map((seg,i)=> i%2 ? '<pre class="code">'+esc(seg.replace(/^\n|\n$/g,''))+'</pre>' : esc(seg).replace(/\n/g,'<br>')).join('');
 const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const fmt = s => String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
 
@@ -173,7 +198,7 @@ function startHTML(){
   const book=store.get(KEY_BOOK,{}), n=Object.keys(book).length, hist=store.get(KEY_HIST,[]);
   const h = hist.slice(-5).reverse().map(x=>`<div>${x.d}　${x.score} 分（${x.c}/${x.total}）　${fmt(x.sec)}　${x.mode==='redo'?'錯題重做':'整份'}</div>`).join('');
   return `<div class="card"><div class="brand"><img src="${MASCOT}" alt="阿森的哥吉拉"><div><b>阿森</b><small>職安衛 × 流程自動化 × AI 學習</small></div></div><h2>iPAS AI 規劃師中級　科目三 模擬考</h2>
-  <p class="mute">題庫共 ${Q.length} 題，每次從裡面隨機抽 ${EXAM_SIZE} 題（各章按比例、盡量避開你考過的題，題目與選項順序都會打亂）。單選，答完交卷後看成績、各章與各題型的對錯，答錯的自動進錯題本。成績和錯題本只存在這台裝置的瀏覽器裡。</p>
+  <p class="mute">題庫共 ${Q.length} 題，每次隨機抽 ${EXAM_SIZE} 題：基礎 10、中等 15、困難 12、Python 程式題 13，並混入情境題（各章按比例、盡量避開你考過的題，題目與選項順序都會打亂）。單選，答完交卷後看成績、各章與各題型的對錯，答錯的自動進錯題本。成績和錯題本只存在這台裝置的瀏覽器裡。</p>
   <p>第 3～6 章　<b>回馬槍</b>＝你答錯過的題型　<b>易混淆</b>＝兩兩相似的概念　<b>考古題</b>＝115-1 改編　<b>指引</b>＝指引重點</p>
   <div class="row"><button class="btn" data-a="start">開始作答（隨機 ${EXAM_SIZE} 題）</button>
   <button class="btn ghost" data-a="book">錯題本（${n} 題）</button></div>
@@ -196,11 +221,13 @@ function scoreHTML(){
   const st=stats(), pts=100/st.total, score=Math.round(st.c*pts);
   const chItems=CHS.map(ch=>{ const idx=S.qs.map((q,i)=>i).filter(i=>S.qs[i].ch===ch); return {label:'第 '+ch+' 章',t:idx.length,c:idx.filter(i=>isRight(S.qs[i],i)).length}; }).filter(x=>x.t);
   const tgItems=TAGS.map(tg=>{ const idx=S.qs.map((q,i)=>i).filter(i=>S.qs[i].tag===tg); return {label:tg,t:idx.length,c:idx.filter(i=>isRight(S.qs[i],i)).length}; }).filter(x=>x.t);
+  const dfItems=[1,2,3].map(d=>{ const idx=S.qs.map((q,i)=>i).filter(i=>S.qs[i].diff===d); return {label:DIFF[d],t:idx.length,c:idx.filter(i=>isRight(S.qs[i],i)).length}; }).filter(x=>x.t);
+  const kdItems=['概念','計算','情境','Python'].map(k=>{ const idx=S.qs.map((q,i)=>i).filter(i=>S.qs[i].kind===k); return {label:k,t:idx.length,c:idx.filter(i=>isRight(S.qs[i],i)).length}; }).filter(x=>x.t);
   const book=store.get(KEY_BOOK,{}), n=Object.keys(book).length;
   const links=st.wrong.map(i=>`<a data-a="go" data-v="${i}">${i+1}</a>`).join('、');
   return `<div class="card"><h2>考試成績</h2>
    <div class="score">${score}<small>分</small> <span class="mute" style="font-size:15px;font-weight:400">（${st.c}/${st.total} 題，每題 ${pts%1?pts.toFixed(1):pts} 分；未作答 ${st.blank} 題；作答時間 ${fmt(S.sec)}）</span></div>
-   <div class="bars">${barRows(chItems)}<div class="gap"></div>${barRows(tgItems)}</div>
+   <div class="bars">${barRows(chItems)}<div class="gap"></div>${barRows(dfItems)}<div class="gap"></div>${barRows(kdItems)}<div class="gap"></div>${barRows(tgItems)}</div>
    ${st.wrong.length?`<div class="review mute">要回頭看的題號：${links}</div>`:'<div class="review" style="color:var(--ok)">全部答對！</div>'}
    <div class="row"><button class="btn" data-a="redo" ${n?'':'disabled'}>去錯題本重做（${n} 題）</button>
    <button class="btn ghost" data-a="start">再考一次</button><button class="btn ghost" data-a="home">回首頁</button></div></div>`;
@@ -225,8 +252,8 @@ function examHTML(){
   const mine = S.ans[S.cur];
   const verdict = S.submitted ? (mine===undefined?'<span class="pill">未作答</span>':(mine===q.ans?'<span class="pill" style="color:var(--ok);border-color:var(--ok)">答對</span>':'<span class="pill">答錯</span>')) : '';
   const left = (S.submitted&&S.showScore?scoreHTML():'')+`<div class="card plain">
-    <div class="meta"><b>第 ${S.cur+1} 題</b><span class="chip">第 ${q.ch} 章</span><span class="chip t">${q.tag}</span><span>${q.code}</span>${verdict}</div>
-    <div class="q">${esc(q.q)}</div>${opts}
+    <div class="meta"><b>第 ${S.cur+1} 題</b><span class="chip">第 ${q.ch} 章</span><span class="chip t">${q.tag}</span><span class="chip">${DIFF[q.diff]||""}</span><span class="chip">${q.kind||""}</span><span>${q.code}</span>${verdict}</div>
+    <div class="q">${fmtQ(q.q)}</div>${opts}
     ${S.submitted?`<div class="exp"><b>答案 ${L[q.ans]}</b>　${esc(q.exp)}</div>`:''}
     <div class="row"><button class="btn ghost" data-a="prev">← 上一題</button><button class="btn ghost" data-a="next">下一題 →</button>
     ${S.submitted?'':'<button class="btn" data-a="submit">交卷</button>'}</div></div>`;
@@ -242,7 +269,7 @@ function bookHTML(){
   const book=store.get(KEY_BOOK,{}), ids=Object.keys(book).map(Number);
   const items=ids.map(id=>Q.find(q=>q.id===id)).filter(Boolean).sort((a,b)=>book[b.id].n-book[a.id].n);
   const list=items.map(q=>`<div class="item"><div class="meta"><span class="pill">錯 ${book[q.id].n} 次</span><span class="chip">第 ${q.ch} 章</span><span class="chip t">${q.tag}</span><span>${q.code}　最近：${book[q.id].last}</span></div>
-   <div>${esc(q.q)}</div><div style="color:var(--ok);margin-top:6px">答案：${L[q.ans]}. ${esc(q.opts[q.ans])}</div><div class="exp">${esc(q.exp)}</div></div>`).join('');
+   <div>${fmtQ(q.q)}</div><div style="color:var(--ok);margin-top:6px">答案：${L[q.ans]}. ${esc(q.opts[q.ans])}</div><div class="exp">${esc(q.exp)}</div></div>`).join('');
   return `<div class="card"><h2>錯題本（${items.length} 題）</h2>
    <div class="row" style="margin:0 0 12px"><button class="btn" data-a="redo" ${items.length?'':'disabled'}>重做這些題</button>
    <button class="btn ghost" data-a="export">匯出成績檔</button><button class="btn ghost" data-a="import">匯入成績檔</button>
