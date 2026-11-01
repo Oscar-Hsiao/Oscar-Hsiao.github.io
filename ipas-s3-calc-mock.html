@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>科目三計算題模擬考</title>
+<style>
+:root{--bg:#f6f5f1;--card:#fff;--ink:#1f2328;--mut:#6b7280;--line:#e3e1da;--acc:#2f6f5e;--accbg:#e4f1ed;--ok:#1b7f4b;--okbg:#e3f4ea;--bad:#b3322a;--badbg:#fbe9e7;--code:#f0eee8}
+@media(prefers-color-scheme:dark){:root{--bg:#16181a;--card:#1f2326;--ink:#e8e6e1;--mut:#9aa0a6;--line:#31373b;--acc:#7cc4b0;--accbg:#223a34;--ok:#6fd49b;--okbg:#1d3328;--bad:#f08a80;--badbg:#3b2220;--code:#15181a}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 -apple-system,"PingFang TC","Noto Sans TC",sans-serif}
+.wrap{max-width:720px;margin:0 auto;padding:20px 16px 60px}
+h1{font-size:1.5rem;margin:8px 0 4px}h2{font-size:1.15rem;margin:0 0 8px}
+.sub{color:var(--mut);margin:0 0 20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
+button{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:10px 14px}
+button.pri{background:var(--acc);color:var(--bg);border-color:var(--acc);font-weight:600}
+button:disabled{opacity:.4;cursor:default}
+.modes{display:grid;gap:12px}
+.mode{display:block;width:100%;text-align:left}
+.mode b{display:block;font-size:1.05rem}.mode span{color:var(--mut);font-size:.9rem}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.seg button.on{background:var(--accbg);border-color:var(--acc);color:var(--acc);font-weight:600}
+.tag{display:inline-block;font-size:.78rem;padding:2px 8px;border-radius:99px;background:var(--accbg);color:var(--acc);margin-right:6px}
+.tag.ex{background:#fff1d6;color:#8a5a00}
+@media(prefers-color-scheme:dark){.tag.ex{background:#4a3a14;color:#f1c36a}}
+.bar{height:6px;background:var(--line);border-radius:9px;overflow:hidden;margin:8px 0 14px}.bar i{display:block;height:100%;background:var(--acc)}
+pre{background:var(--code);border-radius:10px;padding:12px;overflow-x:auto;font:14px/1.5 ui-monospace,Menlo,monospace;margin:10px 0}
+.opt{display:block;width:100%;text-align:left;margin:8px 0;padding:12px 14px}
+.opt.sel{border-color:var(--acc);background:var(--accbg)}
+.opt.ok{border-color:var(--ok);background:var(--okbg)}.opt.no{border-color:var(--bad);background:var(--badbg)}
+.q{font-size:1.08rem;margin:6px 0}
+.expl{background:var(--accbg);border-radius:10px;padding:10px 12px;margin-top:10px}
+.score{font-size:2.4rem;font-weight:700;color:var(--acc)}
+table{width:100%;border-collapse:collapse;font-size:.92rem}td,th{padding:6px 4px;border-bottom:1px solid var(--line);text-align:left}
+details{border-top:1px solid var(--line);padding:8px 0}summary{cursor:pointer}
+.ok-t{color:var(--ok)}.no-t{color:var(--bad)}.mut{color:var(--mut);font-size:.9rem}
+.nav{display:flex;justify-content:space-between;gap:8px;margin-top:14px}
+</style>
+</head>
+<body><div class="wrap" id="app"></div>
+<script>
+const BANK = {"types": {"1": "F1 分數", "2": "PCA 特徵值保留比例", "3": "條件機率", "4": "np.dot 與逐項相乘", "5": "全連接層／Dense 參數量", "6": "矩陣相乘形狀", "7": "網格搜尋模型數", "8": "時間複雜度", "9": "Mini-batch 更新次數", "10": "Early Stopping", "11": "卷積參數量", "12": "卷積輸出尺寸", "13": "Precision／Recall 分母", "14": "Accuracy 陷阱", "15": "公平性 FPR", "16": "Lift", "17": "PCA 小數 n_components"}, "questions": [{"id": 1, "type": 1, "typeName": "F1 分數", "exam": true, "src": "考古題 114-2 第 16 題（依題意重述）", "text": "某模型 Precision＝0.8、Recall＝0.6，F1 分數約為多少？", "code": null, "correct": "0.686", "wrongs": ["0.700", "0.480", "0.693"], "expl": "F1＝2×P×R ÷ (P＋R)＝2×0.8×0.6 ÷ (0.8＋0.6)＝0.686。F1 是調和平均，會比算術平均 0.700 更小。"}, {"id": 2, "type": 1, "typeName": "F1 分數", "exam": false, "src": "練習題", "text": "某模型 Precision＝0.9、Recall＝0.5，F1 分數約為多少？", "code": null, "correct": "0.643", "wrongs": ["0.700", "0.450", "0.671"], "expl": "F1＝2×P×R ÷ (P＋R)＝2×0.9×0.5 ÷ (0.9＋0.5)＝0.643。F1 是調和平均，會比算術平均 0.700 更小。"}, {"id": 3, "type": 1, "typeName": "F1 分數", "exam": false, "src": "練習題", "text": "某模型 Precision＝0.5、Recall＝0.25，F1 分數約為多少？", "code": null, "correct": "0.333", "wrongs": ["0.375", "0.125", "0.354"], "expl": "F1＝2×P×R ÷ (P＋R)＝2×0.5×0.25 ÷ (0.5＋0.25)＝0.333。F1 是調和平均，會比算術平均 0.375 更小。"}, {"id": 4, "type": 1, "typeName": "F1 分數", "exam": false, "src": "練習題", "text": "混淆矩陣 TP＝40、FP＝10、FN＝20，F1 分數約為多少？", "code": null, "correct": "0.727", "wrongs": ["0.733", "0.533", "0.571"], "expl": "先算 P＝40÷50＝0.800、R＝40÷60＝0.667，再 F1＝2×0.8×0.667÷(0.8＋0.667)＝0.727。"}, {"id": 5, "type": 2, "typeName": "PCA 特徵值保留比例", "exam": true, "src": "考古題 114-2 第 35 題（依題意重述）", "text": "PCA 特徵值依序為 6, 3, 1，要保留至少 80% 的變異量，至少要留幾個主成分？", "code": null, "correct": "2 個（累積 90%）", "wrongs": ["1 個（累積 60%）", "3 個（累積 100%）", "不用降維，全部保留不變"], "expl": "總和＝10。前 2 個累積 90% ≥ 80%；前 1 個只有 60%，不夠。"}, {"id": 6, "type": 2, "typeName": "PCA 特徵值保留比例", "exam": false, "src": "練習題", "text": "PCA 特徵值依序為 8, 4, 2, 2，要保留至少 80% 的變異量，至少要留幾個主成分？", "code": null, "correct": "3 個（累積 87.5%）", "wrongs": ["1 個（累積 50%）", "2 個（累積 75%）", "4 個（累積 100%）"], "expl": "總和＝16。前 3 個累積 87.5% ≥ 80%；前 2 個只有 75%，不夠。"}, {"id": 7, "type": 2, "typeName": "PCA 特徵值保留比例", "exam": false, "src": "練習題", "text": "PCA 特徵值依序為 5, 3, 1, 1，要保留至少 80% 的變異量，至少要留幾個主成分？", "code": null, "correct": "2 個（累積 80%）", "wrongs": ["1 個（累積 50%）", "3 個（累積 90%）", "4 個（累積 100%）"], "expl": "總和＝10。前 2 個累積 80% ≥ 80%；前 1 個只有 50%，不夠。"}, {"id": 8, "type": 2, "typeName": "PCA 特徵值保留比例", "exam": false, "src": "練習題", "text": "PCA 特徵值依序為 4, 3, 2, 1，要保留至少 90% 的變異量，至少要留幾個主成分？", "code": null, "correct": "3 個（累積 90%）", "wrongs": ["1 個（累積 40%）", "2 個（累積 70%）", "4 個（累積 100%）"], "expl": "總和＝10。前 3 個累積 90% ≥ 90%；前 2 個只有 70%，不夠。"}, {"id": 9, "type": 3, "typeName": "條件機率", "exam": true, "src": "考古題 114-2 第 41 題（依題意重述）", "text": "擲一顆公平骰子，事件 A＝偶數、事件 B＝大於 3，求 P(A｜B)。", "code": null, "correct": "2/3", "wrongs": ["1/3", "1/2", "1/6"], "expl": "A∩B＝[4, 6]（2 個），B＝[4, 5, 6]（3 個），P(A｜B)＝2/3＝2/3。分母是 B，不是 A，也不是 6。程式寫法：A_and_B.sum() / B.sum()。"}, {"id": 10, "type": 3, "typeName": "條件機率", "exam": false, "src": "練習題", "text": "擲一顆公平骰子，事件 A＝大於 4、事件 B＝偶數，求 P(A｜B)。", "code": null, "correct": "1/3", "wrongs": ["1/2", "1/6", "2/3"], "expl": "A∩B＝[6]（1 個），B＝[2, 4, 6]（3 個），P(A｜B)＝1/3＝1/3。分母是 B，不是 A，也不是 6。"}, {"id": 11, "type": 3, "typeName": "條件機率", "exam": false, "src": "練習題", "text": "擲一顆公平骰子，事件 A＝質數、事件 B＝小於 5，求 P(A｜B)。", "code": null, "correct": "1/2", "wrongs": ["2/3", "1/3", "1/6"], "expl": "A∩B＝[2, 3]（2 個），B＝[1, 2, 3, 4]（4 個），P(A｜B)＝2/4＝1/2。分母是 B，不是 A，也不是 6。"}, {"id": 12, "type": 4, "typeName": "np.dot 與逐項相乘", "exam": true, "src": "考古題 114-2 第 40 題（依題意重述）", "text": "執行下列程式，輸出是多少？", "code": "import numpy as np\nprint(np.dot([1, 2, 3], [4, 5, 6]))", "correct": "32", "wrongs": ["[4, 10, 18]", "15", "21"], "expl": "np.dot 是內積：1×4＋2×5＋3×6＝4＋10＋18＝32，結果是單一數字。逐項相乘（*）才是 [4, 10, 18]。"}, {"id": 13, "type": 4, "typeName": "np.dot 與逐項相乘", "exam": false, "src": "練習題", "text": "執行下列程式，輸出是多少？", "code": "import numpy as np\nprint(np.dot([2, 0, 1], [3, 5, 4]))", "correct": "10", "wrongs": ["[6, 0, 4]", "14", "6"], "expl": "2×3＋0×5＋1×4＝6＋0＋4＝10。[6, 0, 4] 是逐項相乘的結果，還沒加總。"}, {"id": 14, "type": 4, "typeName": "np.dot 與逐項相乘", "exam": false, "src": "練習題", "text": "執行下列程式，輸出是什麼？", "code": "import numpy as np\na = np.array([1, 2, 3])\nb = np.array([4, 5, 6])\nprint(a * b)", "correct": "[4, 10, 18]", "wrongs": ["32", "[5, 7, 9]", "[4, 5, 6]"], "expl": "兩個 array 之間的 * 是逐項相乘：1×4、2×5、3×6，得到 [4, 10, 18]。不是內積。"}, {"id": 15, "type": 5, "typeName": "全連接層／Dense 參數量", "exam": true, "src": "考古題 114-2 第 44 題（依題意重述）", "text": "VGG16 最後一個卷積區塊輸出 7×7×512，攤平後接第一個全連接層（4096 個神經元，含偏差）。這一層參數量是多少？", "code": null, "correct": "102,764,544", "wrongs": ["102,760,448", "33,558,528", "29,184"], "expl": "攤平＝7×7×512＝25,088。參數＝25,088×4,096＋4,096＝102,764,544。不能把 7×7 看成 4×4，也別漏掉偏差 4,096。"}, {"id": 16, "type": 5, "typeName": "全連接層／Dense 參數量", "exam": false, "src": "練習題", "text": "一個 784→256→10 的全連接網路（兩層都含偏差），總參數量是多少？", "code": null, "correct": "203,530", "wrongs": ["203,264", "200,704", "10,400"], "expl": "第一層 784×256＋256＝200,960；第二層 256×10＋10＝2,570；合計 203,530。每層都是「輸入×輸出＋輸出」。"}, {"id": 17, "type": 5, "typeName": "全連接層／Dense 參數量", "exam": false, "src": "練習題", "text": "卷積輸出 7×7×64，攤平後接 128 個神經元的全連接層（含偏差），這一層參數量是多少？", "code": null, "correct": "401,536", "wrongs": ["401,408", "3,264", "8,320"], "expl": "攤平＝7×7×64＝3,136。參數＝3,136×128＋128＝401,536。"}, {"id": 18, "type": 5, "typeName": "全連接層／Dense 參數量", "exam": false, "src": "練習題", "text": "一個 20→10→3 的全連接網路（兩層都含偏差），總參數量是多少？", "code": null, "correct": "243", "wrongs": ["230", "210", "613"], "expl": "第一層 20×10＋10＝210；第二層 10×3＋3＝33；合計 243。"}, {"id": 19, "type": 6, "typeName": "矩陣相乘形狀", "exam": true, "src": "考古題 115-1 第 3 題（依題意重述）", "text": "Attention 中，Q 的形狀是 (1, 10)，WQ 的形狀是 (10, 64)，Q @ WQ 的形狀是？", "code": null, "correct": "(1, 64)", "wrongs": ["(64, 1)", "(1, 10)", "(10, 64)"], "expl": "(1, 10) × (10, 64)：中間的 10 要相同，結果取外面兩個，得到 (1, 64)。"}, {"id": 20, "type": 6, "typeName": "矩陣相乘形狀", "exam": false, "src": "練習題", "text": "矩陣 X 形狀 (4, 7)，矩陣 W 形狀 (7, 2)，X @ W 的形狀是？", "code": null, "correct": "(4, 2)", "wrongs": ["(2, 4)", "(4, 7)", "(7, 2)"], "expl": "(4, 7) × (7, 2)：中間的 7 要相同，結果取外面兩個，得到 (4, 2)。"}, {"id": 21, "type": 6, "typeName": "矩陣相乘形狀", "exam": false, "src": "練習題", "text": "矩陣 X 形狀 (16, 512)，矩陣 W 形狀 (512, 64)，X @ W 的形狀是？", "code": null, "correct": "(16, 64)", "wrongs": ["(64, 16)", "(16, 512)", "(512, 64)"], "expl": "(16, 512) × (512, 64)：中間的 512 要相同，結果取外面兩個，得到 (16, 64)。"}, {"id": 22, "type": 7, "typeName": "網格搜尋模型數", "exam": true, "src": "考古題 115-1 第 34 題（依題意重述）", "text": "網格搜尋有 5 個超參數，候選值個數分別為 3, 4, 5, 3, 3，每組都做 5 折交叉驗證。總共要訓練幾個模型？", "code": null, "correct": "2,700", "wrongs": ["540", "90", "18"], "expl": "組合數用相乘：3×4×5×3×3＝540；每組再訓練 5 次，540×5＝2,700。不是相加。"}, {"id": 23, "type": 7, "typeName": "網格搜尋模型數", "exam": false, "src": "練習題", "text": "網格搜尋有 2 個超參數，候選值個數分別為 5, 3，每組都做 3 折交叉驗證。總共要訓練幾個模型？", "code": null, "correct": "45", "wrongs": ["15", "24", "8"], "expl": "組合數用相乘：5×3＝15；每組再訓練 3 次，15×3＝45。不是相加。"}, {"id": 24, "type": 7, "typeName": "網格搜尋模型數", "exam": false, "src": "練習題", "text": "網格搜尋有 3 個超參數，候選值個數分別為 4, 3, 2，每組都做 5 折交叉驗證。總共要訓練幾個模型？", "code": null, "correct": "120", "wrongs": ["24", "45", "9"], "expl": "組合數用相乘：4×3×2＝24；每組再訓練 5 次，24×5＝120。不是相加。"}, {"id": 25, "type": 7, "typeName": "網格搜尋模型數", "exam": false, "src": "練習題", "text": "網格搜尋有 3 個超參數，候選值個數分別為 6, 4, 2，每組都做 3 折交叉驗證。總共要訓練幾個模型？", "code": null, "correct": "144", "wrongs": ["48", "36", "12"], "expl": "組合數用相乘：6×4×2＝48；每組再訓練 3 次，48×3＝144。不是相加。"}, {"id": 26, "type": 8, "typeName": "時間複雜度", "exam": true, "src": "考古題 114-2 第 33 題（依題意重述）", "text": "要找出相似客戶，程式讓每位客戶都跟其他所有客戶比較一次（n 位客戶）。時間複雜度是？", "code": null, "correct": "O(n²)", "wrongs": ["O(n)", "O(n log n)", "O(log n)"], "expl": "每位客戶（n）都要跟 n−1 位比，雙層迴圈，約 n² 次，所以是 O(n²)。"}, {"id": 27, "type": 8, "typeName": "時間複雜度", "exam": false, "src": "練習題", "text": "下列程式的時間複雜度是？", "code": "for i in range(n):\n    for j in range(n):\n        total += a[i] * b[j]", "correct": "O(n²)", "wrongs": ["O(n)", "O(2n)", "O(n log n)"], "expl": "外層跑 n 次，內層也跑 n 次，總共 n×n＝n² 次。"}, {"id": 28, "type": 8, "typeName": "時間複雜度", "exam": false, "src": "練習題", "text": "下列程式的時間複雜度是？", "code": "for i in range(n):\n    for j in range(5):\n        total += a[i] * j", "correct": "O(n)", "wrongs": ["O(n²)", "O(1)", "O(n⁵)"], "expl": "內層固定只跑 5 次（常數），總共 5n 次，常數可省略，所以是 O(n)。"}, {"id": 29, "type": 8, "typeName": "時間複雜度", "exam": false, "src": "練習題", "text": "下列程式的時間複雜度是？", "code": "for i in range(n):\n    for j in range(n):\n        for k in range(n):\n            c[i][j] += a[i][k] * b[k][j]", "correct": "O(n³)", "wrongs": ["O(n²)", "O(3n)", "O(n)"], "expl": "三層迴圈各跑 n 次，n×n×n＝n³。"}, {"id": 30, "type": 9, "typeName": "Mini-batch 更新次數", "exam": false, "src": "練習題", "text": "訓練資料 1,000 筆，batch size＝100，訓練 5 個 epoch，總共更新權重幾次？", "code": null, "correct": "50", "wrongs": ["10", "15", "5,000"], "expl": "每個 epoch 更新 1000÷100＝10 次；共 5 個 epoch，要「乘」：10×5＝50。epoch 是乘，不是除。"}, {"id": 31, "type": 9, "typeName": "Mini-batch 更新次數", "exam": false, "src": "練習題", "text": "訓練資料 1,000 筆，batch size＝250，訓練 10 個 epoch，總共更新權重幾次？", "code": null, "correct": "40", "wrongs": ["4", "14", "10,000"], "expl": "每個 epoch 更新 1000÷250＝4 次；共 10 個 epoch，要「乘」：4×10＝40。epoch 是乘，不是除。"}, {"id": 32, "type": 9, "typeName": "Mini-batch 更新次數", "exam": false, "src": "練習題", "text": "訓練資料 600 筆，batch size＝50，訓練 4 個 epoch，總共更新權重幾次？", "code": null, "correct": "48", "wrongs": ["12", "16", "2,400"], "expl": "每個 epoch 更新 600÷50＝12 次；共 4 個 epoch，要「乘」：12×4＝48。epoch 是乘，不是除。"}, {"id": 33, "type": 10, "typeName": "Early Stopping", "exam": false, "src": "練習題", "text": "Early Stopping 設定 patience＝3，驗證損失從第 11 個 epoch 開始不再改善。訓練會停在第幾個 epoch？", "code": null, "correct": "第 13 輪", "wrongs": ["第 14 輪", "第 12 輪", "第 15 輪"], "expl": "停止點＝開始不改善的 epoch＋patience−1＝11＋3−1＝13。從第 11 輪算第 1 次沒進步，數滿 3 次就是第 13 輪。"}, {"id": 34, "type": 10, "typeName": "Early Stopping", "exam": false, "src": "練習題", "text": "Early Stopping 設定 patience＝5，驗證損失從第 25 個 epoch 開始不再改善。訓練會停在第幾個 epoch？", "code": null, "correct": "第 29 輪", "wrongs": ["第 30 輪", "第 28 輪", "第 31 輪"], "expl": "停止點＝開始不改善的 epoch＋patience−1＝25＋5−1＝29。從第 25 輪算第 1 次沒進步，數滿 5 次就是第 29 輪。"}, {"id": 35, "type": 10, "typeName": "Early Stopping", "exam": false, "src": "練習題", "text": "Early Stopping 設定 patience＝4，驗證損失從第 8 個 epoch 開始不再改善。訓練會停在第幾個 epoch？", "code": null, "correct": "第 11 輪", "wrongs": ["第 12 輪", "第 10 輪", "第 13 輪"], "expl": "停止點＝開始不改善的 epoch＋patience−1＝8＋4−1＝11。從第 8 輪算第 1 次沒進步，數滿 4 次就是第 11 輪。"}, {"id": 36, "type": 10, "typeName": "Early Stopping", "exam": false, "src": "練習題", "text": "Early Stopping 設定 patience＝2，驗證損失從第 15 個 epoch 開始不再改善。訓練會停在第幾個 epoch？", "code": null, "correct": "第 16 輪", "wrongs": ["第 17 輪", "第 15 輪", "第 18 輪"], "expl": "停止點＝開始不改善的 epoch＋patience−1＝15＋2−1＝16。從第 15 輪算第 1 次沒進步，數滿 2 次就是第 16 輪。"}, {"id": 37, "type": 11, "typeName": "卷積參數量", "exam": false, "src": "練習題", "text": "卷積層輸入 3 個通道，使用 16 個 3×3 濾波器（每個濾波器有 1 個偏差），參數量是多少？", "code": null, "correct": "448", "wrongs": ["432", "160", "433"], "expl": "每個濾波器：3×3×3＋1（偏差）＝28；共 16 個，28×16＝448。"}, {"id": 38, "type": 11, "typeName": "卷積參數量", "exam": false, "src": "練習題", "text": "卷積層輸入 1 個通道，使用 32 個 5×5 濾波器（每個濾波器有 1 個偏差），參數量是多少？", "code": null, "correct": "832", "wrongs": ["800", "801", "57"], "expl": "每個濾波器：5×5×1＋1（偏差）＝26；共 32 個，26×32＝832。"}, {"id": 39, "type": 11, "typeName": "卷積參數量", "exam": false, "src": "練習題", "text": "卷積層輸入 16 個通道，使用 64 個 3×3 濾波器（每個濾波器有 1 個偏差），參數量是多少？", "code": null, "correct": "9,280", "wrongs": ["9,216", "640", "9,217"], "expl": "每個濾波器：3×3×16＋1（偏差）＝145；共 64 個，145×64＝9,280。"}, {"id": 40, "type": 11, "typeName": "卷積參數量", "exam": false, "src": "練習題", "text": "卷積層輸入 3 個通道，使用 8 個 5×5 濾波器（每個濾波器有 1 個偏差），參數量是多少？", "code": null, "correct": "608", "wrongs": ["600", "208", "601"], "expl": "每個濾波器：5×5×3＋1（偏差）＝76；共 8 個，76×8＝608。"}, {"id": 41, "type": 12, "typeName": "卷積輸出尺寸", "exam": false, "src": "練習題", "text": "輸入 32×32，卷積核 3×3，stride＝1，padding＝0，輸出邊長是多少？", "code": null, "correct": "30", "wrongs": ["29", "32", "28"], "expl": "(輸入−核＋2×padding)÷stride＋1＝(32−3＋0)÷1＋1＝30。"}, {"id": 42, "type": 12, "typeName": "卷積輸出尺寸", "exam": false, "src": "練習題", "text": "輸入 28×28，卷積核 4×4，stride＝2，padding＝1，輸出邊長是多少？", "code": null, "correct": "14", "wrongs": ["27", "13", "28"], "expl": "(輸入−核＋2×padding)÷stride＋1＝(28−4＋2)÷2＋1＝14。"}, {"id": 43, "type": 12, "typeName": "卷積輸出尺寸", "exam": false, "src": "練習題", "text": "輸入 28×28，卷積核 5×5，stride＝1，padding＝0，輸出邊長是多少？", "code": null, "correct": "24", "wrongs": ["23", "28", "26"], "expl": "(輸入−核＋2×padding)÷stride＋1＝(28−5＋0)÷1＋1＝24。"}, {"id": 44, "type": 12, "typeName": "卷積輸出尺寸", "exam": false, "src": "練習題", "text": "輸入 64×64，卷積核 4×4，stride＝2，padding＝1，輸出邊長是多少？", "code": null, "correct": "32", "wrongs": ["63", "31", "64"], "expl": "(輸入−核＋2×padding)÷stride＋1＝(64−4＋2)÷2＋1＝32。"}, {"id": 45, "type": 13, "typeName": "Precision／Recall 分母", "exam": false, "src": "練習題", "text": "混淆矩陣 TP＝40、FP＝10、FN＝20，Recall 是多少？", "code": null, "correct": "0.667", "wrongs": ["0.800", "0.571", "0.333"], "expl": "R＝TP÷(TP＋FN)＝40÷60＝0.667。Precision 的分母看「預測為正」（TP＋FP），Recall 的分母看「實際為正」（TP＋FN）。"}, {"id": 46, "type": 13, "typeName": "Precision／Recall 分母", "exam": false, "src": "練習題", "text": "混淆矩陣 TP＝40、FP＝10、FN＝20，Precision 是多少？", "code": null, "correct": "0.800", "wrongs": ["0.667", "0.571", "0.200"], "expl": "P＝TP÷(TP＋FP)＝40÷50＝0.800。Precision 的分母看「預測為正」（TP＋FP），Recall 的分母看「實際為正」（TP＋FN）。"}, {"id": 47, "type": 13, "typeName": "Precision／Recall 分母", "exam": false, "src": "練習題", "text": "混淆矩陣 TP＝30、FP＝20、FN＝10，Precision 是多少？", "code": null, "correct": "0.600", "wrongs": ["0.750", "0.500", "0.400"], "expl": "P＝TP÷(TP＋FP)＝30÷50＝0.600。Precision 的分母看「預測為正」（TP＋FP），Recall 的分母看「實際為正」（TP＋FN）。"}, {"id": 48, "type": 13, "typeName": "Precision／Recall 分母", "exam": false, "src": "練習題", "text": "混淆矩陣 TP＝50、FP＝5、FN＝45，Recall 是多少？", "code": null, "correct": "0.526", "wrongs": ["0.909", "0.500", "0.474"], "expl": "R＝TP÷(TP＋FN)＝50÷95＝0.526。Precision 的分母看「預測為正」（TP＋FP），Recall 的分母看「實際為正」（TP＋FN）。"}, {"id": 49, "type": 14, "typeName": "Accuracy 陷阱", "exam": false, "src": "練習題", "text": "共 100 筆資料，其中只有 3 筆是少數類別。模型偷懶，全部預測成多數類別，Accuracy 是多少？", "code": null, "correct": "97%", "wrongs": ["100%", "3%", "50%"], "expl": "全猜多數類會答對 97 筆，Accuracy＝97÷100＝97%，看起來很高，但少數類別的 Recall 是 0，所以 Accuracy 會騙人。"}, {"id": 50, "type": 14, "typeName": "Accuracy 陷阱", "exam": false, "src": "練習題", "text": "共 1000 筆資料，其中只有 20 筆是少數類別。模型偷懶，全部預測成多數類別，Accuracy 是多少？", "code": null, "correct": "98%", "wrongs": ["100%", "2%", "50%"], "expl": "全猜多數類會答對 980 筆，Accuracy＝980÷1000＝98%，看起來很高，但少數類別的 Recall 是 0，所以 Accuracy 會騙人。"}, {"id": 51, "type": 14, "typeName": "Accuracy 陷阱", "exam": false, "src": "練習題", "text": "共 250 筆資料，其中只有 10 筆是少數類別。模型偷懶，全部預測成多數類別，Accuracy 是多少？", "code": null, "correct": "96%", "wrongs": ["100%", "4%", "50%"], "expl": "全猜多數類會答對 240 筆，Accuracy＝240÷250＝96%，看起來很高，但少數類別的 Recall 是 0，所以 Accuracy 會騙人。"}, {"id": 52, "type": 15, "typeName": "公平性 FPR", "exam": false, "src": "練習題", "text": "B 組共 100 人，其中 40 人實際符合資格。模型卻錯誤放行了 12 位不符資格的人。B 組的 FPR 是多少？", "code": null, "correct": "20%", "wrongs": ["12%", "30%", "88%"], "expl": "FPR＝錯放的人÷實際不符資格的人。分母是 100−40＝60，所以 12÷60＝20%。"}, {"id": 53, "type": 15, "typeName": "公平性 FPR", "exam": false, "src": "練習題", "text": "B 組共 200 人，其中 120 人實際符合資格。模型卻錯誤放行了 8 位不符資格的人。B 組的 FPR 是多少？", "code": null, "correct": "10%", "wrongs": ["4%", "6.7%", "96%"], "expl": "FPR＝錯放的人÷實際不符資格的人。分母是 200−120＝80，所以 8÷80＝10%。"}, {"id": 54, "type": 15, "typeName": "公平性 FPR", "exam": false, "src": "練習題", "text": "B 組共 50 人，其中 20 人實際符合資格。模型卻錯誤放行了 9 位不符資格的人。B 組的 FPR 是多少？", "code": null, "correct": "30%", "wrongs": ["18%", "45%", "82%"], "expl": "FPR＝錯放的人÷實際不符資格的人。分母是 50−20＝30，所以 9÷30＝30%。"}, {"id": 55, "type": 16, "typeName": "Lift", "exam": false, "src": "練習題", "text": "關聯規則 A→B 的 Confidence＝0.9，B 在所有交易中的基準購買率＝0.8。Lift 是多少？", "code": null, "correct": "1.125", "wrongs": ["0.9", "0.72", "0.889"], "expl": "Lift＝Confidence÷結果項基準購買率＝0.9÷0.8＝1.125。Lift>1 代表買 A 的人更常買 B。"}, {"id": 56, "type": 16, "typeName": "Lift", "exam": false, "src": "練習題", "text": "關聯規則 A→B 的 Confidence＝0.6，B 在所有交易中的基準購買率＝0.3。Lift 是多少？", "code": null, "correct": "2", "wrongs": ["0.6", "0.18", "0.5"], "expl": "Lift＝Confidence÷結果項基準購買率＝0.6÷0.3＝2。Lift>1 代表買 A 的人更常買 B。"}, {"id": 57, "type": 16, "typeName": "Lift", "exam": false, "src": "練習題", "text": "關聯規則 A→B 的 Confidence＝0.45，B 在所有交易中的基準購買率＝0.5。Lift 是多少？", "code": null, "correct": "0.9", "wrongs": ["0.45", "0.225", "1.111"], "expl": "Lift＝Confidence÷結果項基準購買率＝0.45÷0.5＝0.9。Lift<1 代表買 A 反而比較不會買 B。"}, {"id": 58, "type": 17, "typeName": "PCA 小數 n_components", "exam": false, "src": "練習題", "text": "sklearn 的 PCA(n_components=0.95) 代表什麼？", "code": null, "correct": "保留 95% 變異量，欄位變少、列數不變", "wrongs": ["保留 95% 的資料筆數（列）", "只保留前 95 個欄位（特徵）", "把每個特徵值都乘上 0.95"], "expl": "小數代表「要保留的變異量比例」。PCA 只減少欄位（特徵），不會刪掉資料筆數。"}, {"id": 59, "type": 17, "typeName": "PCA 小數 n_components", "exam": false, "src": "練習題", "text": "資料 1000 筆、6 個特徵，特徵值為 5, 3, 1.2, 0.5, 0.2, 0.1。設 PCA(n_components=0.9) 並 transform，輸出形狀是？", "code": null, "correct": "(1000, 3)", "wrongs": ["(1000, 4)", "(3, 6)", "(1000, 6)"], "expl": "特徵值總和＝10；前 3 個累積 92.0% ≥ 90%（前 2 個只有 80.0%）。所以留 3 個欄位，列數 1000 不變：(1000, 3)。"}, {"id": 60, "type": 17, "typeName": "PCA 小數 n_components", "exam": false, "src": "練習題", "text": "資料 500 筆、8 個特徵，特徵值為 4, 2, 1, 0.5, 0.25, 0.1, 0.1, 0.05。設 PCA(n_components=0.7) 並 transform，輸出形狀是？", "code": null, "correct": "(500, 2)", "wrongs": ["(500, 3)", "(2, 8)", "(500, 8)"], "expl": "特徵值總和＝8；前 2 個累積 75.0% ≥ 70%（前 1 個只有 50.0%）。所以留 2 個欄位，列數 500 不變：(500, 2)。"}]};
+const TYPES = BANK.types, QS = BANK.questions;
+const KEY = 'calc60_v1';
+let store = {seenQ: [], typeCount: {}, wrong: [], exams: 0};
+try { const s = JSON.parse(localStorage.getItem(KEY)); if (s) store = Object.assign(store, s); } catch (e) {}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {} };
+const $ = document.getElementById('app');
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const esc = s => String(s).replace(/[&<>]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;'}[c]));
+const byId = id => QS.find(q => q.id === id);
+const typeIds = Object.keys(TYPES).map(Number);
+let S = null; // session
+
+// ---- 抽題：題型輪流（出現最少的優先）＋題目不重複（用完才重置）----
+function pickExam(n) {
+  const order = shuffle(typeIds).sort((a, b) => (store.typeCount[a] || 0) - (store.typeCount[b] || 0));
+  const chosen = [];
+  for (let i = 0; i < n; i++) {
+    const t = order[i % order.length];
+    let pool = QS.filter(q => q.type === t && !chosen.includes(q.id));
+    let fresh = pool.filter(q => !store.seenQ.includes(q.id));
+    if (!fresh.length) { store.seenQ = store.seenQ.filter(id => byId(id).type !== t); fresh = pool; }
+    if (!fresh.length) fresh = QS.filter(q => q.type === t);
+    const q = shuffle(fresh)[0];
+    chosen.push(q.id);
+    store.seenQ.push(q.id);
+    store.typeCount[t] = (store.typeCount[t] || 0) + 1;
+  }
+  save();
+  return shuffle(chosen);
+}
+function prep(ids) { // 每次選項順序重新隨機
+  return ids.map(id => { const q = byId(id); const opts = shuffle([q.correct, ...q.wrongs]); return {id, opts, ans: opts.indexOf(q.correct), pick: null}; });
+}
+
+// ---- 畫面 ----
+function home() {
+  S = null;
+  const seen = new Set(store.seenQ).size;
+  $.innerHTML = `
+  <h1>科目三計算題模擬考</h1>
+  <p class="sub">${QS.length} 題題庫 · ${typeIds.length} 種題型 · 已練過 ${store.exams} 場</p>
+  <div class="card"><h2>模擬考（一題一題出，考完才看解析）</h2>
+    <p class="mut">每次隨機抽題；題型輪流，沒出現過的優先；同題型的題目用完才會重複。</p>
+    <div class="row seg" id="nsel">
+      <button data-n="10" class="on">10 題</button><button data-n="17">17 題（每種題型都出到）</button><button data-n="20">20 題</button>
+    </div>
+    <div class="row" style="margin-top:12px"><button class="pri" id="go">開始模擬考</button></div>
+  </div>
+  <div class="modes">
+    <button class="card mode" id="m-ex"><b>考古題（8 題）</b><span>114-2、115-1 真的考過的計算，每題答完立刻看解析</span></button>
+    <button class="card mode" id="m-wr"><b>錯題本（${store.wrong.length} 題）</b><span>模擬考答錯的會自動收進來，答對一次就移出</span></button>
+    <button class="card mode" id="m-ty"><b>依題型練習</b><span>選一種題型，隨機出題，答完立刻看解析</span></button>
+  </div>
+  <div class="card" style="margin-top:12px"><h2>題型涵蓋</h2><table>
+    ${typeIds.map(t => `<tr><td>${esc(TYPES[t])}</td><td>${QS.filter(q => q.type === t).length} 題</td><td class="mut">已出 ${store.typeCount[t] || 0} 次</td></tr>`).join('')}
+  </table><p class="mut">題庫：考古題 ${QS.filter(q => q.exam).length} 題＋練習題 ${QS.filter(q => !q.exam).length} 題。</p>
+  <div class="row"><button id="reset">清除作答紀錄</button></div></div>`;
+  let n = 10;
+  $.querySelectorAll('#nsel button').forEach(b => b.onclick = () => { n = +b.dataset.n; $.querySelectorAll('#nsel button').forEach(x => x.classList.toggle('on', x === b)); });
+  document.getElementById('go').onclick = () => start({mode: 'exam', title: `模擬考 ${n} 題`, items: prep(pickExam(n)), immediate: false});
+  document.getElementById('m-ex').onclick = () => start({mode: 'archive', title: '考古題', items: prep(shuffle(QS.filter(q => q.exam).map(q => q.id))), immediate: true});
+  document.getElementById('m-wr').onclick = () => {
+    if (!store.wrong.length) return alert('錯題本目前是空的');
+    start({mode: 'wrong', title: '錯題本', items: prep(shuffle(store.wrong.slice())), immediate: true});
+  };
+  document.getElementById('m-ty').onclick = typePick;
+  document.getElementById('reset').onclick = () => { if (confirm('清除出題紀錄與錯題本？')) { store = {seenQ: [], typeCount: {}, wrong: [], exams: 0}; save(); home(); } };
+}
+function typePick() {
+  $.innerHTML = `<h1>依題型練習</h1><div class="card">${typeIds.map(t => `<button class="opt" data-t="${t}">${esc(TYPES[t])}　<span class="mut">${QS.filter(q => q.type === t).length} 題</span></button>`).join('')}</div><button id="back">← 回首頁</button>`;
+  document.getElementById('back').onclick = home;
+  $.querySelectorAll('[data-t]').forEach(b => b.onclick = () => {
+    const t = +b.dataset.t;
+    start({mode: 'type', title: TYPES[t], items: prep(shuffle(QS.filter(q => q.type === t).map(q => q.id))), immediate: true});
+  });
+}
+function start(s) { S = Object.assign({i: 0, done: false, t0: Date.now()}, s); render(); }
+
+function render() {
+  const it = S.items[S.i], q = byId(it.id), n = S.items.length;
+  const shown = S.immediate && it.pick !== null;
+  $.innerHTML = `
+  <div class="row" style="justify-content:space-between"><b>${esc(S.title)}</b><span class="mut">${S.i + 1} / ${n}</span></div>
+  <div class="bar"><i style="width:${(S.i + 1) / n * 100}%"></i></div>
+  <div class="card">
+    <div><span class="tag${q.exam ? ' ex' : ''}">${q.exam ? '考古題' : '練習題'}</span><span class="tag">${esc(q.typeName)}</span></div>
+    <div class="q">${esc(q.text)}</div>
+    ${q.code ? `<pre>${esc(q.code)}</pre>` : ''}
+    ${it.opts.map((o, k) => {
+      let c = 'opt';
+      if (shown) { if (k === it.ans) c += ' ok'; else if (k === it.pick) c += ' no'; }
+      else if (it.pick === k) c += ' sel';
+      return `<button class="${c}" data-k="${k}" ${shown ? 'disabled' : ''}>${'ABCD'[k]}．${esc(o)}</button>`;
+    }).join('')}
+    ${shown ? `<div class="expl"><b>${it.pick === it.ans ? '✔ 答對了' : '✘ 答錯了'}</b><br>${esc(q.expl)}<br><span class="mut">${esc(q.src)}</span></div>` : ''}
+  </div>
+  <div class="nav">
+    <button id="prev" ${S.i === 0 ? 'disabled' : ''}>← 上一題</button>
+    <button class="pri" id="next" ${it.pick === null ? 'disabled' : ''}>${S.i === n - 1 ? '交卷看解析' : '下一題 →'}</button>
+  </div>
+  <p><button id="quit">放棄回首頁</button></p>`;
+  $.querySelectorAll('.opt').forEach(b => b.onclick = () => { if (shown) return; it.pick = +b.dataset.k; render(); });
+  document.getElementById('prev').onclick = () => { S.i--; render(); };
+  document.getElementById('next').onclick = () => { if (S.i === n - 1) finish(); else { S.i++; render(); } };
+  document.getElementById('quit').onclick = () => { if (confirm('離開後這次作答不會保留')) home(); };
+}
+
+function finish() {
+  const n = S.items.length, right = S.items.filter(x => x.pick === x.ans).length;
+  const secs = Math.round((Date.now() - S.t0) / 1000);
+  // 錯題本更新
+  S.items.forEach(x => {
+    const w = store.wrong.indexOf(x.id);
+    if (x.pick === x.ans) { if (w >= 0 && S.mode !== 'exam') store.wrong.splice(w, 1); }
+    else if (w < 0) store.wrong.push(x.id);
+  });
+  if (S.mode === 'exam') store.exams++;
+  save();
+  const per = {};
+  S.items.forEach(x => { const q = byId(x.id); (per[q.typeName] = per[q.typeName] || [0, 0]); per[q.typeName][1]++; if (x.pick === x.ans) per[q.typeName][0]++; });
+  const pct = Math.round(right / n * 100);
+  $.innerHTML = `
+  <h1>${esc(S.title)} 結果</h1>
+  <div class="card"><div class="score">${right} / ${n}　<span style="font-size:1.1rem">${pct}%</span></div>
+    <div class="mut">用時 ${Math.floor(secs / 60)} 分 ${secs % 60} 秒　·　答錯 ${n - right} 題已加入錯題本</div></div>
+  <div class="card"><h2>各題型表現</h2><table>${Object.entries(per).map(([k, v]) => `<tr><td>${esc(k)}</td><td class="${v[0] === v[1] ? 'ok-t' : 'no-t'}">${v[0]} / ${v[1]}</td></tr>`).join('')}</table></div>
+  <div class="card"><h2>逐題解析</h2>
+    ${S.items.map((x, i) => { const q = byId(x.id), ok = x.pick === x.ans; return `<details ${ok ? '' : 'open'}>
+      <summary class="${ok ? 'ok-t' : 'no-t'}">${ok ? '✔' : '✘'} 第 ${i + 1} 題 · ${esc(q.typeName)}</summary>
+      <div class="q">${esc(q.text)}</div>${q.code ? `<pre>${esc(q.code)}</pre>` : ''}
+      <div>你的答案：<b class="${ok ? 'ok-t' : 'no-t'}">${x.pick === null ? '未作答' : esc(x.opts[x.pick])}</b>　正確：<b class="ok-t">${esc(q.correct)}</b></div>
+      <div class="expl">${esc(q.expl)}<br><span class="mut">${esc(q.src)}</span></div></details>`; }).join('')}
+  </div>
+  <div class="row"><button class="pri" id="home">回首頁</button>${S.mode === 'exam' ? '<button id="again">再來一場</button>' : ''}</div>`;
+  const nn = n;
+  document.getElementById('home').onclick = home;
+  const ag = document.getElementById('again');
+  if (ag) ag.onclick = () => start({mode: 'exam', title: `模擬考 ${nn} 題`, items: prep(pickExam(nn)), immediate: false});
+}
+home();
+</script>
+</body>
+</html>
