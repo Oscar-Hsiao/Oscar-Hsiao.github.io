@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>科目三 Python:三個必考陷阱</title>
+<style>
+:root{
+  --board:#2c4a3c; --board2:#243d31; --chalk:#f4f1e8; --yellow:#f6e27a; --pink:#f5a3b8; --blue:#9fd3f0; --dim:#8fa89a;
+  --frame:#8a5a33; --frame2:#6b4423;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#1b1410;color:var(--chalk);
+  font-family:"Kaiti TC","BiauKai","DFKai-SB","STKaiti","Noto Sans TC","PingFang TC",sans-serif;}
+.frame{position:fixed;inset:10px;border-radius:10px;border:14px solid var(--frame);
+  box-shadow:inset 0 0 0 3px var(--frame2),0 10px 40px #000a;overflow:hidden;
+  background:
+   radial-gradient(ellipse at 30% 20%,#ffffff10,transparent 55%),
+   radial-gradient(ellipse at 80% 85%,#ffffff0a,transparent 50%),
+   linear-gradient(160deg,var(--board),var(--board2));}
+.smudge{position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background:
+   radial-gradient(ellipse 280px 60px at 20% 78%,#ffffff12,transparent 70%),
+   radial-gradient(ellipse 220px 50px at 75% 30%,#ffffff0d,transparent 70%);}
+.tray{position:absolute;left:0;right:0;bottom:0;height:34px;background:var(--frame);border-top:3px solid var(--frame2);
+  display:flex;align-items:center;justify-content:space-between;padding:0 18px;font-size:14px;color:#f3dcc0}
+.tray .dots button{width:12px;height:12px;border-radius:50%;border:2px solid #f3dcc0;background:transparent;margin:0 4px;padding:0;cursor:pointer}
+.tray .dots button.on{background:var(--yellow);border-color:var(--yellow)}
+.tray .nav button{background:none;border:2px solid #f3dcc0;color:#f3dcc0;border-radius:6px;padding:2px 12px;font:inherit;cursor:pointer;margin-left:6px}
+.tray .nav button:hover{background:#ffffff22}
+.slide{position:absolute;inset:0 0 34px 0;padding:28px 6vw 20px;overflow:auto;display:none}
+.slide.on{display:block;animation:in .35s ease}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+h1{font-size:clamp(34px,5.2vw,64px);margin:.1em 0;color:var(--yellow);font-weight:700;letter-spacing:.04em}
+h2{font-size:clamp(26px,3.6vw,44px);margin:.1em 0 .2em;color:var(--yellow);font-weight:700}
+h2 small{font-size:.45em;color:var(--dim);font-weight:400;margin-left:12px}
+p,li{font-size:clamp(17px,2vw,24px);line-height:1.7}
+.pink{color:var(--pink)} .yel{color:var(--yellow)} .blu{color:var(--blue)} .dim{color:var(--dim)}
+.u{background:linear-gradient(transparent 62%,#f6e27a55 62%)}
+.row{display:flex;gap:18px;flex-wrap:wrap}
+.card{border:2.5px dashed var(--chalk);border-radius:14px;padding:12px 16px;background:#ffffff08}
+.btn{font:inherit;font-size:clamp(16px,1.8vw,22px);color:var(--chalk);background:#ffffff0d;border:2.5px solid var(--chalk);
+  border-radius:12px;padding:8px 16px;cursor:pointer;transition:.15s}
+.btn:hover{background:#ffffff22;transform:rotate(-.6deg)}
+.btn.on{border-color:var(--yellow);color:var(--yellow);background:#f6e27a18}
+.btn.ok{border-color:#9be39b;color:#9be39b;background:#9be39b15}
+.btn.bad{border-color:var(--pink);color:var(--pink);background:#f5a3b815}
+pre{font-family:"Menlo","SF Mono",Consolas,monospace;font-size:clamp(14px,1.55vw,19px);line-height:1.6;margin:10px 0;
+  background:#0000002e;border:2px dashed var(--blue);padding:12px 16px;border-radius:6px;white-space:pre-wrap;color:#e9f4ff}
+pre .bad{color:var(--pink);font-weight:700} pre .good{color:#9be39b;font-weight:700}
+.folds{display:flex;gap:8px;margin:10px 0}
+.fold{flex:1;height:70px;border:2.5px solid var(--chalk);border-radius:10px;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;cursor:pointer;font-size:clamp(14px,1.6vw,20px);transition:.25s;text-align:center}
+.fold.val{border-color:var(--blue)}
+.fold.seen{background:#f6e27a30;border-color:var(--yellow)}
+.fold.leak{background:#f5a3b845;border-color:var(--pink)}
+.fold.unseen{opacity:.55;border-style:dashed}
+.note{font-size:clamp(16px,1.8vw,22px);min-height:2.4em}
+.tag{display:inline-block;border:2px solid var(--yellow);color:var(--yellow);border-radius:20px;padding:0 12px;font-size:.8em;margin-right:6px}
+.cells{display:flex;gap:4px;flex-wrap:wrap;margin:6px 0}
+.cell{width:22px;height:22px;border-radius:4px;border:2px solid var(--chalk);font-size:11px;display:flex;align-items:center;justify-content:center}
+.cell.tr{background:#9fd3f033;border-color:var(--blue)} .cell.te{background:#f6e27a40;border-color:var(--yellow)}
+.cell.ab{background:var(--pink);border-color:var(--pink);color:#000}
+.tl{display:flex;gap:3px;margin:4px 0;align-items:center}
+.tl span.l{width:70px;font-size:15px;color:var(--dim)}
+.timer{position:absolute;top:18px;right:6vw;font-size:16px;color:var(--dim);border:2px dashed var(--dim);border-radius:20px;padding:2px 14px}
+.opt{display:block;width:100%;text-align:left;margin:8px 0}
+.exp{margin-top:10px;padding:10px 14px;border:2px dashed var(--yellow);background:#00000020;border-radius:6px;font-size:clamp(16px,1.8vw,21px);line-height:1.7}
+.seq{display:flex;gap:10px;flex-wrap:wrap;min-height:54px;align-items:center;margin:8px 0}
+.chip{border:2.5px solid var(--yellow);color:var(--yellow);border-radius:12px;padding:6px 12px;font-family:Menlo,monospace;font-size:clamp(14px,1.6vw,19px)}
+.star{color:var(--yellow)}
+@media(max-width:700px){.frame{inset:4px;border-width:8px}.slide{padding:20px 16px}.timer{display:none}.tray .dots{display:none}}
+</style>
+</head>
+<body>
+<div class="frame">
+  <div class="smudge"></div>
+
+  <!-- 0 開場 -->
+  <section class="slide on" data-min="1 分鐘">
+    <div class="timer">⏱ 約 1 分鐘</div>
+    <p class="dim" style="margin-bottom:0">iPAS AI 應用規劃師 · 科目三</p>
+    <h1>Python 題:三個必考陷阱</h1>
+    <p>這類題目不考你會不會<span class="u">寫</span>程式,<br>考的是你看不看得出<span class="pink">哪一行有問題</span>。</p>
+    <div class="row" style="margin-top:14px">
+      <div class="card" style="flex:1;min-width:230px"><div class="star">★ 陷阱 1</div>前處理放錯位置<br><span class="pink">資料洩漏</span></div>
+      <div class="card" style="flex:1;min-width:230px"><div class="star">★ 陷阱 2</div>切資料的方式<br><span class="pink">跟情境不搭</span></div>
+      <div class="card" style="flex:1;min-width:230px"><div class="star">★ 陷阱 3</div>PyTorch 訓練<br><span class="pink">步驟順序錯</span></div>
+    </div>
+    <p class="dim" style="margin-top:22px">按 → 鍵或下方按鈕繼續 ➜</p>
+  </section>
+
+  <!-- 1 洩漏 -->
+  <section class="slide" data-min="2 分鐘">
+    <div class="timer">⏱ 約 2 分鐘</div>
+    <h2>陷阱 1:資料洩漏<small>前處理放在交叉驗證外面</small></h2>
+    <div class="row" style="margin-bottom:4px">
+      <button class="btn on" id="lkWrong">✗ 錯誤寫法</button>
+      <button class="btn" id="lkRight">✓ 正確寫法(Pipeline)</button>
+      <span class="dim" style="align-self:center">👇 點任一格,換成「驗證折」</span>
+    </div>
+    <div class="folds" id="folds"></div>
+    <div class="note" id="lkNote"></div>
+    <pre id="lkCode"></pre>
+    <p class="yel" style="margin:0">✎ 口訣:<span class="u">fit 只能看訓練資料,transform 才能用在測試資料。</span></p>
+  </section>
+
+  <!-- 2 切分 -->
+  <section class="slide" data-min="2 分鐘">
+    <div class="timer">⏱ 約 2 分鐘</div>
+    <h2>陷阱 2:切分方式要配對情境<small>先選情境,再選方法</small></h2>
+    <div class="row" id="scn"></div>
+    <div class="row" id="mth" style="margin-top:10px"></div>
+    <div class="exp" id="splitMsg">① 先點一個情境 ② 再點你覺得該用的方法</div>
+    <div id="splitViz" style="margin-top:8px"></div>
+  </section>
+
+  <!-- 3 PyTorch -->
+  <section class="slide" data-min="1.5 分鐘">
+    <div class="timer">⏱ 約 1.5 分鐘</div>
+    <h2>陷阱 3:PyTorch 訓練順序<small>依序點出正確的四步</small></h2>
+    <p style="margin:0">下面四個動作被打亂了,請<span class="yel">依正確順序</span>點它們:</p>
+    <div class="row" id="pool" style="margin:8px 0"></div>
+    <p style="margin:0" class="dim">你排的順序:</p>
+    <div class="seq" id="seq"></div>
+    <div class="row"><button class="btn" id="ptReset">↺ 重排</button></div>
+    <div class="exp" id="ptMsg">提示:先清、再算、再裁、最後更新。</div>
+  </section>
+
+  <!-- 4 小測驗 -->
+  <section class="slide" data-min="1 分鐘">
+    <div class="timer">⏱ 約 1 分鐘</div>
+    <h2>小測驗<small id="qNo"></small></h2>
+    <p id="qText" style="margin:6px 0"></p>
+    <div id="qOpts"></div>
+    <div class="exp" id="qExp" style="display:none"></div>
+    <div class="row" style="margin-top:10px"><button class="btn" id="qNext" style="display:none">下一題 ➜</button></div>
+  </section>
+
+  <!-- 5 收尾 -->
+  <section class="slide" data-min="30 秒">
+    <div class="timer">⏱ 約 30 秒</div>
+    <h2>三句口訣帶回家</h2>
+    <div class="card" style="margin:10px 0"><span class="star">①</span> <span class="yel">fit</span> 只看訓練資料,<span class="blu">transform</span> 才用在測試資料</div>
+    <div class="card" style="margin:10px 0"><span class="star">②</span> 不平衡 → <span class="yel">stratify</span>;時間 → <span class="yel">TimeSeriesSplit</span>;同一人 → <span class="yel">GroupKFold</span></div>
+    <div class="card" style="margin:10px 0"><span class="star">③</span> 清梯度 → 算梯度 → 裁梯度 → 更新權重</div>
+    <p class="dim" style="margin-top:20px">看到題目先問自己:有沒有「偷看」?切法跟情境搭不搭?順序對不對?</p>
+  </section>
+
+  <div class="tray">
+    <div class="dots" id="dots"></div>
+    <div id="pg"></div>
+    <div class="nav"><button id="prev">◀ 上一頁</button><button id="next">下一頁 ▶</button></div>
+  </div>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+const slides=[...document.querySelectorAll('.slide')];
+let cur=0;
+function go(n){
+  cur=Math.max(0,Math.min(slides.length-1,n));
+  slides.forEach((s,i)=>s.classList.toggle('on',i===cur));
+  [...$('#dots').children].forEach((d,i)=>d.classList.toggle('on',i===cur));
+  $('#pg').textContent=(cur+1)+' / '+slides.length;
+}
+slides.forEach((_,i)=>{const b=document.createElement('button');b.onclick=()=>go(i);$('#dots').appendChild(b)});
+$('#prev').onclick=()=>go(cur-1); $('#next').onclick=()=>go(cur+1);
+addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key==='PageDown')go(cur+1);
+  if(e.key==='ArrowLeft'||e.key==='PageUp')go(cur-1);
+});
+
+/* ---------- 陷阱1:資料洩漏 ---------- */
+let leakMode='wrong', valFold=4;
+function renderLeak(){
+  const wrong=leakMode==='wrong';
+  $('#lkWrong').className='btn'+(wrong?' on':''); $('#lkRight').className='btn'+(!wrong?' on':'');
+  const f=$('#folds'); f.innerHTML='';
+  for(let i=0;i<5;i++){
+    const isVal=i===valFold, d=document.createElement('div');
+    let cls='fold'; let txt='訓練折 '+(i+1), sub='';
+    if(isVal){txt='驗證折 '+(i+1);cls+=' val'}
+    if(wrong){ // scaler.fit 看全部
+      cls+=isVal?' leak':' seen'; sub=isVal?'<span class="pink">被偷看了!</span>':'scaler 看過';
+    }else{
+      if(isVal){cls+=' unseen'; sub='<span class="blu">沒看過 ✓</span>'}
+      else{cls+=' seen'; sub='scaler 看過'}
+    }
+    d.className=cls; d.innerHTML=txt+'<br><small>'+sub+'</small>'; d.onclick=()=>{valFold=i;renderLeak()};
+    f.appendChild(d);
+  }
+  $('#lkNote').innerHTML = wrong
+    ? '先對<span class="yel">全部資料</span> fit,算出的平均數與標準差已含<span class="pink">驗證折</span>的資訊 → 驗證集不再是「沒看過的考卷」。'
+    : '每一折都只用<span class="yel">訓練折</span> fit,再 transform 驗證折 → 驗證折真的是新資料。';
+  $('#lkCode').innerHTML = wrong
+? `scaler = StandardScaler()
+<span class="bad">X_scaled = scaler.fit_transform(X)      # ← 全部資料先 fit</span>
+scores = cross_val_score(model, X_scaled, y, cv=5)`
+: `<span class="good">pipe = Pipeline([("scaler", StandardScaler()),
+                 ("model", model)])   # ← 綁在一起</span>
+scores = cross_val_score(pipe, X, y, cv=5)`;
+}
+$('#lkWrong').onclick=()=>{leakMode='wrong';renderLeak()};
+$('#lkRight').onclick=()=>{leakMode='right';renderLeak()};
+renderLeak();
+
+/* ---------- 陷阱2:切分配對 ---------- */
+const scenarios=[
+ {id:'strat',t:'🩺 類別不平衡',d:'100 筆資料,只有 5 筆異常'},
+ {id:'ts',t:'📈 時間序列',d:'每日銷量預測,資料有先後'},
+ {id:'grp',t:'🏥 同一病人多筆',d:'每位病人有 3 筆檢查,要預測新病人'}
+];
+const methods=[
+ {id:'strat',t:'train_test_split(stratify=y)'},
+ {id:'ts',t:'TimeSeriesSplit'},
+ {id:'grp',t:'GroupKFold'}
+];
+const why={
+ strat:'沒加 stratify,少數類別在測試集可能分配不均,極端時 0 筆。',
+ ts:'隨機切會拿「未來」的資料去預測「過去」,不合現實。',
+ grp:'同一人同時出現在訓練與測試,等於把答案洩漏給模型。'
+};
+let pickS=null;
+function viz(id){
+  if(id==='strat'){
+    let c='';for(let i=0;i<20;i++)c+=`<div class="cell ${i===7?'ab':'te'}">${i===7?'異':''}</div>`;
+    return `<div class="dim">實測:100 筆(5 筆異常)切 20 筆測試集 → 測試集剛好有 <span class="pink">1 筆異常</span>,比例與原本一致(5%)</div><div class="cells">${c}</div>`;
+  }
+  if(id==='ts'){
+    const rows=[[[0,1,2,3],[4,5]],[[0,1,2,3,4,5],[6,7]],[[0,1,2,3,4,5,6,7],[8,9]]];
+    return '<div class="dim">實測:TimeSeriesSplit(n_splits=3),訓練永遠在前、測試永遠在後</div>'+rows.map((r,k)=>{
+      let h=`<div class="tl"><span class="l">第${k+1}折</span>`;
+      for(let i=0;i<10;i++){const tr=r[0].includes(i),te=r[1].includes(i);h+=`<div class="cell ${tr?'tr':te?'te':''}">${i}</div>`}
+      return h+'</div>';}).join('')+'<div class="dim"><span class="blu">藍=訓練</span> · <span class="yel">黃=測試</span></div>';
+  }
+  const g=[1,1,1,2,2,2,3,3,3,4,4,4];
+  const pat=(test)=>{let h='';g.forEach((p,i)=>{h+=`<div class="cell ${test.includes(p)?'te':'tr'}">${p}</div>`});return h};
+  return `<div class="dim">實測:GroupKFold(n_splits=2),4 位病人各 3 筆(格子數字=病人編號)</div>
+   <div class="tl"><span class="l">第1折</span>${pat([2,4])}</div>
+   <div class="tl"><span class="l">第2折</span>${pat([1,3])}</div>
+   <div class="dim"><span class="blu">藍=訓練</span> · <span class="yel">黃=測試</span> → 同一位病人不會跨邊</div>`;
+}
+function renderSplit(){
+  const sc=$('#scn'); sc.innerHTML='';
+  scenarios.forEach(s=>{const b=document.createElement('button');b.className='btn'+(pickS===s.id?' on':'');
+    b.innerHTML=s.t+'<br><small class="dim">'+s.d+'</small>';b.onclick=()=>{pickS=s.id;$('#splitViz').innerHTML='';
+      $('#splitMsg').innerHTML='情境:<span class="yel">'+s.t+'</span>。你覺得該用哪個方法?';renderSplit()};sc.appendChild(b)});
+  const mt=$('#mth'); mt.innerHTML='';
+  methods.forEach(m=>{const b=document.createElement('button');b.className='btn';b.textContent=m.t;
+    b.onclick=()=>{
+      if(!pickS){$('#splitMsg').textContent='請先點上面的情境 👆';return}
+      if(m.id===pickS){b.classList.add('ok');$('#splitMsg').innerHTML='✓ <span class="yel">答對!</span> 如果沒用它:'+why[pickS];$('#splitViz').innerHTML=viz(pickS)}
+      else{b.classList.add('bad');$('#splitMsg').innerHTML='✗ 再想想。'+(m.id==='strat'?'它處理的是類別比例,':m.id==='ts'?'它針對有時間先後的資料,':'它處理的是同一群組不跨邊,')+'不是這個情境的重點。';$('#splitViz').innerHTML=''}
+    };mt.appendChild(b)});
+}
+renderSplit();
+
+/* ---------- 陷阱3:PyTorch 排序 ---------- */
+const steps=[
+ {k:1,t:'optimizer.zero_grad()',m:'清掉舊梯度(沒清會累加)'},
+ {k:2,t:'loss.backward()',m:'反向傳播,算出梯度'},
+ {k:3,t:'clip_grad_norm_(...)',m:'梯度裁剪,防止梯度爆炸'},
+ {k:4,t:'optimizer.step()',m:'用梯度更新權重'}
+];
+const shuffled=[3,1,4,2];
+let picked=[];
+function renderPt(){
+  const pool=$('#pool'),seq=$('#seq'); pool.innerHTML='';seq.innerHTML='';
+  shuffled.forEach(k=>{const s=steps.find(x=>x.k===k);const b=document.createElement('button');b.className='btn';b.style.fontFamily='Menlo,monospace';b.textContent=s.t;
+    b.disabled=picked.includes(k); b.style.opacity=b.disabled?.3:1;
+    b.onclick=()=>{picked.push(k);check();renderPt()};pool.appendChild(b)});
+  picked.forEach((k,i)=>{const s=steps.find(x=>x.k===k);const c=document.createElement('span');c.className='chip';c.textContent=(i+1)+'. '+s.t;seq.appendChild(c)});
+}
+function check(){
+  const i=picked.length-1;
+  if(picked[i]!==i+1){
+    $('#ptMsg').innerHTML='✗ 第 '+(i+1)+' 步不是它。'+(picked[i]===4?'<span class="yel">step() 是最後一步</span>:更新前梯度要先算好、裁好。':picked[i]===3?'裁剪的對象是梯度,<span class="yel">要先 backward 算出梯度</span>才有東西可裁。':'再想想:先清、再算、再裁、最後更新。')+' 已幫你重排。';
+    picked=[];return;
+  }
+  if(picked.length===4){
+    $('#ptMsg').innerHTML='✓ <span class="yel">全對!</span> 重點:裁剪在 <span class="pink">backward 之後、step 之前</span>。<br>'+steps.map(s=>s.k+'. '+s.t+' → '+s.m).join('<br>');
+  }else $('#ptMsg').innerHTML='✓ 目前正確,繼續下一步…';
+}
+$('#ptReset').onclick=()=>{picked=[];$('#ptMsg').textContent='提示:先清、再算、再裁、最後更新。';renderPt()};
+renderPt();
+
+/* ---------- 小測驗 ---------- */
+const qs=[
+ {q:'某同學先用 StandardScaler().fit_transform(X) 處理全部資料,再做 5 折交叉驗證評估模型。下列敘述何者正確?',
+  o:['沒有問題,因為縮放只改變數值範圍,並不會改變資料的標籤','會資料洩漏,應改用 Pipeline,讓每折只用訓練折去 fit','沒有問題,因為交叉驗證會在每折自動重新計算平均數與標準差','會造成過擬合,應該改用更大的學習率來加快模型收斂速度'],a:1,
+  e:'(A) 縮放是否改變標籤不是重點,問題在平均數、標準差用到了驗證折。(C) 交叉驗證不會自動重算,Pipeline 才會。(D) 洩漏與過擬合是不同問題,跟學習率無關。'},
+ {q:'某醫院資料集中,每位病人有多筆檢查紀錄,要評估模型對「新病人」的預測能力。下列切分方式何者最合適?',
+  o:['一般隨機 KFold,讓每折的樣本數量完全相同','使用 TimeSeriesSplit,讓訓練集永遠排在測試集之前','使用 GroupKFold,以病人編號作為群組來進行切分','使用 train_test_split 並設定 stratify 來維持比例'],a:2,
+  e:'要預測新病人,同一位病人的資料不可同時出現在訓練與測試。(A) 會讓同一人跨邊。(B) 針對有時間先後的資料。(D) 處理類別比例,不處理同人跨邊。'},
+ {q:'下列 PyTorch 訓練迴圈中,梯度裁剪 clip_grad_norm_ 最適合放在哪個位置?',
+  o:['放在 optimizer.zero_grad() 之前,先限制舊梯度的大小','放在 loss.backward() 之後、optimizer.step() 之前','放在 optimizer.step() 之後,用來修正已更新的權重','放在 forward 計算 loss 之前,先限制輸入資料大小'],a:1,
+  e:'裁剪的對象是梯度,梯度要等 backward 算出來才存在(排除 A、D);裁剪必須在更新權重之前才有作用(排除 C)。'}
+];
+let qi=0,score=0,answered=false;
+function renderQ(){
+  if(qi>=qs.length){
+    $('#qNo').textContent='';$('#qText').innerHTML='<span class="yel">全部完成!</span> 你答對 <span class="pink">'+score+' / '+qs.length+'</span> 題。';
+    $('#qOpts').innerHTML='';$('#qExp').style.display='none';$('#qNext').style.display='';$('#qNext').textContent='↺ 重做一次';
+    $('#qNext').onclick=()=>{qi=0;score=0;renderQ()};return;
+  }
+  const q=qs[qi]; answered=false;
+  $('#qNo').textContent='第 '+(qi+1)+' / '+qs.length+' 題'; $('#qText').textContent=q.q;
+  $('#qExp').style.display='none';$('#qNext').style.display='none';
+  const box=$('#qOpts');box.innerHTML='';
+  q.o.forEach((t,i)=>{const b=document.createElement('button');b.className='btn opt';b.textContent='('+'ABCD'[i]+') '+t;
+    b.onclick=()=>{
+      if(answered)return;answered=true;
+      [...box.children].forEach((x,j)=>{if(j===q.a)x.classList.add('ok');else if(j===i)x.classList.add('bad')});
+      if(i===q.a)score++;
+      $('#qExp').innerHTML=(i===q.a?'✓ <span class="yel">答對!</span> ':'✗ 答案是 <span class="yel">('+'ABCD'[q.a]+')</span>。')+q.e;
+      $('#qExp').style.display='';
+      $('#qNext').style.display='';$('#qNext').textContent=qi===qs.length-1?'看結果 ➜':'下一題 ➜';
+      $('#qNext').onclick=()=>{qi++;renderQ()};
+    };box.appendChild(b)});
+}
+renderQ();
+go(0);
+</script>
+</body>
+</html>

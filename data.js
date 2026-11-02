@@ -19,7 +19,8 @@ const NAV=[
     {id:'ipas-prob',label:'機率分布 · Yakiniku',href:'ipas-機率分布.html'},
     {id:'ipas-fair',label:'公平性與去偏 · 營火',href:'ipas-公平性與去偏.html'},
     {id:'ipas-mock',label:'科目三模擬考',href:'ipas-s3-mock-exam.html'},
-    {id:'ipas-calc',label:'科目三計算題模擬考',href:'ipas-s3-calc-mock.html'}
+    {id:'ipas-calc',label:'科目三計算題模擬考',href:'ipas-s3-calc-mock.html'},
+    {id:'ipas-pytraps',label:'科目三 Python 三個必考陷阱',href:'ipas-s3-python-traps.html'}
   ]},
   {id:'about',label:'關於我',icon:'ⓘ',type:'link'}
 ];
