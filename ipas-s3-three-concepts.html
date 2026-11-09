@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>中級科目三 三題必考觀念</title>
+<style>
+:root{
+  --bg:#f6f7fb; --card:#fff; --ink:#1d2433; --sub:#5b6478; --line:#e2e6ef;
+  --brand:#2f5bea; --brand-soft:#e8eeff; --ok:#16875a; --ok-soft:#e3f6ec;
+  --bad:#c93b3b; --bad-soft:#fdeaea; --warn:#b36b00; --warn-soft:#fff3dc;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:18px/1.75 "Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif}
+.wrap{max-width:900px;margin:0 auto;padding:0 16px 80px}
+nav{position:sticky;top:0;z-index:10;background:rgba(246,247,251,.94);backdrop-filter:blur(6px);
+  border-bottom:1px solid var(--line)}
+nav .in{max-width:900px;margin:0 auto;padding:8px 16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+nav a{color:var(--ink);text-decoration:none;padding:4px 12px;border-radius:999px;font-size:15px;border:1px solid var(--line);background:#fff}
+nav a:hover{background:var(--brand-soft);border-color:var(--brand)}
+nav .score{margin-left:auto;font-size:15px;color:var(--sub);font-variant-numeric:tabular-nums}
+header.hero{padding:56px 0 24px}
+header.hero h1{font-size:clamp(28px,5vw,42px);line-height:1.3;margin:0 0 12px}
+header.hero p{color:var(--sub);margin:0}
+.pill{display:inline-block;background:var(--brand-soft);color:var(--brand);border-radius:999px;padding:2px 12px;font-size:14px;font-weight:600;margin-right:6px}
+section{margin-top:56px;scroll-margin-top:64px}
+h2{font-size:clamp(24px,4vw,32px);margin:0 0 4px;line-height:1.35}
+h3{font-size:20px;margin:28px 0 10px}
+.lead{color:var(--sub);margin:0 0 16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin:14px 0}
+.src{font-size:14px;color:var(--sub);margin-bottom:6px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.tag{font-size:13px;border-radius:6px;padding:1px 8px;font-weight:600}
+.tag.real{background:var(--warn-soft);color:var(--warn)}
+.tag.mock{background:var(--brand-soft);color:var(--brand)}
+.stem{font-weight:600;margin:0 0 10px;white-space:pre-wrap}
+.opts{display:grid;gap:8px;margin:12px 0}
+.opt{all:unset;box-sizing:border-box;cursor:pointer;border:1.5px solid var(--line);border-radius:10px;padding:10px 14px;background:#fff;display:flex;gap:10px;line-height:1.6}
+.opt:hover{border-color:var(--brand);background:var(--brand-soft)}
+.opt:focus-visible{outline:3px solid var(--brand)}
+.opt b{flex:none;width:1.6em}
+.opts.done .opt{cursor:default}
+.opts.done .opt:hover{background:#fff;border-color:var(--line)}
+.opt.right{border-color:var(--ok)!important;background:var(--ok-soft)!important}
+.opt.wrong{border-color:var(--bad)!important;background:var(--bad-soft)!important}
+.exp{display:none;border:1px solid #c5d3fb;background:var(--brand-soft);border-radius:10px;padding:10px 14px;margin-top:10px;font-size:17px}
+.exp.show{display:block}
+.exp .verdict{font-weight:700;margin-bottom:4px}
+.exp .verdict.ok{color:var(--ok)} .exp .verdict.no{color:var(--bad)}
+pre{background:#1d2433;color:#e8ecf5;border-radius:10px;padding:12px 14px;overflow:auto;font-size:15px;line-height:1.6;margin:8px 0 12px}
+.mantra{background:var(--ok-soft);border:1px solid #b9e3cd;border-radius:14px;padding:14px 18px;font-weight:700;margin-top:20px}
+.mantra small{display:block;font-weight:400;color:var(--sub)}
+button.btn{all:unset;cursor:pointer;border:1.5px solid var(--brand);color:var(--brand);border-radius:8px;padding:5px 14px;font-size:15px;font-weight:600;background:#fff}
+button.btn:hover,button.btn.on{background:var(--brand);color:#fff}
+button.btn:focus-visible{outline:3px solid var(--brand)}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+/* stats */
+.bars{display:grid;gap:10px;margin-top:14px}
+.bar{display:grid;grid-template-columns:minmax(120px,230px) 1fr 52px;gap:10px;align-items:center;font-size:16px}
+.bar .track{background:#e9edf6;border-radius:999px;height:16px;overflow:hidden}
+.bar .fill{height:100%;background:var(--brand);border-radius:999px}
+.bar.hot .fill{background:#e0762b}
+.bar .n{text-align:right;font-variant-numeric:tabular-nums;color:var(--sub)}
+.note{font-size:14px;color:var(--sub)}
+/* leak demo */
+.flow{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:10px 0 4px}
+.fold{border-radius:8px;padding:10px 4px;text-align:center;font-size:14px;border:2px solid transparent;background:#eef0f6;color:var(--sub);transition:.2s}
+.fold.fit{background:#dbe5ff;border-color:var(--brand);color:#1d3fb8;font-weight:700}
+.fold.leak{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);font-weight:700}
+.fold.val{background:#fff;border:2px dashed var(--ok);color:var(--ok);font-weight:700}
+/* regularization demo */
+.coefs{display:grid;gap:8px;margin-top:10px}
+.crow{display:grid;grid-template-columns:70px 1fr 1fr;gap:10px;align-items:center;font-size:14px}
+.cbar{background:#eef0f6;border-radius:6px;height:26px;position:relative;overflow:hidden}
+.cfill{height:100%;border-radius:6px;display:flex;align-items:center;padding-left:8px;color:#fff;font-weight:700;font-size:13px;min-width:0}
+.cfill.l1{background:#e0762b}.cfill.l2{background:var(--brand)}
+.cfill.zero{background:transparent;color:var(--bad)}
+.chead{display:grid;grid-template-columns:70px 1fr 1fr;gap:10px;font-weight:700;font-size:15px}
+input[type=range]{width:100%}
+/* calc */
+.calc{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:10px 0}
+.calc label{font-size:14px;color:var(--sub);display:block}
+.calc input{width:100%;font-size:18px;padding:6px 10px;border:1.5px solid var(--line);border-radius:8px}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-top:10px}
+.metric{background:var(--bg);border-radius:10px;padding:10px 12px;text-align:center}
+.metric .v{font-size:26px;font-weight:700;font-variant-numeric:tabular-nums}
+.metric .k{font-size:14px;color:var(--sub)}
+.metric.low .v{color:var(--bad)}
+@media (max-width:560px){body{font-size:17px}.bar{grid-template-columns:100px 1fr 40px}.crow,.chead{grid-template-columns:54px 1fr 1fr}}
+@media print{nav{display:none}.card{break-inside:avoid}}
+</style>
+</head>
+<body>
+<nav><div class="in">
+  <a href="#top">開場</a><a href="#t1">① 資料洩漏</a><a href="#t2">② 過擬合與正則化</a><a href="#t3">③ 不平衡與指標</a><a href="#end">總結</a>
+  <span class="score" id="score">作答 0 / 9　答對 0</span>
+</div></nav>
+
+<div class="wrap">
+<header class="hero" id="top">
+  <span class="pill">iPAS AI 應用規劃師 中級</span><span class="pill">科目三 機器學習技術與應用</span>
+  <h1>三題考古題，抓住最會考的三個觀念</h1>
+  <p>依據 114 年第二次、115 年第一次兩屆官方公告試題整理。每個主題：先做真題 → 白話講解與小實驗 → 兩題變化題。</p>
+
+  <div class="card" style="margin-top:24px">
+    <b>為什麼選這三個主題？</b>
+    <p class="note" style="margin:4px 0 0">我把兩屆考古題逐題歸類（手動統計，題數為約數；115 年第 49、50 題未納入）。這三類合計約 29 題，是出現最多的主題。</p>
+    <div class="bars" id="bars"></div>
+  </div>
+</header>
+
+<!-- ========== 題 1 ========== -->
+<section id="t1">
+  <span class="pill">主題 ①</span>
+  <h2>資料洩漏：驗證分數很高，上線卻崩</h2>
+  <p class="lead">兩屆交叉驗證／資料切分相關題約 8 題；115-1 直接考資料洩漏。</p>
+  <div id="q-t1-real"></div>
+
+  <h3>白話講解</h3>
+  <div class="card">
+    <p><b>資料洩漏</b>＝驗證用的資料，偷偷參與了「訓練階段」的任何一個步驟，所以分數偏高、不能代表真實表現。</p>
+    <p>常見的偷看方式：<b>先對全部資料做標準化、降維（PCA／LDA）、特徵選擇、SMOTE，再切分或交叉驗證</b>。其中 LDA、特徵選擇還會用到標籤，洩漏更嚴重。</p>
+    <p><b>解法：</b>把前處理和模型用 <code>Pipeline</code> 綁在一起放進交叉驗證，每一折都只用「訓練折」去 fit。</p>
+    <div class="row">
+      <button class="btn on" id="leakBad" onclick="leak('bad')">❌ 先處理全部資料，再交叉驗證</button>
+      <button class="btn" id="leakGood" onclick="leak('good')">✅ Pipeline：每折自己 fit</button>
+    </div>
+    <div class="flow" id="leakFlow"></div>
+    <div id="leakCap" class="note"></div>
+  </div>
+  <div class="mantra">口訣：只要用到資料的步驟，都要在「切分之後、每一折裡面」做。<small>fit 只能看訓練集；驗證集只能 transform / predict。</small></div>
+
+  <h3>變化題</h3>
+  <div id="q-t1-a"></div>
+  <div id="q-t1-b"></div>
+</section>
+
+<!-- ========== 題 2 ========== -->
+<section id="t2">
+  <span class="pill">主題 ②</span>
+  <h2>過擬合與正則化：Ridge、Lasso 怎麼選</h2>
+  <p class="lead">過擬合、正則化相關題兩屆合計約 12 題，是出現最多的主題。</p>
+  <div id="q-t2-real"></div>
+
+  <h3>白話講解</h3>
+  <div class="card">
+    <p><b>過擬合：</b>訓練表現很好、驗證表現差。對策是「降低模型複雜度或限制學習能力」：L1／L2 正則化、Dropout、早停、更多資料。</p>
+    <p><b>L1（Lasso）：</b>懲罰「係數絕對值總和」→ 部分係數會變成 <b>0</b>，等於自動選特徵。<br>
+       <b>L2（Ridge）：</b>懲罰「係數平方和」→ 所有係數一起縮小，但<b>不會歸零</b>，面對高度相關特徵時估計比較穩定。</p>
+    <p>拖動下方滑桿，調大懲罰強度 λ，看兩種係數怎麼變：</p>
+    <label for="lam">懲罰強度 λ = <b id="lamv">0.50</b></label>
+    <input type="range" id="lam" min="0" max="3" step="0.05" value="0.5">
+    <div class="chead" style="margin-top:10px"><span></span><span>L1 Lasso</span><span>L2 Ridge</span></div>
+    <div class="coefs" id="coefs"></div>
+    <p class="note" style="margin-top:10px">示意：假設特徵彼此獨立時的理論結果（Lasso 為軟門檻 max(|b|−λ,0)，Ridge 為 b/(1+λ)）。原始係數為示範用數字，不是真實資料。</p>
+  </div>
+  <div class="mantra">口訣：要「篩掉特徵」→ L1；要「全部保留、壓穩定」→ L2。<small>兩個都高度相關時：L1 會隨機留其中一個（115-1 第 7 題），L2 會一起分攤。</small></div>
+
+  <h3>變化題</h3>
+  <div id="q-t2-a"></div>
+  <div id="q-t2-b"></div>
+</section>
+
+<!-- ========== 題 3 ========== -->
+<section id="t3">
+  <span class="pill">主題 ③</span>
+  <h2>類別不平衡：Accuracy 高 ≠ 模型好</h2>
+  <p class="lead">F1、Accuracy、類別不平衡相關題兩屆合計約 9 題。</p>
+  <div id="q-t3-real"></div>
+
+  <h3>白話講解與小實驗</h3>
+  <div class="card">
+    <p>陽性很少時，模型「什麼都猜正常」也能拿到超高 Accuracy，卻<b>一個病人都抓不到</b>。所以要看 <b>Recall（抓到幾成陽性）</b>、<b>Precision（猜陽性的有幾成對）</b>，以及兩者的調和平均 <b>F1</b>。</p>
+    <p>下面總共 10,000 筆，其中 20 筆是陽性。改改看數字，或按預設按鈕：</p>
+    <div class="row">
+      <button class="btn" onclick="preset(0,0,20)">模型 A：全部猜「正常」</button>
+      <button class="btn" onclick="preset(15,30,5)">模型 B：會抓、也會誤報</button>
+    </div>
+    <div class="calc">
+      <div><label>TP 抓對的陽性</label><input type="number" id="tp" min="0" value="0"></div>
+      <div><label>FP 誤報（正常猜成陽性）</label><input type="number" id="fp" min="0" value="0"></div>
+      <div><label>FN 漏掉的陽性</label><input type="number" id="fn" min="0" value="20"></div>
+      <div><label>TN 猜對的正常（自動算）</label><input type="number" id="tn" disabled></div>
+    </div>
+    <div class="metrics" id="metrics"></div>
+    <p id="calcmsg" class="note" style="margin-top:10px"></p>
+    <p class="note">F1 是調和平均，會被較小的那個拉低：Precision 0.9、Recall 0.5 → 算術平均 0.70，但 F1 只有 0.643。</p>
+  </div>
+  <div class="mantra">口訣：陽性很少時，先別看 Accuracy。<small>要「不漏抓」看 Recall；要「不誤報」看 Precision；兩個都要用 F1（調和平均，偏向較小值）。</small></div>
+
+  <h3>變化題</h3>
+  <div id="q-t3-a"></div>
+  <div id="q-t3-b"></div>
+</section>
+
+<section id="end">
+  <h2>三個重點帶回家</h2>
+  <div class="card">
+    <ol style="margin:0;padding-left:1.3em">
+      <li><b>資料洩漏：</b>用到資料的步驟（標準化、降維、特徵選擇、SMOTE）都放進 Pipeline，每折自己 fit。</li>
+      <li><b>正則化：</b>要篩特徵選 L1（Lasso）；要保留全部、處理共線性選 L2（Ridge）。訓練與驗證都低時是欠擬合，不要再加正則化。</li>
+      <li><b>不平衡：</b>陽性很少時別看 Accuracy，改看 Recall、Precision、F1。</li>
+    </ol>
+  </div>
+  <p class="note">資料來源：114 年第二次、115 年第一次 AI 應用規劃師（中級）能力鑑定公告試題。變化題為自編練習題，非官方題目。</p>
+  <div class="row"><button class="btn" onclick="resetAll()">重置所有作答</button></div>
+</section>
+</div>
+
+<script>
+/* ---------- 題庫 ---------- */
+const QS = {
+ 't1-real':{tag:'real',src:'115 年第一次｜第 44 題（官方真題，原題附程式碼圖，此處改寫成文字）',
+  stem:'研究人員先用「整體資料」進行 LDA（線性判別分析）降維，接著用 KNN 做分類，並用交叉驗證評估準確率。下列敘述何者正確？',
+  opts:['此寫法完全正確，因為先以整體資料進行 LDA 降維，再以交叉驗證測試 KNN，是標準流程',
+        '此寫法存在資料洩漏問題，應將 LDA 納入交叉驗證流程中一併進行',
+        '雖然流程不夠嚴謹，但結果仍然能夠代表模型真實的泛化能力',
+        '如果只想驗證 KNN 的分類效果，可以直接跳過 LDA 步驟，以簡化流程'],
+  ans:1,
+  exp:'LDA 會用到標籤，且用「整體資料（含驗證折）」學出投影方向，驗證資料已經影響了降維結果，分數會偏高。正解是把 LDA 與 KNN 放進 Pipeline，每折只用訓練折 fit。'},
+ 't1-a':{tag:'mock',src:'變化題 A（換情境：特徵選擇洩漏）',
+  stem:'基因資料有 2,000 個特徵、100 位受試者。團隊先用全部資料與標籤挑出最相關的 20 個特徵，再做 5 折交叉驗證，準確率 0.95；實際用新受試者驗證只有 0.55。最合適的修正是？',
+  opts:['把折數由 5 折增加到 10 折，讓評估結果更穩定',
+        '改用準確率以外的指標，並重新調整分類器的參數',
+        '將特徵選擇與分類器放進 Pipeline，讓每折只用訓練折挑特徵',
+        '先打亂資料順序，再用全部資料重新挑一次特徵'],
+  ans:2,
+  exp:'特徵選擇用到了標籤，而且看過所有受試者，等於偷看了驗證折的答案。特徵多、樣本少時洩漏特別嚴重，分數會高得不合理。正解：Pipeline，讓每一折只在訓練折裡挑特徵。'},
+ 't1-b':{tag:'mock',src:'變化題 B（改陷阱：同一個人的資料被切到兩邊）',
+  stem:'醫院用 CT 影像訓練肺結節模型：800 位病人，每人約 10 張影像。隨機 K-Fold 的驗證準確率 0.97，但用新病人測試只有 0.78。下列哪一種切分方式最適合？',
+  opts:['GroupKFold：同一位病人的影像只會出現在訓練折或驗證折其中之一',
+        'Stratified K-Fold：讓每折的陽性比例與原始資料一致',
+        'TimeSeriesSplit：依時間順序切分，驗證折永遠在訓練折之後',
+        '留一法（LOOCV）：每次只留一筆影像當驗證集'],
+  ans:0,
+  exp:'同一位病人的影像高度相似，隨機切分會讓同一人同時出現在訓練與驗證，模型等於在「認人」而不是「認病」。要用 GroupKFold 以病人為單位切分。Stratified 只管類別比例；LOOCV 一樣會把同一人的其他影像放進訓練集。'},
+
+ 't2-real':{tag:'real',src:'115 年第一次｜第 33 題（官方真題）',
+  stem:'某工程師的多元線性迴歸模型包含 150 個特徵，其中許多特徵高度相關（如「建坪」與「總面積」）。他同時希望控制過擬合且保留所有特徵的解釋能力，不讓任何特徵係數歸零，下列哪一項正則化方案最適當？',
+  opts:['Lasso 迴歸（L1 正則化）：透過絕對值懲罰使部分係數歸零，具有特徵選擇效果',
+        'Ridge 迴歸（L2 正則化）：透過平方懲罰縮小所有係數，在共線性下穩定估計且不歸零',
+        'Elastic Net（L1+L2）：結合稀疏性與穩定性，但部分係數仍可能被壓為 0',
+        '無正則化的 OLS 迴歸：不控制過擬合，在共線性下係數估計不穩定'],
+  ans:1,
+  exp:'關鍵句是「不讓任何係數歸零」。L1 與 Elastic Net 都可能讓係數變 0；OLS 沒有控制過擬合。只有 Ridge 符合。對照 114-2 第 32 題：同樣情境改成「要自動篩選特徵」，答案就是 Lasso。'},
+ 't2-a':{tag:'mock',src:'變化題 A（換說法：概念辨析）',
+  stem:'下列關於 L1 與 L2 正則化的敘述，何者【正確】？',
+  opts:['L1 的懲罰項是係數平方和，會讓所有係數等比例縮小但不會歸零',
+        'L1 的懲罰項是係數絕對值總和，可使部分係數變為零，具特徵選擇效果',
+        'L2 的懲罰項是係數絕對值總和，可產生稀疏模型',
+        'L1 與 L2 只能用在線性迴歸，不能用於神經網路'],
+  ans:1,
+  exp:'A 說的是 L2；C 把 L2 說成 L1；D 錯，神經網路常用的權重衰減（Weight Decay）就是 L2 的概念。口訣：L1＝絕對值＝稀疏（歸零）；L2＝平方＝縮小不歸零。'},
+ 't2-b':{tag:'mock',src:'變化題 B（改陷阱：其實是欠擬合）',
+  stem:'某模型的訓練準確率 63%、驗證準確率 61%，兩者很接近但都偏低。下列調整何者最合適？',
+  opts:['加大 L2 正則化強度，讓權重更小',
+        '提高 Dropout 比例，增加訓練的隨機性',
+        '使用早停，在驗證損失開始上升時提早結束訓練',
+        '改用更複雜的模型，或加入有意義的特徵，並降低正則化強度'],
+  ans:3,
+  exp:'訓練與驗證都低、差距小，是欠擬合（高偏差），模型學得不夠。過擬合的三招（正則化、Dropout、早停）都是「限制模型」，用在這裡只會更差。要增加模型能力或特徵。先看訓練與驗證的差距，再決定方向。'},
+
+ 't3-real':{tag:'real',src:'115 年第一次｜第 12 題（官方真題）',
+  stem:'某醫院導入肺癌篩檢模型，資料集中正常病例佔 99%、肺癌陽性僅佔 1%。模型上線後，系統報告整體準確率（Accuracy）為 99.1%。醫師認為不足以評估臨床價值，在漏診風險上可能有重大問題。僅以 Accuracy 作為評估指標，最嚴重的缺陷為何？',
+  opts:['Accuracy 對類別不平衡不敏感，可能無法反映模型對肺癌陽性的偵測能力',
+        'Accuracy 的計算不包含模型對邊界樣本的分類結果，容易遺漏困難樣本',
+        'Accuracy 無法處理多分類問題，在二元分類下需改用 AUC',
+        'Accuracy 無法揭示模型的收斂速度，因此不適合用來選擇最終模型'],
+  ans:0,
+  exp:'陽性只有 1%，就算模型把所有人都判成正常，Accuracy 也有 99%，卻一個病人都沒抓到。應搭配 Recall、Precision、F1 評估。其他選項說的都不是不平衡造成的問題。'},
+ 't3-a':{tag:'mock',src:'變化題 A（換情境：全部預測正常）',
+  stem:'某信用卡資料 10,000 筆交易，其中 20 筆是盜刷。模型把所有交易都預測為「正常」。下列何者正確？',
+  opts:['Accuracy 約 0.2%，Recall 為 100%',
+        'Accuracy 約 99.8%，Recall 約 99.8%',
+        'Accuracy 約 50%，Recall 為 0%',
+        'Accuracy 約 99.8%，Recall 為 0%'],
+  ans:3,
+  exp:'猜對的是 9,980 筆正常交易，Accuracy＝9,980÷10,000＝99.8%；20 筆盜刷一筆都沒抓到，Recall＝0÷20＝0。這就是「Accuracy 很高但模型沒用」的典型。可以到上方小實驗按「模型 A」驗證。'},
+ 't3-b':{tag:'mock',src:'變化題 B（改陷阱：F1 計算與調和平均）',
+  stem:'二元分類模型的 Precision 為 0.9、Recall 為 0.5，則 F1 分數約為多少？',
+  opts:['0.450','0.700','0.643','0.900'],
+  ans:2,
+  exp:'F1 = 2×P×R ÷ (P+R) = 2×0.9×0.5 ÷ 1.4 ≈ 0.643。0.700 是算術平均的陷阱。調和平均會被較小的值拉低，所以 F1 低於兩者的平均。'}
+};
+const ORDER=['t1-real','t1-a','t1-b','t2-real','t2-a','t2-b','t3-real','t3-a','t3-b'];
+const state={}; // id -> {pick}
+
+function render(id){
+  const q=QS[id], host=document.getElementById('q-'+id), L='ABCD';
+  const st=state[id];
+  host.innerHTML=`<div class="card"><div class="src"><span class="tag ${q.tag}">${q.tag==='real'?'考古真題':'模擬題'}</span>${q.src}</div>
+   <p class="stem">${q.stem}</p>
+   <div class="opts ${st?'done':''}">${q.opts.map((o,i)=>{
+      let c='opt'; if(st){ if(i===q.ans)c+=' right'; else if(i===st.pick)c+=' wrong'; }
+      return `<button class="${c}" data-i="${i}"><b>(${L[i]})</b><span>${o}</span></button>`}).join('')}</div>
+   <div class="exp ${st?'show':''}">${st?`<div class="verdict ${st.pick===q.ans?'ok':'no'}">${st.pick===q.ans?'✅ 答對了':'❌ 正解是 ('+L[q.ans]+')'}</div>${q.exp}<div style="margin-top:10px"><button class="btn" data-reset type="button">重做這題</button></div>`:''}</div></div>`;
+  if(!st) host.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{state[id]={pick:+b.dataset.i};render(id);updateScore();});
+  host.querySelectorAll('[data-reset]').forEach(b=>b.onclick=()=>{delete state[id];render(id);updateScore();});
+}
+function updateScore(){
+  const done=ORDER.filter(i=>state[i]).length, ok=ORDER.filter(i=>state[i]&&state[i].pick===QS[i].ans).length;
+  document.getElementById('score').textContent=`作答 ${done} / 9　答對 ${ok}`;
+}
+function resetAll(){ORDER.forEach(i=>{delete state[i];render(i)});updateScore();window.scrollTo({top:0})}
+ORDER.forEach(render);
+
+/* ---------- 統計條 ---------- */
+const stats=[['過擬合與正則化',12,'hot'],['評估指標與類別不平衡',9,'hot'],['交叉驗證／資料切分／洩漏',8,'hot'],['學習率、Adam、梯度下降',6,''],['公平性與偏差',4,''],['蒙地卡羅、同態加密（各）',3,'']];
+document.getElementById('bars').innerHTML=stats.map(([n,v,c])=>`<div class="bar ${c}"><span>${n}</span><span class="track"><span class="fill" style="display:block;width:${v/12*100}%"></span></span><span class="n">約 ${v}</span></div>`).join('');
+
+/* ---------- 洩漏示意 ---------- */
+function leak(mode){
+  document.getElementById('leakBad').classList.toggle('on',mode==='bad');
+  document.getElementById('leakGood').classList.toggle('on',mode==='good');
+  const f=document.getElementById('leakFlow'),cap=document.getElementById('leakCap');
+  let h='';
+  for(let i=1;i<=5;i++){
+    const isVal=i===5;
+    if(mode==='bad') h+=`<div class="fold leak">第 ${i} 折<br>${isVal?'驗證折':'訓練折'}<br>已被 fit</div>`;
+    else h+= isVal? `<div class="fold val">第 5 折<br>驗證折<br>只 transform</div>` : `<div class="fold fit">第 ${i} 折<br>訓練折<br>fit</div>`;
+  }
+  f.innerHTML=h;
+  cap.innerHTML= mode==='bad'
+   ?'<b style="color:var(--bad)">先對全部資料 fit（LDA／標準化／特徵選擇）：</b>連驗證折也參與了 fit，驗證折已被「偷看」，分數虛高。'
+   :'<b style="color:var(--ok)">Pipeline：</b>每一折只用訓練折 fit，驗證折保持「沒看過」，分數才能代表上線表現。（以第 5 折當驗證為例）';
+}
+leak('bad');
+
+/* ---------- 正則化示意 ---------- */
+const B=[['特徵 1',3.0],['特徵 2',2.0],['特徵 3',1.2],['特徵 4',0.6],['特徵 5',0.3]];
+const lam=document.getElementById('lam');
+function coef(){
+  const l=+lam.value; document.getElementById('lamv').textContent=l.toFixed(2);
+  document.getElementById('coefs').innerHTML=B.map(([n,b])=>{
+    const l1=Math.max(b-l,0), l2=b/(1+l), w=v=>(v/3*100).toFixed(1);
+    const z=l1===0;
+    return `<div class="crow"><span>${n}</span>
+      <div class="cbar"><div class="cfill l1 ${z?'zero':''}" style="width:${z?100:w(l1)}%">${z?'歸零 0':l1.toFixed(2)}</div></div>
+      <div class="cbar"><div class="cfill l2" style="width:${w(l2)}%">${l2.toFixed(2)}</div></div></div>`}).join('');
+}
+lam.oninput=coef; coef();
+
+/* ---------- 混淆矩陣小實驗 ---------- */
+const N=10000;
+function calc(){
+  let tp=+document.getElementById('tp').value||0, fp=+document.getElementById('fp').value||0, fn=+document.getElementById('fn').value||0;
+  const tn=N-tp-fp-fn;
+  document.getElementById('tn').value=tn;
+  const msg=document.getElementById('calcmsg');
+  if(tn<0){msg.textContent='數字加起來超過 10,000 筆了，請調小。';return;}
+  const acc=(tp+tn)/N, pre=(tp+fp)?tp/(tp+fp):null, rec=(tp+fn)?tp/(tp+fn):null;
+  const f1=(2*tp+fp+fn)?2*tp/(2*tp+fp+fn):null;
+  const pc=v=>v===null?'—':(v*100).toFixed(1)+'%';
+  const m=[['Accuracy',acc,0],['Precision',pre,0],['Recall',rec,1],['F1',f1,1]];
+  document.getElementById('metrics').innerHTML=m.map(([k,v,warn])=>`<div class="metric ${warn&&v!==null&&v<.5?'low':''}"><div class="v">${pc(v)}</div><div class="k">${k}</div></div>`).join('');
+  msg.textContent = (acc>.99 && rec!==null && rec<.5)?'⚠️ Accuracy 超過 99%，但 Recall 不到一半：看起來很準，其實漏掉大半陽性。':'';
+}
+function preset(tp,fp,fn){document.getElementById('tp').value=tp;document.getElementById('fp').value=fp;document.getElementById('fn').value=fn;calc();}
+['tp','fp','fn'].forEach(i=>document.getElementById(i).oninput=calc); calc();
+</script>
+</body>
+</html>
