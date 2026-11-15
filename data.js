@@ -543,5 +543,107 @@ disable-model-invocation: true
 
    <div class="tip-box tip-info">💡 <b>法規提醒</b>：依《危害性化學品標示及通識規則》第 17 條，雇主應確保作業場所所使用危害性化學品均有對應的安全資料表，並置於工作場所容易取得的地方。SDS 遺失或過期未更新，在職安衛稽查時都是常見的缺失項目。</div>
 
-   <p style="margin-top:24px">GHS 和 SDS 這兩套工具，用意從來不是讓你把 16 頁全背起來——而是讓你在「需要的時間點」知道去哪裡找對的資訊。現場出事時，不會有時間重新翻規定；但如果平時教育訓練做得紮實，員工知道「吸入了看第 4 節、要買手套看第 8 節、儲存條件看第 7 節」，這份文件的價值才真正發揮出來。下次拿到一份新化學品，試著從象形圖開始讀，再對到 SDS 的危害辨識——不用 5 分鐘，你就知道它的底細了。</p>`}
+   <p style="margin-top:24px">GHS 和 SDS 這兩套工具，用意從來不是讓你把 16 頁全背起來——而是讓你在「需要的時間點」知道去哪裡找對的資訊。現場出事時，不會有時間重新翻規定；但如果平時教育訓練做得紮實，員工知道「吸入了看第 4 節、要買手套看第 8 節、儲存條件看第 7 節」，這份文件的價值才真正發揮出來。下次拿到一份新化學品，試著從象形圖開始讀，再對到 SDS 的危害辨識——不用 5 分鐘，你就知道它的底細了。</p>`},
+  {id:'a7',date:'2026-11-15',cover:'images/a7-cover-godzilla.webp',tags:['AI','iPAS'],title:'我在同一種題型跌倒了 9 次：輸出層該接 Sigmoid 還是 Softmax？',
+   excerpt:'準備 iPAS AI 應用規劃師中級科目三時，我的錯題本第一名是「輸出層與損失函數搭配」。這篇整理我最後用的三步驟判斷線：先問答案長什麼樣子，再問激活是誰做的，考場上照著走就不會選錯。',
+   body:`<img src="images/a7-cover-godzilla.webp" alt="輸出層該接哪一個？Sigmoid 可複選、Softmax 單選">
+   <div class="notion-asset-caption">Sigmoid 是每題各自打勾的是非題，Softmax 是只能挑一個的單選題</div>
+
+   <div class="summary-box"><div class="summary-title">🎯 這篇文章帶你搞懂</div>
+   <ul>
+     <li>輸出層到底該接 Sigmoid、Softmax，還是什麼都不接</li>
+     <li>哪些損失函數「已經幫你做好激活」，再接一次就重複了</li>
+     <li>Keras 的 <code>from_logits=True／False</code> 到底在講什麼</li>
+     <li>一條三步驟的判斷線，考場上照著走就不會選錯</li>
+   </ul></div>
+
+   <p>準備 iPAS AI 應用規劃師中級科目三的那幾個月，我有一本錯題本。考完回頭統計，有編號的錯題一共 108 筆，排第一名的題型是「輸出層與損失函數搭配」，光這一種就佔了 9 筆。</p>
+   <p>更尷尬的是，這 9 筆錯的幾乎是同一件事：把多標籤配成 Softmax，或是損失函數明明已經內建激活，我又在輸出層多接一層。每次看完解析都覺得懂了，隔幾天換個包裝又錯。</p>
+   <p>我不是工程師出身，所以這篇不講數學推導，只講我最後是怎麼把這題型「判斷流程化」的。</p>
+
+   <hr style="border:none;border-top:1px solid var(--border);margin:24px 0">
+
+   <h4>一、先搞懂兩個主角：Sigmoid 和 Softmax 差在哪</h4>
+   <p>兩個都是把模型算出來的原始分數變成「機率」，差別在<b>各類之間有沒有互相牽制</b>。</p>
+   <table>
+     <thead><tr><th>比較項目</th><th>Sigmoid</th><th>Softmax</th></tr></thead>
+     <tbody>
+       <tr><td>生活比喻</td><td>是非題：每一題各自打勾或打叉</td><td>單選題：四個選項只能挑一個</td></tr>
+       <tr><td>各類機率加總</td><td>不一定是 1，每類各算各的</td><td>一定是 1，一類變高其他就變低</td></tr>
+       <tr><td>適合的任務</td><td>二元分類、多標籤分類</td><td>互斥的多類別分類</td></tr>
+       <tr><td>例子</td><td>這張 X 光片有沒有肺炎？有沒有積水？</td><td>這朵花是玫瑰、百合還是向日葵？</td></tr>
+     </tbody>
+   </table>
+   <div class="tip">💡 一句話記住：<b>答案可以複選用 Sigmoid，只能單選用 Softmax。</b></div>
+
+   <h4>二、我最常掉的第一個坑：多標籤配成 Softmax</h4>
+   <p>題目長這樣：一張 X 光片要同時判斷有沒有肺炎、積水、結節，三種可以同時出現。</p>
+   <p>我看到「3 類」就反射選 Softmax。錯。</p>
+   <p>Softmax 會讓三類的機率加起來等於 1。如果病人同時有肺炎和積水，兩個都該是高機率，Softmax 卻逼它們互搶，肺炎 0.5、積水 0.5，看起來兩個都不確定。</p>
+   <table>
+     <thead><tr><th>題目的說法</th><th>任務類型</th><th>輸出層</th></tr></thead>
+     <tbody>
+       <tr><td>有沒有、是不是（只有一個答案，兩種結果）</td><td>二元分類</td><td>1 個輸出＋Sigmoid</td></tr>
+       <tr><td>多選一、互斥、只屬於其中一類</td><td>多類別分類</td><td>類別數個輸出＋Softmax</td></tr>
+       <tr><td>可以同時成立、可複選、多個標籤</td><td>多標籤分類</td><td>標籤數個輸出＋Sigmoid</td></tr>
+       <tr><td>預測價格、溫度、時間這種數值</td><td>迴歸</td><td>1 個輸出，不接激活</td></tr>
+     </tbody>
+   </table>
+   <div class="tip-box tip-warn">⚠️ 不要數「有幾類」，要問「能不能同時成立」。3 類互斥用 Softmax，3 個標籤可複選用 Sigmoid，數字一樣、答案相反。</div>
+
+   <h4>三、第二個坑：損失函數已經幫你做了，你又做一次</h4>
+   <p>這個坑我掉得更多次。有些損失函數「裡面已經包含激活」，這時輸出層要直接給原始分數（英文叫 logits），不能再接 Sigmoid 或 Softmax。</p>
+   <p>可以想成洗衣機：有些機型內建烘乾，你洗完又拿去烘一次，衣服就縮水了。</p>
+   <img src="images/a7-laundry-godzilla.webp" alt="洗完又烘一次，衣服就縮水了：損失函數已內建激活，輸出層不要再接">
+   <div class="notion-asset-caption">損失函數已經內建激活，輸出層再接一次，就像洗衣機內建烘乾還拿去再烘</div>
+   <table>
+     <thead><tr><th>框架</th><th>損失函數寫法</th><th>裡面有內建激活嗎</th><th>輸出層要自己接嗎</th></tr></thead>
+     <tbody>
+       <tr><td>PyTorch</td><td><code>nn.CrossEntropyLoss()</code></td><td>有，內建 Softmax</td><td>不要接</td></tr>
+       <tr><td>PyTorch</td><td><code>nn.BCEWithLogitsLoss()</code></td><td>有，內建 Sigmoid</td><td>不要接</td></tr>
+       <tr><td>PyTorch</td><td><code>nn.BCELoss()</code></td><td>沒有</td><td>要接 Sigmoid</td></tr>
+       <tr><td>Keras</td><td>交叉熵設 <code>from_logits=True</code></td><td>有</td><td>不要接</td></tr>
+       <tr><td>Keras</td><td>交叉熵設 <code>from_logits=False</code>（預設值）</td><td>沒有</td><td>要接</td></tr>
+     </tbody>
+   </table>
+   <div class="tip">💡 PyTorch 的記法：名字帶 <code>WithLogits</code>，或是 <code>CrossEntropyLoss</code>，就是已經內建，輸出層不要再接。</div>
+
+   <h4>四、第三個坑：from_logits 的 True 和 False 看反</h4>
+   <p>我一直把 <code>from_logits=False</code> 讀成「沒有接激活」，於是選了不接。剛好相反。</p>
+   <p><code>from_logits</code> 這個參數是在回答一個問題：<b>「你交給損失函數的東西，是不是原始分數？」</b></p>
+   <table>
+     <thead><tr><th>設定</th><th>意思</th><th>誰負責做激活</th><th>輸出層寫法（以 5 類互斥為例）</th></tr></thead>
+     <tbody>
+       <tr><td><code>from_logits=True</code></td><td>我給的是原始分數</td><td>損失函數幫你做</td><td><code>Dense(5)</code></td></tr>
+       <tr><td><code>from_logits=False</code></td><td>我給的已經是機率</td><td>你自己在輸出層做</td><td><code>Dense(5, activation='softmax')</code></td></tr>
+     </tbody>
+   </table>
+   <div class="tip-box tip-warn">⚠️ 只寫 <code>loss='binary_crossentropy'</code>、沒有另外設定時，預設就是 <code>from_logits=False</code>，輸出層要自己接 Sigmoid。我在這裡錯過：以為名字裡有 crossentropy 就一定內建。</div>
+
+   <h4>五、考場上的三步驟判斷線</h4>
+   <p>最後我把這題型固定成三步，每次照順序走，不看選項先自己寫答案。</p>
+
+   <div class="step-block"><div class="step-title"><span class="step-num">STEP 1</span>先問「答案長什麼樣子」</div>
+   <p>是一個數值、是非二選一、多選一，還是可以複選？這一步決定任務類型，也決定該用 Sigmoid、Softmax，還是不用。</p>
+   <div class="step-done">✅ 完成：你知道「理論上」需要哪一種激活</div></div>
+
+   <div class="step-block"><div class="step-title"><span class="step-num">STEP 2</span>再問「這個激活是誰做的」</div>
+   <p>看損失函數：名字帶 <code>WithLogits</code>、是 PyTorch 的 <code>CrossEntropyLoss</code>、或 Keras 設了 <code>from_logits=True</code>，就是損失函數做，輸出層不接。其他情況輸出層自己接。</p>
+   <div class="step-done">✅ 完成：你知道輸出層要不要寫 activation</div></div>
+
+   <div class="step-block"><div class="step-title"><span class="step-num">STEP 3</span>用 Softmax 時才看標籤格式</div>
+   <p>Keras 多類別分類還要多看一眼標籤：標籤是 One-Hot（例如 <code>[0,0,1]</code>）用 <code>categorical_crossentropy</code>；標籤是整數（例如 <code>2</code>）用 <code>sparse_categorical_crossentropy</code>。</p>
+   <div class="step-done">✅ 完成：輸出層和損失函數都配好了</div></div>
+
+   <h4>六、拿三題來練手</h4>
+   <p><b>第 1 題</b>：PyTorch 多標籤分類，5 個標籤可同時成立，損失函數用 <code>nn.BCEWithLogitsLoss()</code>，輸出層怎麼接？</p>
+   <p>判斷：可複選，理論上要 Sigmoid；但名字帶 WithLogits，損失函數已經做了。答案是 <b>5 個輸出，不接激活</b>。</p>
+   <p><b>第 2 題</b>：同樣是多標籤 3 類，損失函數換成 <code>nn.BCELoss()</code>，輸出層怎麼接？</p>
+   <p>判斷：可複選要 Sigmoid；BCELoss 沒有內建。答案是 <b>3 個輸出，接 Sigmoid</b>。</p>
+   <p><b>第 3 題</b>：Keras 預測房價，損失函數用 <code>MeanSquaredError</code>，輸出層怎麼寫？</p>
+   <p>判斷：答案是任意數值，屬於迴歸，不需要機率。答案是 <b><code>Dense(1)</code>，不設激活</b>。接了 Sigmoid 的話，輸出會被壓在 0 到 1 之間，房價永遠猜不到幾百萬。</p>
+
+   <div class="tip-box tip-info">💡 <b>我自己的教訓</b>：這題型我每次看解析都覺得懂，卻前後錯了 9 筆。問題不在不會，而在沒有固定的判斷順序，每次都被選項牽著走。把順序寫下來、先自己寫答案再看選項之後，才慢慢穩下來。</div>
+
+   <p style="margin-top:24px">輸出層搭配這題型，考的其實只有兩件事：答案長什麼樣子、激活是誰做的。兩個問題照順序問完，答案自己就出來了。想實際練幾題，可以到我做的<a href="ipas-s3-mock-exam.html">科目三模擬考</a>，題庫裡有不少這類題目，考到滿意為止。</p>`}
 ];
