@@ -812,16 +812,8 @@ disable-model-invocation: true
    <p>我後來不再背「哪個做法對」，改成每個步驟只問一個問題：</p>
    <div class="tip">💡 <b>這個 fit，看過了哪些資料？</b> 如果它看過驗證折（或測試集）的資料，就是洩漏。</div>
    <p>「fit」是指那些會從資料裡學出參數的動作。學出來的東西，只能用訓練的那一部分去學，然後拿同一組參數去轉換驗證折。</p>
-   <table>
-     <thead><tr><th>步驟</th><th>fit 學到的是什麼</th></tr></thead>
-     <tbody>
-       <tr><td>標準化</td><td>平均數與標準差</td></tr>
-       <tr><td>補缺值</td><td>平均數或中位數</td></tr>
-       <tr><td>PCA</td><td>主成分的方向</td></tr>
-       <tr><td>SMOTE</td><td>少數類之間的合成樣本</td></tr>
-       <tr><td>模型本身</td><td>權重</td></tr>
-     </tbody>
-   </table>
+   <img src="images/a9-fit-flow-godzilla.webp" alt="五個會 fit 的步驟：標準化學平均數與標準差、補缺值學平均數或中位數、PCA 學主成分方向、SMOTE 學少數類的合成樣本、模型學權重">
+   <div class="notion-asset-caption">五個會 fit 的步驟各自學到的東西：只要其中一站先看過驗證折的資料，就是洩漏</div>
    <p>只要流程裡有這些，其中任何一個的 fit 發生在切折之前，答案就不對。</p>
 
    <h4>四、解法：全部放進 Pipeline</h4>
