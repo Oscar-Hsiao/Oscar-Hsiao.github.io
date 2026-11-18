@@ -38,6 +38,22 @@ h2{margin:0 0 12px;font-size:26px}
 .opt.right{border-color:var(--ok);background:var(--ok-bg)}
 .opt.wrong{border-color:var(--bad);background:var(--bad-bg)}
 .opt:disabled{cursor:default}
+
+.dt{margin-top:14px}.dt h4{margin:16px 0 6px;font-size:14px;color:#e8b84a;letter-spacing:.05em}
+.dt .st{border-left:3px solid #e8b84a;padding:2px 0 2px 12px;margin:10px 0}
+.dt .st b{display:block}.dt .st .f{font:14px/1.6 ui-monospace,Menlo,monospace;color:#f3dca0;margin:2px 0;white-space:pre-wrap}
+.dt .st .n{color:var(--mute);font-size:14px}
+.dt .po{font-size:15px;margin:6px 0}.dt .po .y{color:var(--ok);font-weight:700}.dt .po .x{color:var(--bad);font-weight:700}
+.dt .tip{background:#2a2412;border:1px dashed #e8b84a;border-radius:6px;padding:9px 13px;margin-top:14px;font-size:15px}
+.dt .fig{background:#12100b;border:1px solid #4a3f22;border-radius:6px;padding:12px;font-size:14px;overflow-x:auto}
+.dt .fig .ft{color:var(--mute);margin:4px 0}
+.dt .fig table{border-collapse:collapse;width:100%}.dt .fig th,.dt .fig td{border:1px solid #4a3f22;padding:6px 8px;text-align:center}
+.dt .fig th{background:#2a2412}.dt .fig tr.hl td{background:#1b2a1e}
+.dt .fig .br{display:flex;align-items:center;gap:8px;margin:5px 0}.dt .fig .br .lb{width:130px;color:var(--mute);flex:none}
+.dt .fig .br i{display:block;height:16px;border-radius:3px;background:#e8b84a;flex:none}
+.dt .fig .cl{display:flex;gap:6px;margin:6px 0;align-items:center}.dt .fig .cl .lb{width:130px;color:var(--mute);flex:none}
+.dt .fig .cl span.c{flex:1;text-align:center;border:1px solid #4a3f22;border-radius:5px;padding:5px 0;font-family:ui-monospace,Menlo,monospace}
+.dt .fig .cl span.c.k{background:#1b2a1e;color:var(--ok)}.dt .fig .cl span.c.x{background:#3a1e1e;color:var(--bad)}
 .exp{border:1px solid #4a3f22;background:#221f17;padding:10px 14px;border-radius:4px;margin-top:14px;font-size:15px}
 .btn{background:var(--accent);color:#1a0f0d;border:0;border-radius:6px;padding:10px 20px;font:700 16px inherit;cursor:pointer}
 .btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent)}
@@ -161,9 +177,18 @@ function stats(){
   S.qs.forEach((q,i)=>{ if(S.ans[i]===undefined) blank++; else if(isRight(q,i)) c++; });
   return {total,c,blank,wrong:S.qs.map((q,i)=>i).filter(i=>!isRight(S.qs[i],i))};
 }
+function ask(msg, ok){
+  const old=document.getElementById('askbox'); if(old) old.remove();
+  const d=document.createElement('div'); d.id='askbox';
+  d.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px';
+  d.innerHTML='<div class="card" style="max-width:360px;width:100%;margin:0"><p style="margin:0 0 14px;font-size:16px;line-height:1.6">'+esc(msg)+'</p><div class="row"><button class="btn" id="askok">確定</button><button class="btn ghost" id="askno">取消</button></div></div>';
+  document.body.appendChild(d);
+  d.querySelector('#askno').onclick=()=>d.remove();
+  d.querySelector('#askok').onclick=()=>{ d.remove(); ok(); };
+}
 function submit(force){
   const st=stats();
-  if(!force && st.blank && !confirm('還有 '+st.blank+' 題沒作答，確定要交卷嗎？')) return;
+  if(!force && st.blank){ ask('還有 '+st.blank+' 題沒作答，確定要交卷嗎？', ()=>submit(true)); return; }
   S.sec = Math.min(Math.floor((Date.now()-S.t0)/1000), S.mode==='full'?LIMIT:Infinity);
   S.submitted=true; clearInterval(timer);
   const book=store.get(KEY_BOOK,{}), today=new Date().toISOString().slice(0,10);
@@ -239,6 +264,24 @@ function scoreHTML(){
    <button class="btn ghost" data-a="start">再考一次</button><button class="btn ghost" data-a="home">回首頁</button></div></div>`;
 }
 
+
+function figHTML(f){
+  if(!f) return '';
+  let b='';
+  if(f.k==='table') b=`<table><tr>${f.head.map(h=>`<th>${esc(h)}</th>`).join('')}</tr>${f.rows.map((r,i)=>`<tr class="${(f.hl||[]).includes(i)?'hl':''}">${r.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</table>`;
+  else if(f.k==='bars') b=f.rows.map(r=>`<div class="br"><span class="lb">${esc(r[0])}</span><i style="width:${Math.max(2,r[1])*2.4}px"></i><span>${esc(r[2])}</span></div>`).join('');
+  else if(f.k==='cells') b=f.rows.map(r=>`<div class="cl"><span class="lb">${esc(r[0])}</span>${r[1].map(c=>`<span class="c ${c[1]||''}">${esc(c[0])}</span>`).join('')}</div>`).join('');
+  return `<h4>▍ 圖解</h4><div class="fig">${f.title?`<div class="ft">${esc(f.title)}</div>`:''}${b}${f.note?`<div class="ft">${esc(f.note)}</div>`:''}</div>`;
+}
+function expHTML(q){
+  const d=q.d;
+  if(!d) return `<div class="exp"><b>答案 ${L[q.ans]}</b>　${esc(q.exp)}</div>`;
+  const po=d.po?q.opts.map((o,k)=>`<div class="po"><span class="${k===q.ans?'y':'x'}">${L[k]} ${k===q.ans?'✓':'✗'}</span> ${esc(d.po[o]||'')}</div>`).join(''):'';
+  const st=d.s?d.s.map(x=>`<div class="st"><b>${esc(x[0])}</b>${x[1]?`<div class="f">${esc(x[1])}</div>`:''}${x[2]?`<div class="n">${esc(x[2])}</div>`:''}</div>`).join(''):'';
+  return `<div class="exp dt"><h4 style="margin-top:0">▍ 重點解析</h4><b>答案 ${L[q.ans]}</b>　${esc(q.exp)}
+   ${st?`<h4>▍ 一步一步看</h4>${st}`:''}${po?`<h4>▍ 逐選項對照</h4>${po}`:''}${figHTML(d.f)}${d.t?`<div class="tip">💡 ${esc(d.t)}</div>`:''}</div>`;
+}
+
 function examHTML(){
   const q=S.qs[S.cur], st=stats(), done=Object.keys(S.ans).length;
   const status = S.submitted ? '已交卷，作答時間' : `作答中 · 已答 ${done}/${S.qs.length}`;
@@ -260,7 +303,7 @@ function examHTML(){
   const left = (S.submitted&&S.showScore?scoreHTML():'')+`<div class="card plain">
     <div class="meta"><b>第 ${S.cur+1} 題</b><span class="chip">第 ${q.ch} 章</span><span class="chip t">${q.tag}</span><span class="chip">${DIFF[q.diff]||""}</span><span class="chip">${q.kind||""}</span><span>${q.code}</span>${verdict}</div>
     <div class="q">${fmtQ(q.q)}</div>${opts}
-    ${S.submitted?`<div class="exp"><b>答案 ${L[q.ans]}</b>　${esc(q.exp)}</div>`:''}
+    ${S.submitted?expHTML(q):''}
     <div class="row"><button class="btn ghost" data-a="prev">← 上一題</button><button class="btn ghost" data-a="next">下一題 →</button>
     ${S.submitted?'':'<button class="btn" data-a="submit">交卷</button>'}</div></div>`;
   const right = `<div class="card side"><h3>劃記卡<span>${S.submitted?`${st.c} 對／已答 ${done}`:`已答 ${done}／${S.qs.length}`}</span></h3>
@@ -275,7 +318,7 @@ function bookHTML(){
   const book=store.get(KEY_BOOK,{}), ids=Object.keys(book).map(Number);
   const items=ids.map(id=>Q.find(q=>q.id===id)).filter(Boolean).sort((a,b)=>book[b.id].n-book[a.id].n);
   const list=items.map(q=>`<div class="item"><div class="meta"><span class="pill">錯 ${book[q.id].n} 次</span><span class="chip">第 ${q.ch} 章</span><span class="chip t">${q.tag}</span><span>${q.code}　最近：${book[q.id].last}</span></div>
-   <div>${fmtQ(q.q)}</div><div style="color:var(--ok);margin-top:6px">答案：${L[q.ans]}. ${esc(q.opts[q.ans])}</div><div class="exp">${esc(q.exp)}</div></div>`).join('');
+   <div>${fmtQ(q.q)}</div><div style="color:var(--ok);margin-top:6px">答案：${L[q.ans]}. ${esc(q.opts[q.ans])}</div>${expHTML(q)}</div>`).join('');
   return `<div class="card"><h2>錯題本（${items.length} 題）</h2>
    <div class="row" style="margin:0 0 12px"><button class="btn" data-a="redo" ${items.length?'':'disabled'}>重做這些題</button>
    <button class="btn ghost" data-a="export">匯出成績檔</button><button class="btn ghost" data-a="import">匯入成績檔</button>
@@ -289,7 +332,7 @@ document.addEventListener('click',e=>{
   const el=e.target.closest('[data-a]'); if(!el) return;
   const a=el.dataset.a, v=el.dataset.v;
   if(a==='start') startExam(drawExam(Math.min(EXAM_SIZE,Q.length)),'full');
-  else if(a==='home'){ if(S.view==='exam'&&!S.submitted&&!confirm('離開會放棄目前作答，確定嗎？')) return; clearInterval(timer); S.view='start'; render(); }
+  else if(a==='home'){ const go0=()=>{ clearInterval(timer); S.view='start'; render(); }; if(S.view==='exam'&&!S.submitted) ask('離開會放棄目前作答，確定嗎？', go0); else go0(); }
   else if(a==='book'){ S.view='book'; render(); }
   else if(a==='redo'){
     const book=store.get(KEY_BOOK,{}), list=Q.filter(q=>book[q.id]);
@@ -301,8 +344,8 @@ document.addEventListener('click',e=>{
   else if(a==='prev') move(-1);
   else if(a==='next') move(1);
   else if(a==='submit') submit();
-  else if(a==='clear'){ if(confirm('清除全部作答？')){ S.ans={}; render(); } }
-  else if(a==='wipe'){ if(confirm('確定清空錯題本？')){ store.set(KEY_BOOK,{}); render(); } }
+  else if(a==='clear') ask('清除全部作答？', ()=>{ S.ans={}; render(); });
+  else if(a==='wipe') ask('確定清空錯題本？', ()=>{ store.set(KEY_BOOK,{}); render(); });
   else if(a==='export'){
     const blob=new Blob([JSON.stringify({author:'阿森',book:store.get(KEY_BOOK,{}),hist:store.get(KEY_HIST,[])},null,1)],{type:'application/json'});
     const u=URL.createObjectURL(blob), x=document.createElement('a'); x.href=u; x.download='ipas-s3-成績檔.json'; x.click(); URL.revokeObjectURL(u);

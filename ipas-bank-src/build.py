@@ -3,6 +3,7 @@
 import json,glob,re,sys,collections,os
 d=os.path.dirname(os.path.abspath(__file__))
 Q=[]
+ORIG={}
 import random
 for f in sorted(glob.glob(d+'/batch_*.json')):
     Q+=json.load(open(f,encoding='utf8'))
@@ -15,6 +16,7 @@ for f in sorted(glob.glob(d+'/batch_*.py')):
         o=[right]+list(wrongs); r=random.Random(nid*7919); r.shuffle(o)
         dd={'id':nid,'ch':int(code[3])+2,'tag':tag,'code':code,'q':q,'opts':o,'ans':o.index(right),'exp':exp}
         if len(it)>=8: dd['diff'],dd['kind']=it[6],it[7]
+        ORIG[nid]=[right]+list(wrongs)
         Q.append(dd); nid+=1
 for f in sorted(glob.glob(d+'/fixes_*.py')):
     ns={}; exec(open(f,encoding='utf8').read(),ns)
@@ -24,6 +26,26 @@ for f in sorted(glob.glob(d+'/fixes_*.py')):
             r=r or q['opts'][q['ans']]
             o=[r]+list(w); random.Random(q['id']*7919).shuffle(o)
             q['opts']=o; q['ans']=o.index(r)
+
+# ── 詳解：detail_*.py 的 DETAIL = {id: dict(po=[正解理由,錯1,錯2,錯3], steps=[(標題,公式,白話)], tip=口訣, fig=圖)}
+# po 順序要對應 batch 裡 [正解]+錯誤選項；以選項文字當 key，所以頁面洗牌選項也對得上
+nd=0
+for f in sorted(glob.glob(d+'/detail_*.py')):
+    ns={}; exec(open(f,encoding='utf8').read(),ns)
+    for qid,dt in ns['DETAIL'].items():
+        q=next((x for x in Q if x['id']==qid),None)
+        if not q: print('⚠ detail 找不到題號',qid); continue
+        out={}
+        if dt.get('po') and (qid in ORIG or ns.get('ORDER')=='display'):
+            # ORDER='display'：po＝[正解]+其餘選項（依 bank 目前順序）；預設：照 batch 原始 tuple 順序
+            ot=([q['opts'][q['ans']]]+[x for i,x in enumerate(q['opts']) if i!=q['ans']]) if ns.get('ORDER')=='display' else ORIG[qid]
+            if len(dt['po'])==4 and set(ot)==set(q['opts']): out['po']={t:r for t,r in zip(ot,dt['po'])}
+            else: print('⚠ #%d po 與選項對不上，略過逐選項'%qid)
+        if dt.get('steps'): out['s']=[list(x) for x in dt['steps']]
+        if dt.get('tip'): out['t']=dt['tip']
+        if dt.get('fig'): out['f']=dt['fig']
+        q['d']=out; nd+=1
+print('有詳解的題數',nd)
 def classify(q):
     t=q['q']; mx=max(len(o) for o in q['opts'])
     neg=bool(re.search(r'不正確|不是|錯誤|最不|不適用|不屬於|何者不|不會',t))
