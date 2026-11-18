@@ -764,5 +764,131 @@ disable-model-invocation: true
 
    <div class="tip-box tip-info">💡 <b>我自己的教訓</b>：否定題錯這麼多次，問題不在觀念，而在我一直用做「一般題」的習慣去做它。這個壞習慣跟科目無關，以後考別張證照照樣會犯，所以我把它當成一個獨立的題型來練。</div>
 
-   <p style="margin-top:24px">否定題考的其實是耐心：題目問的是哪一句錯，就老老實實把四句都驗完，最後只選那個 ✗。想實際練幾題，可以到我做的<a href="ipas-s3-mock-exam.html">科目三模擬考</a>，題庫裡也有否定題，考到滿意為止。</p>`}
+   <p style="margin-top:24px">否定題考的其實是耐心：題目問的是哪一句錯，就老老實實把四句都驗完，最後只選那個 ✗。想實際練幾題，可以到我做的<a href="ipas-s3-mock-exam.html">科目三模擬考</a>，題庫裡也有否定題，考到滿意為止。</p>`},
+  {id:'a9',date:'2026-11-18',cover:'images/a9-cover-godzilla.webp',tags:['AI','iPAS'],title:'「先處理再切分」我錯了 8 次：資料洩漏與 Pipeline 怎麼判斷',
+   excerpt:'準備 iPAS AI 應用規劃師中級科目三時，我的錯題本有 8 筆都是同一個毛病：標準化、補缺值、PCA、SMOTE 在交叉驗證之前就先 fit 了。這篇整理我後來固定下來的判斷法：只問一句「這個 fit 看過哪些資料」，並把所有會學參數的步驟全部放進 Pipeline。',
+   body:`<img src="images/a9-cover-godzilla.webp" alt="考卷不能先給學生看：資料洩漏與 Pipeline">
+   <div class="notion-asset-caption">先偷看了考卷再來考試，分數當然漂亮，但上線就現形</div>
+
+   <div class="summary-box"><div class="summary-title">🎯 這篇文章帶你搞懂</div>
+   <ul>
+     <li>什麼是資料洩漏，為什麼分數漂亮、上線卻掉一大截</li>
+     <li>我反覆掉進去的四種「看起來很謹慎」的錯法</li>
+     <li>一句話的判斷法：這個 fit 看過哪些資料</li>
+     <li>用 Pipeline 一次解決，以及考場上怎麼快速選出答案</li>
+   </ul></div>
+
+   <p>前兩篇寫的是輸出層該接 Sigmoid 還是 Softmax，以及否定題怎麼逐句驗證。這一篇輪到另一個在錯題本裡反覆出現的主題：資料洩漏。</p>
+   <p>我數了一下，從 7 月到 11 月，錯題本裡有 8 筆跟它有關。出錯的東西每次都不一樣：標準化、補缺值、PCA、SMOTE。但原因其實都是同一個：<b>有一個「會從資料學東西」的步驟，在交叉驗證切折之前就先做完了。</b></p>
+
+   <hr style="border:none;border-top:1px solid var(--border);margin:24px 0">
+
+   <h4>一、資料洩漏是什麼</h4>
+   <p>資料洩漏（data leakage）指的是：模型在訓練的過程中，不小心看到了本來應該藏起來、留到最後才考的資料。</p>
+   <p>可以想成考試。驗證集和測試集就是考卷，考卷在考試之前不能被學生看過。一旦學生偷看了考卷，分數會很漂亮，但那個分數不代表他真的會，等到換一份新考卷（也就是模型上線），成績就掉下來了。</p>
+   <table>
+     <thead><tr><th>情況</th><th>訓練時的分數</th><th>上線後的表現</th></tr></thead>
+     <tbody>
+       <tr><td>沒有洩漏</td><td>誠實，跟上線差不多</td><td>跟驗證時差不多</td></tr>
+       <tr><td>有洩漏</td><td>虛高</td><td>明顯掉下來</td></tr>
+     </tbody>
+   </table>
+   <div class="tip">💡 題目裡只要出現「驗證分數很高、上線卻差很多」，第一個要懷疑的就是資料洩漏。我錯題本裡有一題是 Recall 0.97、上線只剩 0.55，成因就是先對全部資料做 SMOTE 再切折。</div>
+
+   <h4>二、我掉進去的四種「看起來很謹慎」的錯法</h4>
+   <p>最麻煩的是，這些錯法每一個讀起來都很合理，所以我每次都覺得自己選對了。</p>
+   <table>
+     <thead><tr><th>我選的做法</th><th>我當下的想法</th><th>問題出在哪</th></tr></thead>
+     <tbody>
+       <tr><td>對<b>全部資料</b>先標準化／補缺值，再切分</td><td>反正沒有用到標籤，應該沒關係</td><td>平均數、中位數把測試集的數字也算進去了。不含標籤也會洩漏</td></tr>
+       <tr><td>先切出測試集，<b>只對訓練集 fit</b>，再整份丟進交叉驗證</td><td>我已經只用訓練集了，很謹慎</td><td>交叉驗證會再把訓練集切成好幾折。fit 在切折之前，驗證折還是被看過</td></tr>
+       <tr><td>標準化放進流程，但 <b>PCA 用全部資料 fit</b></td><td>標準化有顧到了</td><td>PCA 也會學參數（主成分方向），也不能碰驗證折</td></tr>
+       <tr><td>先對<b>全部資料 SMOTE</b>，再切折</td><td>先把資料補平衡，後面比較好做</td><td>合成出來的樣本會長得像驗證折的資料，兩邊混在一起，分數虛高</td></tr>
+     </tbody>
+   </table>
+   <div class="tip-box tip-warn">⚠️ 第二種最難防。「只對訓練集 fit」聽起來完全正確，我就是因為這句話好聽，在同一種題型錯了兩次。差別在於：<b>fit 是在交叉驗證切折之前還是之後發生的。</b></div>
+
+   <h4>三、一句話判斷法：這個 fit 看過哪些資料</h4>
+   <p>我後來不再背「哪個做法對」，改成每個步驟只問一個問題：</p>
+   <div class="tip">💡 <b>這個 fit，看過了哪些資料？</b> 如果它看過驗證折（或測試集）的資料，就是洩漏。</div>
+   <p>「fit」是指那些會從資料裡學出參數的動作。學出來的東西，只能用訓練的那一部分去學，然後拿同一組參數去轉換驗證折。</p>
+   <table>
+     <thead><tr><th>步驟</th><th>fit 學到的是什麼</th></tr></thead>
+     <tbody>
+       <tr><td>標準化</td><td>平均數與標準差</td></tr>
+       <tr><td>補缺值</td><td>平均數或中位數</td></tr>
+       <tr><td>PCA</td><td>主成分的方向</td></tr>
+       <tr><td>SMOTE</td><td>少數類之間的合成樣本</td></tr>
+       <tr><td>模型本身</td><td>權重</td></tr>
+     </tbody>
+   </table>
+   <p>只要流程裡有這些，其中任何一個的 fit 發生在切折之前，答案就不對。</p>
+
+   <h4>四、解法：全部放進 Pipeline</h4>
+   <p>Pipeline 做的事很單純：把「前處理加模型」包成一個整體，交給交叉驗證去切。交叉驗證每切出一折，Pipeline 就只用那一折的訓練部分去 fit 所有步驟，再用同一組參數去轉換驗證折。</p>
+
+   <div class="step-block"><div class="step-title"><span class="step-num">STEP 1</span>先留出獨立的測試集</div>
+   <p>最終的測試集一開始就切出去，整個調參、選模型的過程都不碰它，只在最後用一次。</p>
+   <div class="step-done">✅ 完成：測試集是從頭到尾沒人看過的考卷</div></div>
+
+   <div class="step-block"><div class="step-title"><span class="step-num">STEP 2</span>把每一個會學參數的步驟放進 Pipeline</div>
+   <p>標準化、補缺值、PCA、模型，一個都不要漏，依序寫進去：</p>
+   <pre style="background:var(--bg3);padding:14px;border-radius:10px;overflow-x:auto;font-family:var(--mono);font-size:.85rem;line-height:1.7">pipe = Pipeline([
+    ("scaler", StandardScaler()),
+    ("pca", PCA(n_components=0.95)),
+    ("svm", SVC()),
+])</pre>
+   <div class="step-done">✅ 完成：所有會學參數的步驟都在同一條流程裡</div></div>
+
+   <div class="step-block"><div class="step-title"><span class="step-num">STEP 3</span>把整個 Pipeline 丟進交叉驗證或 GridSearchCV</div>
+   <p>不是只丟模型，是丟整個 Pipeline：</p>
+   <pre style="background:var(--bg3);padding:14px;border-radius:10px;overflow-x:auto;font-family:var(--mono);font-size:.85rem;line-height:1.7">scores = cross_val_score(pipe, X_train, y_train, cv=5)</pre>
+   <div class="step-done">✅ 完成：每一折都只用訓練折去 fit，驗證折保持沒看過</div></div>
+
+   <img src="images/a9-pipeline-godzilla.webp" alt="Pipeline 像一條產線：標準化、PCA、模型串在一起，每一折只用訓練折去學">
+   <div class="notion-asset-caption">所有會學參數的步驟串成一條產線，交叉驗證每一折都從頭只用訓練折來學</div>
+
+   <div class="tip-box tip-warn">⚠️ 如果流程裡有 SMOTE，要用 imbalanced-learn 提供的 Pipeline（imblearn.pipeline），不是 scikit-learn 的。這樣 SMOTE 才會只對每折的訓練部分做，驗證折維持原本的比例。口訣：考卷不能動，只有訓練的那一部分可以合成。</div>
+
+   <h4>五、拿兩題來示範</h4>
+   <p><b>第 1 題</b>：要用 5 折交叉驗證評估「標準化加邏輯迴歸」，哪種寫法完全沒有洩漏？</p>
+   <p>(A) 先對全部資料標準化，再做 cross_val_score<br>
+   (B) 先對訓練集 fit 標準化器，再對全部資料做 cross_val_score<br>
+   (C) 把標準化與邏輯迴歸組成 Pipeline，整個丟進 cross_val_score<br>
+   (D) 先對每一折的驗證集標準化，再訓練模型</p>
+   <p>逐項問「這個 fit 看過哪些資料」：</p>
+   <table>
+     <thead><tr><th>選項</th><th>fit 看過誰</th><th>判斷</th></tr></thead>
+     <tbody>
+       <tr><td>A</td><td>全部資料，包含每一折的驗證部分</td><td>洩漏</td></tr>
+       <tr><td>B</td><td>整個訓練集，交叉驗證再切折時，驗證折已經被看過</td><td>洩漏（這就是我選過的）</td></tr>
+       <tr><td>C</td><td>每一折只看那一折的訓練部分</td><td>沒有洩漏</td></tr>
+       <tr><td>D</td><td>用驗證集自己 fit 自己</td><td>驗證與訓練的尺度不一致，也不對</td></tr>
+     </tbody>
+   </table>
+   <p>答案是 <b>C</b>。B 是最迷惑人的選項，它很像 C，差別只有 fit 發生的時間點。</p>
+
+   <p><b>第 2 題</b>：流程是標準化、PCA、SVM，加上 5 折交叉驗證。哪個做法最能避免洩漏？</p>
+   <p>(A) 只對訓練折 fit 標準化，PCA 用全部資料 fit<br>
+   (B) 標準化、PCA、SVM 全部放進 Pipeline，每折只用訓練折 fit<br>
+   (C) 先用全部資料做 PCA 降維，再做交叉驗證<br>
+   (D) 對測試集單獨 fit 一次標準化</p>
+   <p>答案是 <b>B</b>。A 的陷阱是只顧到了標準化，漏了 PCA 也會學參數；C 和 D 則是明顯讓驗證或測試資料參與了 fit。流程裡每個會學參數的步驟都要在同一條 Pipeline 裡，才算數。</p>
+
+   <h4>六、考場上我怎麼做</h4>
+   <table>
+     <thead><tr><th>看到題目有這些關鍵字</th><th>我先做的事</th></tr></thead>
+     <tbody>
+       <tr><td>前處理＋交叉驗證＋「最能避免洩漏」</td><td>直接找「全部放進 Pipeline」的那一個選項</td></tr>
+       <tr><td>「只對訓練集 fit」，但接著整份丟交叉驗證</td><td>先懷疑，確認 fit 是在切折之前還是之後</td></tr>
+       <tr><td>流程有兩個以上的前處理步驟</td><td>檢查每一個是否都在 Pipeline 裡，別只看第一個</td></tr>
+       <tr><td>SMOTE 加交叉驗證</td><td>SMOTE 一定只能對訓練折做，找 imblearn Pipeline</td></tr>
+       <tr><td>驗證分數高、上線差很多</td><td>先想洩漏，再想過擬合</td></tr>
+     </tbody>
+   </table>
+   <div class="tip-box tip-warn">⚠️ 這套判斷法只處理「前處理與交叉驗證」造成的洩漏。時間序列資料用隨機切分，是另一種洩漏（時間洩漏），要用 TimeSeriesSplit；同一個人或同一台機器有很多筆資料，要用 GroupKFold。三種切法要分開記，不要混在一起。</div>
+
+   <div class="tip-box tip-info">💡 <b>我自己的教訓</b>：我一直在背「哪個做法對」，所以每換一個步驟（標準化換成 PCA、換成 SMOTE）就又錯一次。改成只問「這個 fit 看過哪些資料」之後，步驟換成什麼都適用，這才是真的搞懂了。</div>
+
+   <p style="margin-top:24px">資料洩漏的考點，其實就是在問一件事：誰才有資格去 fit。想把交叉驗證整個流程看清楚，可以到我做的<a href="ipas-交叉驗證系統.html">交叉驗證系統</a>；想實際練題，則可以到<a href="ipas-s3-mock-exam.html">科目三模擬考</a>，題庫裡有不少洩漏的題型，考到滿意為止。</p>`}
 ];
