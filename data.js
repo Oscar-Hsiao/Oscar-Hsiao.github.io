@@ -882,5 +882,117 @@ disable-model-invocation: true
 
    <div class="tip-box tip-info">💡 <b>我自己的教訓</b>：我一直在背「哪個做法對」，所以每換一個步驟（標準化換成 PCA、換成 SMOTE）就又錯一次。改成只問「這個 fit 看過哪些資料」之後，步驟換成什麼都適用，這才是真的搞懂了。</div>
 
-   <p style="margin-top:24px">資料洩漏的考點，其實就是在問一件事：誰才有資格去 fit。想把交叉驗證整個流程看清楚，可以到我做的<a href="ipas-交叉驗證系統.html">交叉驗證系統</a>；想實際練題，則可以到<a href="ipas-s3-mock-exam.html">科目三模擬考</a>，題庫裡有不少洩漏的題型，考到滿意為止。</p>`}
+   <p style="margin-top:24px">資料洩漏的考點，其實就是在問一件事：誰才有資格去 fit。想把交叉驗證整個流程看清楚，可以到我做的<a href="ipas-交叉驗證系統.html">交叉驗證系統</a>；想實際練題，則可以到<a href="ipas-s3-mock-exam.html">科目三模擬考</a>，題庫裡有不少洩漏的題型，考到滿意為止。</p>`},
+  {id:'a10',date:'2026-11-23',cover:'images/a10-cover-godzilla.webp',tags:['AI','iPAS'],title:'Accuracy 95%，卻一個詐騙都沒抓到：我在「全猜多數類」錯了 5 次',
+   excerpt:'準備 iPAS AI 應用規劃師中級科目三時，「模型全部猜多數類」這個題型我從 7 月到 11 月錯了 5 次。每次都以為自己懂了，下一次又換個樣子錯。這篇整理我固定下來的算法：看到「全部預測為 0」，先寫出四格，再算 Accuracy、Recall、Precision、F1。',
+   body:`<img src="images/a10-cover-godzilla.webp" alt="Accuracy 95% 但一個詐騙都沒抓到：全猜多數類的陷阱">
+   <div class="notion-asset-caption">一個永遠說「沒事」的警衛，100 天裡有 95 天都對，但 5 次小偷他一次都沒抓到</div>
+
+   <div class="summary-box"><div class="summary-title">🎯 這篇文章帶你搞懂</div>
+   <ul>
+     <li>為什麼「全部猜多數類」的模型，Accuracy 看起來超高</li>
+     <li>我 5 次錯的題目，每次到底錯在哪</li>
+     <li>一個固定算法：先寫四格，再算四個指標</li>
+     <li>考場上看到這類題目的快速判斷</li>
+   </ul></div>
+
+   <p>前面幾篇寫的是輸出層、否定題、資料洩漏。這一篇輪到錯題本裡「重複次數」最多的一個考點：模型全部猜多數類。</p>
+   <p>我翻了錯題本，這個題型從 7 月到 11 月錯了 <b>5 次</b>。題目每次長得不一樣：有時問混淆矩陣，有時問 Recall，有時是程式輸出，有時是問 Accuracy 有什麼缺陷。但根本是同一件事：<b>我沒有先把四格寫出來。</b></p>
+
+   <hr style="border:none;border-top:1px solid var(--border);margin:24px 0">
+
+   <h4>一、為什麼全猜多數類，Accuracy 還是很高</h4>
+   <p>假設 100 筆交易，95 筆正常、5 筆詐騙。模型很懶，不管看到什麼都回答「正常」。</p>
+   <table>
+     <thead><tr><th></th><th>預測正常（0）</th><th>預測詐騙（1）</th></tr></thead>
+     <tbody>
+       <tr><td><b>真實正常（0）</b></td><td>TN = 95</td><td>FP = 0</td></tr>
+       <tr><td><b>真實詐騙（1）</b></td><td>FN = 5</td><td>TP = 0</td></tr>
+     </tbody>
+   </table>
+   <p>Accuracy 是「猜對的總數 ÷ 全部」，也就是 95 ÷ 100 = <b>0.95</b>。看起來很漂亮，但這個模型一個詐騙都沒抓到。</p>
+   <div class="tip">💡 這就是「類別不平衡」的陷阱：多數類佔太多，只猜它就能拿高分。Accuracy 反映不出「少數類抓得到抓不到」。</div>
+
+   <h4>二、我 5 次錯在哪</h4>
+   <table>
+     <thead><tr><th>日期</th><th>題目問什麼</th><th>我選的</th><th>我的問題</th></tr></thead>
+     <tbody>
+       <tr><td>7/05</td><td>全猜正常時，FN 是多少</td><td>FN = 0</td><td>以為沒猜詐騙就沒有錯。其實所有真實詐騙都變成 FN</td></tr>
+       <tr><td>10/14</td><td>115-1 真題：99% 正常、Accuracy 99.1%，最嚴重的缺陷</td><td>選了跟邊界樣本、多分類有關的選項</td><td>沒看出重點是 Accuracy 對不平衡不敏感，漏診要看 Recall</td></tr>
+       <tr><td>10/31</td><td>500 筆含 20 筆詐騙，全猜正常，FN 與 Recall</td><td>FN = 0、Recall = 1</td><td>7/05 同一個錯，隔了近四個月又犯一次</td></tr>
+       <tr><td>11/05</td><td>8 筆 0、2 筆 1，全猜 0，印出 Accuracy 與 F1</td><td>0.8 與 0.5</td><td>以為 F1 有「中間值」。其實 TP = 0，Recall = 0，F1 = 0</td></tr>
+       <tr><td>11/11</td><td>95 筆 0、5 筆 1，全猜 0，印出 Accuracy 與少數類 Recall</td><td>0.05 與 0.95</td><td>兩個數字放反了</td></tr>
+     </tbody>
+   </table>
+   <div class="tip-box tip-warn">⚠️ 最煩的是：前面答錯、解釋看懂了，過幾週換個問法又錯。我發現我每次都在「憑感覺」答，沒有真的算。</div>
+
+   <h4>三、固定算法：先寫四格，再算四個指標</h4>
+   <p>我後來規定自己，看到「全部預測為 0（或正常、負類）」，不准直接選，先照這三步走：</p>
+
+   <div class="step-block"><div class="step-title"><span class="step-num">STEP 1</span>先寫出四格</div>
+   <p>全猜 0 的模型，預測為 1 的數量一定是 0，所以 <b>TP = 0、FP = 0</b>。真實是 1 的那些全部變成 FN，真實是 0 的全部是 TN。</p>
+   <div class="step-done">✅ 完成：四格只剩 TN 與 FN 有數字</div></div>
+
+   <div class="step-block"><div class="step-title"><span class="step-num">STEP 2</span>用四格算指標</div>
+   <table>
+     <thead><tr><th>指標</th><th>公式</th><th>以 95 與 5 為例</th></tr></thead>
+     <tbody>
+       <tr><td>Accuracy</td><td>(TP + TN) ÷ 全部</td><td>(0 + 95) ÷ 100 = <b>0.95</b></td></tr>
+       <tr><td>Recall（少數類）</td><td>TP ÷ (TP + FN)</td><td>0 ÷ (0 + 5) = <b>0</b></td></tr>
+       <tr><td>Precision</td><td>TP ÷ (TP + FP)</td><td>0 ÷ 0，沒有預測任何一筆為 1，程式通常當 0（要設 zero_division）</td></tr>
+       <tr><td>F1</td><td>Precision 與 Recall 的調和平均</td><td>Recall 是 0，F1 就是 <b>0</b></td></tr>
+     </tbody>
+   </table>
+   <div class="step-done">✅ 完成：Accuracy 很高，其餘三個全是 0</div></div>
+
+   <div class="step-block"><div class="step-title"><span class="step-num">STEP 3</span>回頭看題目問的是哪一個</div>
+   <p>11/05 那題我就是這裡出錯：題目要的是 Accuracy 與 F1，我卻在 F1 上猜了個 0.5。F1 不是「在 0 與 Accuracy 中間」的數字，Recall 是 0 它就是 0。</p>
+   <div class="step-done">✅ 完成：不靠感覺，靠四格</div></div>
+
+   <p>用程式驗證一下（這段我自己跑過）：</p>
+   <pre style="background:var(--bg3);padding:14px;border-radius:10px;overflow-x:auto;font-family:var(--mono);font-size:.85rem;line-height:1.7">y = [0]*95 + [1]*5
+pred = [0]*100
+accuracy_score(y, pred)                    # 0.95
+recall_score(y, pred)                      # 0.0
+f1_score(y, pred, zero_division=0)         # 0.0
+confusion_matrix(y, pred).tolist()         # [[95, 0], [5, 0]]</pre>
+   <img src="images/a10-four-cells-godzilla.webp" alt="全猜多數類的四格：TN 95、FN 5，TP 與 FP 都是 0，所以 Accuracy 0.95 但 Recall 0">
+   <div class="notion-asset-caption">全猜 0 的四格：只有 TN 與 FN 有數字，Recall 一定是 0</div>
+
+   <h4>四、拿兩題來示範</h4>
+   <p><b>第 1 題</b>：500 筆交易含 20 筆詐騙，模型全部預測為正常。下列何者正確？</p>
+   <p>(A) FN = 0，Recall = 1<br>
+   (B) FN = 20，Recall = 0<br>
+   (C) FN = 480，Recall = 0.96<br>
+   (D) FN = 20，Recall = 0.96</p>
+   <table>
+     <thead><tr><th>選項</th><th>檢查</th><th>判斷</th></tr></thead>
+     <tbody>
+       <tr><td>A</td><td>20 筆詐騙全沒抓到，FN 不可能是 0</td><td>錯（這是我選過的）</td></tr>
+       <tr><td>B</td><td>TP = 0、FN = 20，Recall = 0 ÷ 20 = 0</td><td>對</td></tr>
+       <tr><td>C</td><td>480 是 TN 的數量；0.96 是 Accuracy，不是 Recall</td><td>錯</td></tr>
+       <tr><td>D</td><td>FN 對，但 Recall 把 Accuracy 的 0.96 拿來用</td><td>錯</td></tr>
+     </tbody>
+   </table>
+   <p>答案是 <b>B</b>。D 是最迷惑人的選項：前半對、後半把兩個指標搞混。</p>
+
+   <p><b>第 2 題</b>：資料有 8 筆 0、2 筆 1，模型全部預測為 0。<code>accuracy_score</code> 與 <code>f1_score(zero_division=0)</code> 會印出什麼？</p>
+   <p>Accuracy = 8 ÷ 10 = 0.8；TP = 0，Recall = 0，F1 = 0。答案是 <b>0.8 與 0.0</b>。我當時選了 0.8 與 0.5，就是以為 F1 會落在中間。</p>
+
+   <h4>五、考場上我怎麼做</h4>
+   <table>
+     <thead><tr><th>看到題目有這些字</th><th>我先做的事</th></tr></thead>
+     <tbody>
+       <tr><td>「全部預測為 0／正常／多數類」</td><td>直接寫 TP = 0、FP = 0，再算</td></tr>
+       <tr><td>「Accuracy 高達 9X%」但少數類很少</td><td>想到類別不平衡，Accuracy 不可靠，要看 Recall 或 F1</td></tr>
+       <tr><td>選項裡有 Recall = 1 或 FN = 0</td><td>多半是陷阱，除非模型真的把少數類全抓到</td></tr>
+       <tr><td>程式輸出題要印兩個數字</td><td>先標好哪個是 Accuracy、哪個是 Recall，再填，避免放反</td></tr>
+       <tr><td>題目問「最嚴重的缺陷」</td><td>選「Accuracy 反映不出少數類的偵測能力」這一類說法</td></tr>
+     </tbody>
+   </table>
+   <div class="tip-box tip-warn">⚠️ 這套算法只處理「全部猜同一類」的極端情況。一般的混淆矩陣題，照樣先寫四格，再分清楚靈敏度（怕漏）與特異度（怕誤）的分子不一樣，別混在一起。</div>
+
+   <div class="tip-box tip-info">💡 <b>我自己的教訓</b>：看懂解釋不等於會算。同一個題型我錯了 5 次，每次解析都看得懂。真正有用的是一個強制動作：看到「全部預測為 0」，手邊先畫四格，不准直接選。</div>
+
+   <p style="margin-top:24px">想實際練題，可以到<a href="ipas-s3-mock-exam.html">科目三模擬考</a>，題庫裡有不少評估指標與類別不平衡的題型；程式輸出題則可以到<a href="ipas-s3-calc-mock.html">計算題模擬考</a>練手感。</p>`}
 ];
