@@ -220,7 +220,7 @@ function renderMain(){
       <div class="hero">
         <span class="tag tag-yellow">文章專欄</span>
         <h1>${navItem?navItem.label:tag}</h1>
-        <p>分享職安衛法規解讀、ESG 實務心得與 AI 應用於行政流程自動化的相關內容。</p>
+        <p>${tag==='iPAS'?'整理我準備 iPAS AI 應用規劃師中級科目三的錯題複盤與解題方法，每篇對應一種我反覆答錯的題型。':'分享職安衛法規解讀、ESG 實務心得與 AI 應用於行政流程自動化的相關內容。'}</p>
       </div>
       ${filtered.length?`<div class="article-list">${filtered.map(articleCard).join('')}</div>`:'<div class="empty">此分類目前還沒有文章</div>'}`;
     bindArticleClicks();
