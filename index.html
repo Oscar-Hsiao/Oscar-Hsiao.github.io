@@ -201,7 +201,7 @@ function renderMain(){
   if(currentSection.startsWith('articles-')){
     const tag=currentSection.replace('articles-','');
     const navItem=NAV.flatMap(g=>g.children||[]).find(i=>i.id===currentSection);
-    const filtered=ARTICLES.filter(a=>a.tags.includes(tag)).sort((a,b)=>b.date.localeCompare(a.date));
+    const filtered=ARTICLES.filter(a=>a.tags.includes(tag)&&!(tag==='AI'&&a.tags.includes('iPAS'))).sort((a,b)=>b.date.localeCompare(a.date));
     if(currentArticle){
       const a=ARTICLES.find(x=>x.id===currentArticle);
       const rs=readStats(a);

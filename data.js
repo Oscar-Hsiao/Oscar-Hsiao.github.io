@@ -3,7 +3,8 @@ const NAV=[
   {id:'articles',label:'文章專欄',icon:'▤',type:'accordion',children:[
     {id:'articles-職安衛',label:'職安衛',tag:'職安衛'},
     {id:'articles-ESG',label:'ESG／永續',tag:'ESG'},
-    {id:'articles-AI',label:'AI',tag:'AI'}
+    {id:'articles-AI',label:'AI',tag:'AI'},
+    {id:'articles-iPAS',label:'AI 科目三',tag:'iPAS'}
   ]},
   {id:'tools',label:'工具總覽',icon:'⚙',type:'accordion',children:[
     {id:'tool-law',label:'法規登記系統',href:'法規登記系統.html'},
@@ -544,7 +545,7 @@ disable-model-invocation: true
    <div class="tip-box tip-info">💡 <b>法規提醒</b>：依《危害性化學品標示及通識規則》第 17 條，雇主應確保作業場所所使用危害性化學品均有對應的安全資料表，並置於工作場所容易取得的地方。SDS 遺失或過期未更新，在職安衛稽查時都是常見的缺失項目。</div>
 
    <p style="margin-top:24px">GHS 和 SDS 這兩套工具，用意從來不是讓你把 16 頁全背起來——而是讓你在「需要的時間點」知道去哪裡找對的資訊。現場出事時，不會有時間重新翻規定；但如果平時教育訓練做得紮實，員工知道「吸入了看第 4 節、要買手套看第 8 節、儲存條件看第 7 節」，這份文件的價值才真正發揮出來。下次拿到一份新化學品，試著從象形圖開始讀，再對到 SDS 的危害辨識——不用 5 分鐘，你就知道它的底細了。</p>`},
-  {id:'a7',date:'2026-11-15',cover:'images/a7-cover-godzilla.webp',tags:['AI','iPAS'],title:'我在同一種題型跌倒了 9 次：輸出層該接 Sigmoid 還是 Softmax？',
+  {id:'a7',date:'2026-11-15',cover:'images/a7-cover-godzilla.webp',tags:['iPAS','AI'],title:'我在同一種題型跌倒了 9 次：輸出層該接 Sigmoid 還是 Softmax？',
    excerpt:'準備 iPAS AI 應用規劃師中級科目三時，我的錯題本第一名是「輸出層與損失函數搭配」。這篇整理我最後用的三步驟判斷線：先問答案長什麼樣子，再問激活是誰做的，考場上照著走就不會選錯。',
    body:`<img src="images/a7-cover-godzilla.webp" alt="輸出層該接哪一個？Sigmoid 可複選、Softmax 單選">
    <div class="notion-asset-caption">Sigmoid 是每題各自打勾的是非題，Softmax 是只能挑一個的單選題</div>
@@ -646,7 +647,7 @@ disable-model-invocation: true
    <div class="tip-box tip-info">💡 <b>我自己的教訓</b>：這題型我每次看解析都覺得懂，卻前後錯了 9 筆。問題不在不會，而在沒有固定的判斷順序，每次都被選項牽著走。把順序寫下來、先自己寫答案再看選項之後，才慢慢穩下來。</div>
 
    <p style="margin-top:24px">輸出層搭配這題型，考的其實只有兩件事：答案長什麼樣子、激活是誰做的。兩個問題照順序問完，答案自己就出來了。想實際練幾題，可以到我做的<a href="ipas-s3-mock-exam.html">科目三模擬考</a>，題庫裡有不少這類題目，考到滿意為止。</p>`},
-  {id:'a8',date:'2026-11-16',cover:'images/a8-cover-godzilla.webp',tags:['AI','iPAS'],title:'每個選項我都看得懂，還是錯了 8 次：「下列何者最不正確」怎麼解',
+  {id:'a8',date:'2026-11-16',cover:'images/a8-cover-godzilla.webp',tags:['iPAS','AI'],title:'每個選項我都看得懂，還是錯了 8 次：「下列何者最不正確」怎麼解',
    excerpt:'準備 iPAS AI 應用規劃師中級科目三時，我的錯題本有一種錯跟觀念無關：否定題選到正確的敘述，一路記到累計第 8 次。這篇整理我後來固定下來的逐句驗證法：先圈題目最後一句，四個選項逐項標 ✓／✗ 並寫理由，最後只選 ✗。',
    body:`<img src="images/a8-cover-godzilla.webp" alt="何者最不正確？三個選項都是對的，要選的是錯的那一個">
    <div class="notion-asset-caption">三顆頭說的都沒錯：A、B、C 都是對的，所以都不能選</div>
@@ -765,7 +766,7 @@ disable-model-invocation: true
    <div class="tip-box tip-info">💡 <b>我自己的教訓</b>：否定題錯這麼多次，問題不在觀念，而在我一直用做「一般題」的習慣去做它。這個壞習慣跟科目無關，以後考別張證照照樣會犯，所以我把它當成一個獨立的題型來練。</div>
 
    <p style="margin-top:24px">否定題考的其實是耐心：題目問的是哪一句錯，就老老實實把四句都驗完，最後只選那個 ✗。想實際練幾題，可以到我做的<a href="ipas-s3-mock-exam.html">科目三模擬考</a>，題庫裡也有否定題，考到滿意為止。</p>`},
-  {id:'a9',date:'2026-11-18',cover:'images/a9-cover-godzilla.webp',tags:['AI','iPAS'],title:'「先處理再切分」我錯了 8 次：資料洩漏與 Pipeline 怎麼判斷',
+  {id:'a9',date:'2026-11-18',cover:'images/a9-cover-godzilla.webp',tags:['iPAS','AI'],title:'「先處理再切分」我錯了 8 次：資料洩漏與 Pipeline 怎麼判斷',
    excerpt:'準備 iPAS AI 應用規劃師中級科目三時，我的錯題本有 8 筆都是同一個毛病：標準化、補缺值、PCA、SMOTE 在交叉驗證之前就先 fit 了。這篇整理我後來固定下來的判斷法：只問一句「這個 fit 看過哪些資料」，並把所有會學參數的步驟全部放進 Pipeline。',
    body:`<img src="images/a9-cover-godzilla.webp" alt="考卷不能先給學生看：資料洩漏與 Pipeline">
    <div class="notion-asset-caption">先偷看了考卷再來考試，分數當然漂亮，但上線就現形</div>
@@ -883,7 +884,7 @@ disable-model-invocation: true
    <div class="tip-box tip-info">💡 <b>我自己的教訓</b>：我一直在背「哪個做法對」，所以每換一個步驟（標準化換成 PCA、換成 SMOTE）就又錯一次。改成只問「這個 fit 看過哪些資料」之後，步驟換成什麼都適用，這才是真的搞懂了。</div>
 
    <p style="margin-top:24px">資料洩漏的考點，其實就是在問一件事：誰才有資格去 fit。想把交叉驗證整個流程看清楚，可以到我做的<a href="ipas-交叉驗證系統.html">交叉驗證系統</a>；想實際練題，則可以到<a href="ipas-s3-mock-exam.html">科目三模擬考</a>，題庫裡有不少洩漏的題型，考到滿意為止。</p>`},
-  {id:'a10',date:'2026-11-23',cover:'images/a10-cover-godzilla.webp',tags:['AI','iPAS'],title:'Accuracy 95%，卻一個詐騙都沒抓到：我在「全猜多數類」錯了 5 次',
+  {id:'a10',date:'2026-11-23',cover:'images/a10-cover-godzilla.webp',tags:['iPAS','AI'],title:'Accuracy 95%，卻一個詐騙都沒抓到：我在「全猜多數類」錯了 5 次',
    excerpt:'準備 iPAS AI 應用規劃師中級科目三時，「模型全部猜多數類」這個題型我從 7 月到 11 月錯了 5 次。每次都以為自己懂了，下一次又換個樣子錯。這篇整理我固定下來的算法：看到「全部預測為 0」，先寫出四格，再算 Accuracy、Recall、Precision、F1。',
    body:`<img src="images/a10-cover-godzilla.webp" alt="Accuracy 95% 但一個詐騙都沒抓到：全猜多數類的陷阱">
    <div class="notion-asset-caption">一個永遠說「沒事」的警衛，100 天裡有 95 天都對，但 5 次小偷他一次都沒抓到</div>
@@ -995,7 +996,7 @@ confusion_matrix(y, pred).tolist()         # [[95, 0], [5, 0]]</pre>
    <div class="tip-box tip-info">💡 <b>我自己的教訓</b>：看懂解釋不等於會算。同一個題型我錯了 5 次，每次解析都看得懂。真正有用的是一個強制動作：看到「全部預測為 0」，手邊先畫四格，不准直接選。</div>
 
    <p style="margin-top:24px">想實際練題，可以到<a href="ipas-s3-mock-exam.html">科目三模擬考</a>，題庫裡有不少評估指標與類別不平衡的題型；程式輸出題則可以到<a href="ipas-s3-calc-mock.html">計算題模擬考</a>練手感。</p>`},
-  {id:'a11',date:'2026-11-24',cover:'images/a11-cover-godzilla.webp',tags:['AI','iPAS'],title:'烤肉店有 4 間分店，我卻用 t 檢定：統計檢定我選錯了 9 次',
+  {id:'a11',date:'2026-11-24',cover:'images/a11-cover-godzilla.webp',tags:['iPAS','AI'],title:'烤肉店有 4 間分店，我卻用 t 檢定：統計檢定我選錯了 9 次',
    excerpt:'準備 iPAS AI 應用規劃師中級科目三時，「該用哪種檢定」是我錯最多次的題型：6 次選錯檢定、3 次分不清 Z 與 t。這篇用烤肉店、廣告版本、血型這些題目，整理出一套三問決策法：先看變數型態，再數組數，最後分獨立或配對。',
    body:`<img src="images/a11-cover-godzilla.webp" alt="烤肉店有 4 間分店，我卻用 t 檢定：統計檢定選錯 9 次">
    <div class="notion-asset-caption">四間分店、一支 t 檢定：工具拿錯，再努力也算不出對的答案</div>
