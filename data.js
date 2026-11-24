@@ -994,5 +994,115 @@ confusion_matrix(y, pred).tolist()         # [[95, 0], [5, 0]]</pre>
 
    <div class="tip-box tip-info">💡 <b>我自己的教訓</b>：看懂解釋不等於會算。同一個題型我錯了 5 次，每次解析都看得懂。真正有用的是一個強制動作：看到「全部預測為 0」，手邊先畫四格，不准直接選。</div>
 
-   <p style="margin-top:24px">想實際練題，可以到<a href="ipas-s3-mock-exam.html">科目三模擬考</a>，題庫裡有不少評估指標與類別不平衡的題型；程式輸出題則可以到<a href="ipas-s3-calc-mock.html">計算題模擬考</a>練手感。</p>`}
+   <p style="margin-top:24px">想實際練題，可以到<a href="ipas-s3-mock-exam.html">科目三模擬考</a>，題庫裡有不少評估指標與類別不平衡的題型；程式輸出題則可以到<a href="ipas-s3-calc-mock.html">計算題模擬考</a>練手感。</p>`},
+  {id:'a11',date:'2026-11-24',cover:'images/a11-cover-godzilla.webp',tags:['AI','iPAS'],title:'烤肉店有 4 間分店，我卻用 t 檢定：統計檢定我選錯了 9 次',
+   excerpt:'準備 iPAS AI 應用規劃師中級科目三時，「該用哪種檢定」是我錯最多次的題型：6 次選錯檢定、3 次分不清 Z 與 t。這篇用烤肉店、廣告版本、血型這些題目，整理出一套三問決策法：先看變數型態，再數組數，最後分獨立或配對。',
+   body:`<img src="images/a11-cover-godzilla.webp" alt="烤肉店有 4 間分店，我卻用 t 檢定：統計檢定選錯 9 次">
+   <div class="notion-asset-caption">四間分店、一支 t 檢定：工具拿錯，再努力也算不出對的答案</div>
+
+   <div class="summary-box"><div class="summary-title">🎯 這篇文章帶你搞懂</div>
+   <ul>
+     <li>我 9 次選錯，每次是怎麼被題目的「聯想」帶偏的</li>
+     <li>一套三問決策法：變數型態 → 組數 → 獨立或配對</li>
+     <li>Z 檢定與 t 檢定怎麼分：看 σ 已不已知，不是看常態</li>
+     <li>兩題示範，考場上照著問就好</li>
+   </ul></div>
+
+   <p>前面幾篇寫的是輸出層、否定題、洩漏、全猜多數類。這篇輪到錯題本裡「次數最多」的題型：<b>這題該用哪種檢定？</b></p>
+   <p>我翻了錯題本：10/23 一天錯 3 題、10/24 錯 1 題、10/31 錯 1 題、11/01 又錯 1 題，一共 <b>6 次選錯檢定</b>；11/05 再加上 <b>3 次</b> Z 與 t 搞混。題目一換，我就中招。</p>
+
+   <hr style="border:none;border-top:1px solid var(--border);margin:24px 0">
+
+   <h4>一、我 9 次是怎麼錯的</h4>
+   <table>
+     <thead><tr><th>日期</th><th>題目</th><th>我選的</th><th>正解</th><th>我被什麼帶偏</th></tr></thead>
+     <tbody>
+       <tr><td>10/23</td><td>同一批 30 位學生，上課前後的測驗分數</td><td>卡方</td><td>配對 t</td><td>把「前、後」當成兩個類別，忘了分數是連續數字</td></tr>
+       <tr><td>10/23</td><td>3 組教學法，比連續成績</td><td>配對 t</td><td>單因子 ANOVA</td><td>看到「每人一筆」就聯想配對</td></tr>
+       <tr><td>10/23</td><td>血型（4 類）vs 是否患病（2 類）</td><td>獨立 t</td><td>卡方</td><td>兩個都是類別，算不出平均</td></tr>
+       <tr><td>10/24</td><td>三種廣告版本，每人只看一種，比停留秒數</td><td>獨立 t</td><td>單因子 ANOVA</td><td>理由「獨立」是對的，但 t 只能比兩組</td></tr>
+       <tr><td>10/31</td><td>烤肉店 4 間分店滿意度，每人只去一間</td><td>配對 t</td><td>單因子 ANOVA</td><td>把「每人只去一間」當成配對，其實那是獨立</td></tr>
+       <tr><td>11/01</td><td>居住地區（4 類）vs 政策態度（贊成／反對）</td><td>單因子 ANOVA</td><td>卡方</td><td>看到「4 類」就想到「3 組以上用 ANOVA」</td></tr>
+     </tbody>
+   </table>
+   <div class="tip-box tip-warn">⚠️ 這 6 題有一個共通點：我都不是「完全不會」，而是被題目裡的某個字眼拉走。「4 類」「每人一筆」「每人只去一間」，這些字眼都不是選檢定的依據。</div>
+
+   <h4>二、三問決策法</h4>
+   <p>我後來規定自己，看到檢定題先不准選，照順序問三個問題：</p>
+
+   <div class="step-block"><div class="step-title"><span class="step-num">問 1</span>要比的東西是數字，還是類別？</div>
+   <p>如果「兩個變數都是類別」（例如血型 vs 是否患病、居住地區 vs 贊成／反對），算不出平均，答案就是 <b>卡方檢定</b>，後面兩問不用問了。要比平均，依變數必須是連續數字（分數、秒數、滿意度）。</p>
+   <div class="step-done">✅ 完成：兩個都是類別就收工，選卡方</div></div>
+
+   <div class="step-block"><div class="step-title"><span class="step-num">問 2</span>有幾組要比？</div>
+   <p>依變數是連續數字時，先數組數：<b>2 組</b>才用 t 檢定；<b>3 組以上</b>用單因子 ANOVA。我 10/24 與 10/31 都是在這一步沒數，直接跳去想獨立或配對。</p>
+   <div class="step-done">✅ 完成：3 組以上直接選 ANOVA，不要再往下想配對</div></div>
+
+   <div class="step-block"><div class="step-title"><span class="step-num">問 3</span>只有 2 組時：是同一批人，還是不同的人？</div>
+   <p><b>同一批人量兩次</b>（前後測、治療前後）→ 配對 t 檢定。<b>兩批不同的人</b>（A 組、B 組各自一批）→ 獨立樣本 t 檢定。「每人只看一種、只去一間」說的是不同的人，所以是獨立，不是配對。</p>
+   <div class="step-done">✅ 完成：配對的關鍵是「同一批人」，不是「每人一筆」</div></div>
+
+   <img src="images/a11-three-questions-godzilla.webp" alt="三問決策法：先看變數型態，再數組數，最後分獨立或配對">
+   <div class="notion-asset-caption">三問決策法：一道一道關卡走過去，不讓直覺先出手</div>
+
+   <table>
+     <thead><tr><th>情境</th><th>檢定</th><th>scipy 函式</th></tr></thead>
+     <tbody>
+       <tr><td>兩個變數都是類別</td><td>卡方檢定</td><td><code>chi2_contingency</code></td></tr>
+       <tr><td>連續數字、3 組以上</td><td>單因子 ANOVA</td><td><code>f_oneway</code></td></tr>
+       <tr><td>連續數字、2 組、不同的人</td><td>獨立樣本 t 檢定</td><td><code>ttest_ind</code></td></tr>
+       <tr><td>連續數字、2 組、同一批人前後</td><td>配對 t 檢定</td><td><code>ttest_rel</code></td></tr>
+     </tbody>
+   </table>
+
+   <h4>三、拿兩題來示範</h4>
+   <p><b>第 1 題（烤肉店）</b>：一家烤肉店有 4 間分店，想比較顧客滿意度（1～10 分）是否有差異，每位顧客只去其中一間。該用哪種檢定？</p>
+   <p>(A) 配對 t 檢定<br>
+   (B) 單因子 ANOVA<br>
+   (C) 卡方檢定<br>
+   (D) 獨立樣本 t 檢定</p>
+   <table>
+     <thead><tr><th>選項</th><th>檢查</th><th>判斷</th></tr></thead>
+     <tbody>
+       <tr><td>A</td><td>配對要同一批人量兩次；這裡每人只去一間，是不同的人</td><td>錯（我 10/31 選的）</td></tr>
+       <tr><td>B</td><td>滿意度是連續分數，有 4 組，3 組以上</td><td>對</td></tr>
+       <tr><td>C</td><td>滿意度是分數不是類別，不是卡方</td><td>錯</td></tr>
+       <tr><td>D</td><td>獨立沒錯，但 t 檢定只比 2 組</td><td>錯（這是陷阱）</td></tr>
+     </tbody>
+   </table>
+   <p>答案是 <b>B</b>。三問走一遍：問 1 是連續分數；問 2 有 4 組，直接到 ANOVA。</p>
+
+   <p><b>第 2 題（地區與態度）</b>：想知道居住地區（北、中、南、東 4 類）與對某政策的態度（贊成、反對）有沒有關聯，該用哪種檢定？</p>
+   <p>問 1：兩個都是類別，算不出平均，選 <b>卡方檢定</b>。我 11/01 選了 ANOVA，就是看到「4 類」就聯想到「3 組以上」，沒先問變數型態。</p>
+   <div class="tip">💡 順序很重要：問 1 比問 2 優先。「4 類」只有在依變數是連續數字時，才是「4 組」的意思。</div>
+
+   <h4>四、Z 檢定與 t 檢定怎麼分</h4>
+   <p>11/05 我又錯了 3 題，都是檢定平均數時，該用 Z 還是 t。我的盲點是「看到常態就選 Z」。</p>
+   <table>
+     <thead><tr><th>條件</th><th>用什麼</th><th>我當時選錯的原因</th></tr></thead>
+     <tbody>
+       <tr><td>σ 已知（n 多小都一樣）</td><td>Z，精確，不是近似</td><td>σ 已知、n = 9，我選了「Z 近似，因為 n 小」。「近似」不會出現在 σ 已知這一格</td></tr>
+       <tr><td>σ 未知、n 小（例如 n = 12，母體近似常態）</td><td>t</td><td>我選 Z，因為看到「常態」。常態只是共同前提，不是選 Z 的理由</td></tr>
+       <tr><td>σ 未知、n 大（例如 n = 100）</td><td>Z 近似可接受，t 也很接近</td><td>我選了「必須用 t、不能用 Z」。選項有「必須、不能」這種絕對字眼要小心</td></tr>
+     </tbody>
+   </table>
+   <div class="tip-box tip-info">💡 一句話：先看 σ 知不知道。已知→Z；未知→t，n 夠大時 Z 可以當近似。「母體近似常態」每一格都有，不能拿來分辨。</div>
+
+   <h4>五、考場上我怎麼做</h4>
+   <table>
+     <thead><tr><th>看到題目有這些字</th><th>我先做的事</th></tr></thead>
+     <tbody>
+       <tr><td>兩個變數都是「類別」（血型、地區、贊成／反對）</td><td>直接選卡方，不問組數</td></tr>
+       <tr><td>連續數字（分數、秒數、滿意度）</td><td>先數組數：3 組以上→ANOVA</td></tr>
+       <tr><td>「每人只看一種／只去一間」</td><td>這是不同的人，獨立，不是配對</td></tr>
+       <tr><td>「同一批人」「前後測」</td><td>配對 t 檢定</td></tr>
+       <tr><td>選項有「必須」「不能」「保證」</td><td>多半是絕對字眼陷阱，先提高警覺</td></tr>
+     </tbody>
+   </table>
+
+   <div class="tip-box tip-warn">⚠️ 這套三問法處理的是 iPAS 常見的「選檢定」題，假設資料符合各檢定的基本前提（例如 ANOVA 要求各組變異大致相等）。實務上遇到前提不成立，還需要別的方法，這篇不討論。</div>
+
+   <div class="tip-box tip-info">💡 <b>我自己的教訓</b>：被帶偏的永遠是題目裡「看起來很重要」的那個字眼。真正有用的是照順序問三個問題，不讓直覺先出手。</div>
+
+   <p style="margin-top:24px">想實際練題，可以到<a href="ipas-s3-mock-exam.html">科目三模擬考</a>，題庫裡有統計檢定的題型；計算與程式輸出題則可以到<a href="ipas-s3-calc-mock.html">計算題模擬考</a>練手感。</p>`}
 ];
