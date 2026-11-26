@@ -64,6 +64,21 @@ export default {
       });
     }
 
+    // ── 抓網頁（GET ?fetch=網址，要帶 X-Fetch-Secret 標頭）給小蜜用 ──
+    const target = url.searchParams.get('fetch');
+    if (target !== null) {
+      // 沒設密語、太短或不符一律拒絕，避免變成任何人都能用的開放代理
+      const secret = env.FETCH_SECRET || '';
+      if (secret.length < 24 || request.headers.get('X-Fetch-Secret') !== secret) {
+        return json({ ok: false, error: 'unauthorized' });
+      }
+      try {
+        return json({ ok: true, ...(await fetchPage(target)) });
+      } catch (err) {
+        return json({ ok: false, error: err.message });
+      }
+    }
+
     const lat = url.searchParams.get('lat');
     const lon = url.searchParams.get('lon');
 
@@ -105,13 +120,33 @@ function base64ToBytes(base64) {
 async function reverseGeocode(lat, lon) {
   const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&accept-language=zh-TW`;
   const res = await fetch(url, {
-    headers: { 'User-Agent': 'OscarSecretaryBot/1.0 (contact: oscarclon1112@gmail.com)' },
+    headers: { 'User-Agent': 'OscarSecretaryBot/1.0 (contact: https://oscar-hsiao.github.io/)' },
   });
   if (!res.ok) throw new Error('定位服務連線失敗（HTTP ' + res.status + '）');
   const data = await res.json();
   const address = data.address || {};
   const city = address.city || address.county || null;
   return { city };
+}
+
+// ── 抓網頁 ──────────────────────────────────────────
+const PAGE_MAX_CHARS = 1000000;
+
+async function fetchPage(target) {
+  const u = new URL(target);
+  if (u.protocol !== 'http:' && u.protocol !== 'https:') throw new Error('只支援 http/https');
+  const res = await fetch(u.toString(), {
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (compatible; LinkPreviewBot/1.0)',
+      'Accept': 'text/html,application/xhtml+xml',
+      'Accept-Language': 'zh-TW,zh;q=0.9,en;q=0.8',
+    },
+  });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const type = res.headers.get('Content-Type') || '';
+  if (!/text\/|html|xml/i.test(type)) throw new Error('不是文字網頁：' + type);
+  const html = (await res.text()).slice(0, PAGE_MAX_CHARS);
+  return { status: res.status, html };
 }
 
 function json(obj) {
