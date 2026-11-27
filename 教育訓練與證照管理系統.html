@@ -1102,6 +1102,22 @@ function delCert(i){
   CERTS.splice(i,1);saveAll();pageCertReq();
 }
 
+// 管理單位等門檻：職業安全衛生管理辦法第 2-1、10、12、12-1、12-2 條；勞工健康保護規則第 3、4 條
+// 回傳 [條件, 規定, 目前是否適用]
+function thresholdRows(category,n){
+  const unit=(category===1&&n>=100)||(category===2&&n>=300);
+  return [
+    ['第一類事業 100 人以上','應設直接隸屬雇主之專責一級管理單位（第2-1條）',category===1&&n>=100],
+    ['第二類事業 300 人以上','應設直接隸屬雇主之一級管理單位（第2-1條）',category===2&&n>=300],
+    ['依第2-1條應設管理單位者','應設職業安全衛生委員會，每3個月至少開會1次，紀錄保存3年（第10、12條；設總機構者另依第6條）',unit],
+    ['第一類200人以上、第二類500人以上','建置職業安全衛生管理系統（第12-2條；石化、達規定量化學品場所等另有規定）',(category===1&&n>=200)||(category===2&&n>=500)],
+    ['30 人以上','訂定職業安全衛生管理計畫；未滿30人得以執行紀錄或文件代替（第12-1條）',n>=30],
+    ['100 人以上','另訂定職業安全衛生管理規章（第12-1條）',n>=100],
+    ['勞工健康服務：50～未滿300人','依附表四頻率特約醫護人員臨場服務（勞工健康保護規則第4條）',n>=50&&n<300],
+    ['勞工健康服務：300人以上','依附表二、三僱用或特約醫護人員（勞工健康保護規則第3條；特別危害健康作業50人以上亦適用）',n>=300],
+  ];
+}
+
 // ═══════════════════════════════════════════════
 // 法規依據
 // ═══════════════════════════════════════════════
@@ -1155,17 +1171,11 @@ function pageLegal(){
     </div>
 
     <div class="card">
-      <div class="section-title">管理單位 / OSHMS 設置門檻</div>
+      <div class="section-title">管理單位 / OSHMS 等設置門檻</div>
       <div style="overflow-x:auto"><table>
         <thead><tr><th>條件</th><th>規定</th><th>本公司狀態</th></tr></thead>
         <tbody>
-          <tr><td>第一類事業單位 100人以上</td><td>需設置一級管理單位</td><td><span class="pill pill-bad">適用（${META.totalEmployees}人）</span></td></tr>
-          <tr><td>第一類事業單位 500人以上</td><td>需設置專責一級管理單位（直屬雇主）</td><td><span class="pill pill-ok">未達（${META.totalEmployees}人）</span></td></tr>
-          <tr><td>第一類事業單位 ≥200人</td><td>須建立職業安全衛生管理系統（OSHMS）</td><td><span class="pill pill-ok">未達（${META.totalEmployees}人，差 ${Math.max(200-META.totalEmployees,0)} 人）</span></td></tr>
-          <tr><td>勞工人數 ≥50人</td><td>應成立安全衛生委員會（職安法§11），每3個月至少開會1次，紀錄保存3年</td><td><span class="pill pill-bad">適用（${META.totalEmployees}人）</span></td></tr>
-          <tr><td>30人以上</td><td>需訂定職業安全衛生管理計畫</td><td><span class="pill pill-bad">適用（${META.totalEmployees}人）</span></td></tr>
-          <tr><td>100人以上</td><td>管理計畫需包含安全衛生稽核</td><td><span class="pill pill-bad">適用（${META.totalEmployees}人）</span></td></tr>
-          <tr><td>護理人員臨場服務（300人以上）</td><td>每月至少1次（1000人以上每月3次）</td><td><span class="pill pill-ok">未達（${META.totalEmployees}人）</span></td></tr>
+          ${thresholdRows(META.category||1,META.totalEmployees||0).map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td><span class="pill ${r[2]?'pill-bad':'pill-ok'}">${r[2]?'適用':'未達'}（${META.totalEmployees}人）</span></td></tr>`).join('')}
         </tbody>
       </table></div>
     </div>
