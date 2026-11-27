@@ -182,7 +182,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:16
     </div>
     <div class="hdr-meta">
       <span class="badge-2026">2026修法版</span>
-      <span style="font-size:13px;color:var(--text3)">依職業安全衛生法 §36 及執行指引</span>
+      <span style="font-size:13px;color:var(--text3)">依職業安全衛生法 §6、§22-1～22-3 及職場霸凌防治措施準則（115/7/1 施行）</span>
     </div>
   </div>
 </div>
@@ -197,7 +197,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:16
     <div class="info-group">
       <label>員工人數</label>
       <select id="companySize" onchange="cacheInfo()">
-        <option value="30以下">30人以下</option>
+        <option value="未滿10">未滿10人</option>
+        <option value="10-29">10–29人</option>
         <option value="30-99">30–99人</option>
         <option value="100-299" selected>100–299人</option>
         <option value="300以上">300人以上</option>
@@ -239,14 +240,14 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:16
       <div class="panel-hdr">
         <div class="panel-title">
           📋 計畫書基本設定
-          <span class="law-tag">職安法 §36</span>
+          <span class="law-tag">職安法 §22-1</span>
           <span class="amend-tag">2026修法</span>
         </div>
       </div>
       <div class="panel-body">
         <p style="font-size:13px;color:var(--text2);margin-bottom:16px">
-          依職業安全衛生法第36條，僱用勞工人數在 <strong>30人以上</strong>之事業單位，應依執行指引擬訂防治計畫並公告。
-          2026修法重點：擴大客戶/第三方騷擾防治義務、強化調查機制、違反罰鍰最高 <strong>30萬元</strong>。
+          依職業安全衛生法第22條之1，僱用勞工 <strong>10人以上</strong>應訂定職場霸凌申訴管道並公開揭示；<strong>30人以上</strong>應訂定防治措施、申訴及懲處規範並公開揭示。
+          罰鍰依違反情形：第45條 <strong>3萬～75萬元</strong>；因違反特定義務致發生職業病或工作相關疾病者，第43條 <strong>5萬～300萬元</strong>（得加重二分之一）；最高負責人經認定有霸凌行為者，第46條 <strong>1萬～100萬元</strong>。
         </p>
         <div class="form-grid">
           <div class="form-field">
@@ -266,7 +267,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:16
             <input id="planVer" value="第一版" placeholder="如：第一版、2026年修訂版">
           </div>
           <div class="form-field">
-            <label>調查委員會人數</label>
+            <label>調查小組人數</label>
             <select id="committeeSz">
               <option value="3">3人</option>
               <option value="5" selected>5人</option>
@@ -274,11 +275,10 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:16
             </select>
           </div>
           <div class="form-field">
-            <label>外部成員比例</label>
+            <label>外部成員比例（100人以上依法至少1/2）</label>
             <select id="externalRatio">
-              <option value="不設外部成員">不設外部成員</option>
-              <option value="至少1/3" selected>至少1/3（建議）</option>
-              <option value="至少1/2">至少1/2</option>
+              <option value="至少二分之一" selected>至少1/2</option>
+              <option value="至少三分之一">至少1/3（未滿100人可參照）</option>
             </select>
           </div>
           <div class="form-field span2">
@@ -331,12 +331,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:16
             <input id="f_phone" placeholder="分機 XXXX 或外線">
           </div>
           <div class="form-field">
-            <label>調查期限（工作天）</label>
-            <select id="f_days">
-              <option value="20">20 工作天</option>
-              <option value="30" selected>30 工作天</option>
-              <option value="60">60 工作天（複雜案件）</option>
-            </select>
+            <label>處理期限</label>
+            <input value="依事業單位人數自動帶入法定期限" disabled>
           </div>
           <div class="form-field">
             <label>召集人</label>
@@ -375,11 +371,11 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:16
       </div>
       <div class="panel-body" style="font-size:14px;line-height:2">
         <ul style="padding-left:20px;color:var(--text2)">
-          <li><strong style="color:var(--text)">調查保密義務：</strong>委員、當事人及證人均負保密義務，違者依法懲處。</li>
-          <li><strong style="color:var(--text)">申訴人保護：</strong>不得因申訴而對申訴人有不利之對待（含調職、降薪、解僱）。</li>
-          <li><strong style="color:var(--text)">2026修法新增：</strong>第三方（客戶、廠商、訪客）對勞工之不法侵害，雇主亦須依法採取保護措施。</li>
-          <li><strong style="color:var(--text)">外部管道：</strong>勞工亦可向當地勞工局或勞動部1955申訴，雇主不得阻止。</li>
-          <li><strong style="color:var(--text)">調查逾期：</strong>超過法定期限未完成，主管機關可介入並裁罰。</li>
+          <li><strong style="color:var(--text)">保密：</strong>參與處理申訴的人員，對當事人與協助調查者的身分資料負保密義務（準則第16條），申訴以不公開方式處理。</li>
+          <li><strong style="color:var(--text)">申訴人保護：</strong>不得因申訴或協助申訴而解僱、降調、減薪或為其他不利處分；經證實惡意虛構事實者除外（準則第20條）。</li>
+          <li><strong style="color:var(--text)">第三方侵害：</strong>客戶、廠商等造成的身體或精神不法侵害，屬職安法第6條第2項第3款的預防範圍；職場霸凌的定義限事業單位人員。</li>
+          <li><strong style="color:var(--text)">最高負責人被申訴：</strong>勞工得逕向直轄市或縣（市）主管機關提起申訴（職安法第22條之3）。</li>
+          <li><strong style="color:var(--text)">登錄與留存：</strong>受理翌日起7個工作日內於指定系統登錄，處理結果亦須登錄；執行紀錄留存3年。</li>
         </ul>
       </div>
     </div>
@@ -400,7 +396,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:16
       </div>
       <div class="panel-body">
         <p style="font-size:13px;color:var(--text2);margin-bottom:16px">
-          懲處規範應納入工作規則，並依勞動基準法相關規定辦理。調整各級定義後按「生成草案」更新文件。
+          懲處規範應納入工作規則，並依勞動基準法相關規定辦理；以下為範例文字，實際懲處須依個案認定並建議經法務確認。調整各級定義後按「生成草案」更新文件。
         </p>
         <table class="penalty-table">
           <colgroup><col style="width:120px"><col style="width:180px"><col></colgroup>
@@ -425,7 +421,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:16
             <tr>
               <td><span class="sev-chip sev-2">中度</span></td>
               <td>持續騷擾、霸凌、言語<br>威脅、散布謠言、孤立排擠</td>
-              <td><textarea class="edit-area" id="p_mid" rows="3">記大過一次（得累計解僱）、停職調查期間留薪停工、強制輔導、通知被害人保護措施。</textarea></td>
+              <td><textarea class="edit-area" id="p_mid" rows="3">記大過一次、強制輔導，並採取被害人保護措施。</textarea></td>
             </tr>
             <tr>
               <td><span class="sev-chip sev-2">中度累犯</span></td>
@@ -435,7 +431,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:16
             <tr>
               <td><span class="sev-chip sev-3">嚴重</span></td>
               <td>肢體暴力、性侵、嚴重<br>心理虐待、惡意報復申訴人</td>
-              <td><textarea class="edit-area" id="p_severe" rows="3">不經預告立即依勞動基準法第12條第1項第2款終止勞動契約（懲戒解僱）、視情節報請司法機關處理、拒絕發給非自願離職証明。</textarea></td>
+              <td><textarea class="edit-area" id="p_severe" rows="3">符合勞動基準法第12條第1項（如第2款暴行或重大侮辱）者，得不經預告終止勞動契約（應自知悉之日起30日內為之）；涉及刑事責任者協助報請司法機關處理。</textarea></td>
             </tr>
           </tbody>
         </table>
@@ -513,6 +509,8 @@ function generatePlan(){
   const ceo=v('ceoName')||'＿＿＿＿';
   const osh=v('oshContact')||'＿＿＿＿';
   const hr=v('hrContact')||'＿＿＿＿';
+  const big=sz==='100-299'||sz==='300以上';
+  const mid30=sz!=='未滿10'&&sz!=='10-29';
   const date=v('effectDate')||'＿＿年＿＿月＿＿日';
   const industry=v('industry');
   const ver=v('planVer')||'第一版';
@@ -529,18 +527,18 @@ function generatePlan(){
 <h3>二、適用範圍</h3>
 <p>本計畫適用於本公司全體員工（正職、兼職、派遣及實習人員），以及在本公司工作場所範圍內從事工作之承攬商人員。${risk?'<br>特殊風險說明：'+risk:''}</p>
 
-<h3>三、不法侵害定義</h3>
-<p>依職業安全衛生法施行細則第11-1條，職場不法侵害包含：</p>
+<h3>三、定義</h3>
+<p><strong>職場霸凌</strong>（職業安全衛生法第22條之1）：勞工於勞動場所執行職務，因事業單位人員利用職務或權勢等關係，逾越業務上必要且合理範圍，持續以冒犯、威脅、冷落、孤立、侮辱或其他不當之言詞或行為，致身心健康遭受危害；情節重大者，不以持續發生為必要。認定時審酌下列情形（準則第2條）：</p>
 <ul>
-<li><strong>肢體暴力：</strong>踢打、推撞、丟擲物品等肢體傷害行為</li>
-<li><strong>言語暴力：</strong>威脅、恐嚇、謾罵、侮辱等言語攻擊</li>
-<li><strong>心理暴力：</strong>歧視、孤立、霸凌、不合理工作要求、惡意評論</li>
-<li><strong>性騷擾：</strong>性別歧視、性暗示、不受歡迎之性接觸或語言（另依性騷擾防治措施辦法辦理）</li>
-<li><strong>第三方侵害（2026修法）：</strong>來自客戶、廠商或訪客之上述行為，雇主亦負保護義務</li>
+<li>對特定人刻意排擠、忽視、冷落、不讓參與必要之重要會議、事務或活動</li>
+<li>對特定人破壞或刻意阻礙其工作、利用職務刁難、刻意隱瞞資訊或提供不實資訊</li>
+<li>對特定人以權力欺壓，刻意分配不合理工作目標或與能力明顯不符之工作</li>
+<li>對特定人刻意散布其謠言或揭露隱私</li>
 </ul>
+<p><strong>其他不法侵害</strong>（第6條第2項第3款）：執行職務因他人（含客戶、廠商、訪客）行為遭受身體或精神不法侵害，本計畫一併預防。涉及性騷擾者，另依工作場所性騷擾防治措施準則辦理。</p>
 
 <h3>四、危害因子辨識與評估</h3>
-<p>本公司每年至少辦理一次職場不法侵害危害因子辨識，重點評估項目如下：</p>
+<p>本公司定期辦理職場不法侵害危害因子辨識，重點評估項目如下：</p>
 <ul>
 <li>高風險工作環境（如：夜班獨立作業、現金處理、業務接觸不特定客戶）</li>
 <li>${industry}行業特性相關危害（如顧客服務糾紛、現場施工壓力）</li>
@@ -550,24 +548,25 @@ function generatePlan(){
 <h3>五、預防措施</h3>
 <p>本公司採取以下措施以預防職場不法侵害：</p>
 <ol>
-<li>每年至少辦理職場不法侵害教育訓練（一般員工至少3小時、主管至少6小時）</li>
-<li>設立申訴管道（詳見第六點），確保員工知悉管道且申訴不受阻礙</li>
+<li>對事業單位人員實施防治職場霸凌教育訓練；各級主管及參與申訴調查、處理、協調、申復者，另實施溝通技巧、管理及申訴事件處理等訓練</li>
+<li>設置申訴管道（詳見第六點）並於工作場所顯著處公開揭示，指定專責單位統籌辦理</li>
 <li>定期進行職場環境檢核，對高風險場域採取環境改善措施</li>
 <li>建立友善職場文化，鼓勵員工相互尊重，零容忍不法侵害行為</li>
 <li>對接觸不特定第三方之職務，提供必要的工作指引與保護措施</li>
 </ol>
 
 <h3>六、申訴與通報機制</h3>
-<p>本公司設立多元申訴管道，確保被害人得以匿名或具名申訴：</p>
+<p>申訴得以言詞、電子郵件或書面提出，須具真實姓名或足以辨別身分之資訊；自霸凌行為終了時起逾三年者不予受理（利用權勢者之案件，得於離職之日起一年內申訴，期限較長者從其規定）。</p>
 <ul>
 <li><strong>書面申訴：</strong>填寫申訴表交由 ${hr}（人力資源部門）</li>
-<li><strong>口頭申訴：</strong>得向直屬主管或人資部門口頭申訴</li>
-<li><strong>外部管道：</strong>向當地勞工主管機關或撥打1955舉報</li>
+<li><strong>口頭或電子郵件申訴：</strong>受理單位作成紀錄，經申訴人確認並簽名或蓋章</li>
+<li><strong>外部管道：</strong>被申訴人為最高負責人時，得逕向直轄市或縣（市）主管機關申訴；其他勞動權益問題可洽當地勞工主管機關或撥打1955</li>
 </ul>
 <p>本公司承諾對申訴人身分及案件內容嚴格保密，且不得對申訴人有任何不利對待。</p>
 
-<h3>七、調查委員會</h3>
-<p>接獲申訴後，本公司應於5工作天內組成不法侵害調查委員會，成員共 ${csz} 人（${ext}為外部獨立人士）。委員會應於 30 工作天內完成調查並提出書面報告。調查結束後，本公司應依報告結論，於10工作天內對行為人採取懲處措施，並通知申訴人處理結果。</p>
+<h3>七、申訴處理與調查</h3>
+<p>${mid30?'本公司設申訴處理單位，成員至少3人，任一性別比例不少於三分之一。':'本公司未達30人，申訴處理單位與調查小組相關規定參照辦理。'}${big?`調查小組成員 ${csz} 人，外部專業人士不少於二分之一，任一性別比例不少於三分之一；事業單位成員應接受防治職場霸凌教育訓練至少3小時。`:`調查人員 ${csz} 人（外部成員${ext}）。`}</p>
+<ul>${timeline(sz).map(t=>`<li><strong>${t[0]}：</strong>${t[1]}</li>`).join('')}</ul>
 
 <h3>八、事後協助</h3>
 <p>對於遭受不法侵害之員工，本公司提供以下協助：</p>
@@ -579,16 +578,30 @@ function generatePlan(){
 </ul>
 
 <h3>九、計畫公告與更新</h3>
-<p>本計畫經雇主核定後，公告於公司公告欄及內部網路，並確保全體員工均可取得。本計畫至少每二年或當法令修正時重新檢討更新。</p>
+<p>本計畫經雇主核定後公開揭示，確保全體員工均可取得。依申訴案件處理情形及法令修正檢討更新；預防、受理、協調、調查與申復之執行紀錄留存三年。</p>
 <hr>
 <p style="text-align:right;color:#aaa;font-size:13px">計畫承辦人：${osh}　│　雇主：${ceo}　│　生效日期：${date}</p>`;
 
   document.getElementById('planOut').innerHTML=html;
 }
 
+/* 法定期限：職場霸凌防治措施準則第10～23條 */
+function timeline(sz){
+  const t=[['受理決定','接獲申訴之日起10個工作日內決定是否受理，並以書面通知申訴人'],['系統登錄','受理翌日起7個工作日內於中央主管機關指定系統登錄，並通知申訴人']];
+  if(sz==='100-299'||sz==='300以上'){
+    t.push(['組成調查小組','受理之日起15個工作日內選任調查成員'],['調查報告','調查小組成立翌日起2個月內完成，必要時延長1個月'],['申訴決定','調查報告完成之日起1個月內作成成立與否之決定']);
+  }else if(sz==='30-99'){
+    t.push(['申訴決定','接獲申訴翌日起4個月內作成決定，必要時延長1個月']);
+  }else{
+    t.push(['申訴決定','接獲申訴翌日起3個月內作成決定，必要時延長1個月']);
+  }
+  t.push(['通知結果','作成決定之日起10個工作日內以書面載明事實、理由與申復方法通知當事人'],['申復','收到通知翌日起30日內以書面向雇主提出，以一次為限']);
+  return t;
+}
+
 /* ── FLOW CHART ── */
 function renderFlow(){
-  const days=v('f_days')||'30 工作天';
+  const tl=timeline(v('companySize'));
   const convener=v('f_convener')||'人資部主管';
   const notify=v('f_notify')||'書面通知';
   const written=v('f_written')||'人資部門';
@@ -601,7 +614,7 @@ function renderFlow(){
   <div class="flow-step-title"><div class="flow-step-num">1</div>事件發生／知情</div>
   <div style="font-size:13px;color:var(--text2)">被害人、目睹人或其他知情者發現不法侵害情事</div>
 </div>
-<div class="flow-arrow">↓ <span>提出申訴（具名或匿名均可）</span></div>
+<div class="flow-arrow">↓ <span>提出申訴（須可辨別申訴人身分）</span></div>
 
 <div class="flow-step trigger">
   <div class="flow-step-title"><div class="flow-step-num">2</div>提出申訴</div>
@@ -609,32 +622,33 @@ function renderFlow(){
     📨 書面申訴 → ${written}<br>
     📧 電子郵件 → ${email}<br>
     📞 電話 → ${phone}<br>
-    🌐 外部管道 → 勞工局 / 1955
+    🌐 被申訴人為最高負責人 → 可逕向地方主管機關申訴
   </div>
 </div>
-<div class="flow-arrow">↓ <span>5 工作天內</span></div>
+<div class="flow-arrow">↓ <span>10 個工作日內決定是否受理</span></div>
 
 <div class="flow-step">
   <div class="flow-step-title"><div class="flow-step-num">3</div>受理確認與初步審查</div>
-  <div style="font-size:13px;color:var(--text2)">人資部確認案件受理、通知申訴人、必要時採取緊急保護措施（如暫時調整座位或班別）</div>
+  <div style="font-size:13px;color:var(--text2)">書面通知是否受理；受理後7個工作日內系統登錄；依申訴人意願採取隔離等保護措施</div>
 </div>
-<div class="flow-arrow">↓ <span>組成委員會</span></div>
+<div class="flow-arrow">↓ <span>${v('companySize')==='100-299'||v('companySize')==='300以上'?'受理起15個工作日內組成調查小組':'進行調查'}</span></div>
 
 <div class="flow-step investigate">
-  <div class="flow-step-title"><div class="flow-step-num">4</div>調查委員會運作 <span class="flow-days">${days}</span></div>
+  <div class="flow-step-title"><div class="flow-step-num">4</div>調查 <span class="flow-days">依法定期限</span></div>
   <div style="font-size:13px;color:var(--text2);margin-top:6px">
     召集人：${convener}<br>
     • 分別約談申訴人、被申訴人及相關證人<br>
     • 蒐集相關書面資料及調查資料<br>
     • 委員依法保密，不得洩露當事人資訊<br>
-    • 製作調查報告並提出懲處建議
+    • 不得令當事人對質<br>
+    ${tl.filter(t=>t[0]==='調查報告'||t[0]==='申訴決定').map(t=>`• ${t[0]}：${t[1]}`).join('<br>')}
   </div>
 </div>
-<div class="flow-arrow">↓ <span>提交報告後 10 工作天</span></div>
+<div class="flow-arrow">↓ <span>作成決定</span></div>
 
 <div class="flow-step decide">
   <div class="flow-step-title"><div class="flow-step-num">5</div>決議與懲處</div>
-  <div style="font-size:13px;color:var(--text2)">依調查報告認定結果，由雇主決定懲處措施；${notify}通知當事人雙方。</div>
+  <div style="font-size:13px;color:var(--text2)">申訴處理單位作成成立與否之決定，雇主依情節懲戒或處理；10個工作日內通知當事人（${notify}）。</div>
 </div>
 <div class="flow-arrow">↓</div>
 
@@ -645,14 +659,14 @@ function renderFlow(){
   </div>
   <div class="flow-branch no">
     <strong style="color:var(--red)">❌ 申訴不成立</strong><br>
-    <span style="font-size:13px">書面說明理由通知申訴人；申訴人得依法向主管機關提出再申訴</span>
+    <span style="font-size:13px">書面載明理由通知當事人；不服者30日內向雇主提出申復（限一次）</span>
   </div>
 </div>
 <div class="flow-arrow">↓ <span>無論結果</span></div>
 
 <div class="flow-step remedy">
   <div class="flow-step-title"><div class="flow-step-num">6</div>事後追蹤與改善</div>
-  <div style="font-size:13px;color:var(--text2)">提供被害人 EAP 心理支持；追蹤被申訴人行為；檢討防治措施；三個月後複查改善成效</div>
+  <div style="font-size:13px;color:var(--text2)">提供被害人諮詢與心理支持；追蹤懲處執行，避免報復；檢討防治措施；紀錄留存3年</div>
 </div>
 `;
 }
@@ -674,10 +688,10 @@ function generatePenalty(){
 <p>為落實職場不法侵害防治計畫，確保行為人受到合理懲處，特訂定本懲處規範。本規範依勞動基準法第70條規定，納入公司工作規則。</p>
 
 <h3>第二條　適用範圍</h3>
-<p>凡本公司全體員工（含正職、兼職、試用期員工），因職場不法侵害行為受調查委員會認定後，依本規範懲處。</p>
+<p>凡本公司全體員工（含正職、兼職、試用期員工），因職場不法侵害或霸凌行為經調查屬實並作成決定後，依本規範懲處。</p>
 
 <h3>第三條　懲處原則</h3>
-<p>懲處應依調查報告認定之行為事實、頻率、造成影響及行為人態度，綜合衡量後採比例原則決定，不因行為人職級或年資有所差異。</p>
+<p>懲處應審酌對申訴人身心侵害程度、行為次數、頻率與手段、與申訴人之關係、事後態度與過往行為，以及對事業單位之影響，依比例原則決定（職場霸凌防治措施準則第19條）。</p>
 
 <h3>第四條　各級懲處基準</h3>
 
@@ -702,10 +716,10 @@ function generatePenalty(){
 <em>懲處：</em>${severe}</p>
 
 <h3>第五條　申訴人保護</h3>
-<p>任何人不得因申訴、作證或協助調查，而受到降職、調職、減薪、解僱或其他不利對待。違反者以中度違規以上論處。</p>
+<p>雇主不得對提起申訴或協助申訴之人解僱、降調、減薪或為其他不利處分。經證實惡意虛構事實者，不受此保護，並依情節比照第四條懲處。</p>
 
 <h3>第六條　懲處程序</h3>
-<p>懲處決定應由雇主或授權之人事委員會做成，並以書面通知受懲處人。受懲處人得於10工作天內提出異議，由雇主重新審酌後做成最終決定。</p>
+<p>懲處決定應由雇主或授權之人事委員會做成，並以書面通知受懲處人。當事人不服申訴決定者，得於收到書面通知翌日起30日內，以書面具明理由向雇主申復，以一次為限。</p>
 <hr>
 <p style="text-align:right;color:#aaa;font-size:13px">生效日期：${date}　│　${co}</p>`;
 
