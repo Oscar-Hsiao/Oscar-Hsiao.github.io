@@ -116,7 +116,7 @@ function toolCard(t){
     <h3>${t.title}</h3>
     <p class="desc">${t.desc}</p>
     <div class="footer-row">
-      <span class="status"><span class="dot"></span> 已上線</span>
+      <span class="status"><span class="dot"></span> 開發中</span>
       <span class="link">前往使用 →</span>
     </div>
   </a>`;
@@ -163,7 +163,7 @@ function renderMain(){
         <p>整理目前完成的職業安全衛生與永續管理工具，結合資料自動化與法規規則引擎，協助企業以更有效率的方式管理日常職安衛與 ESG 事務。</p>
       </div>
       <div class="metric-grid">
-        <div class="metric-card"><div class="metric-label">已上線工具</div><div class="metric-value">${TOOLS.length}</div><div class="metric-unit">項</div></div>
+        <div class="metric-card"><div class="metric-label">工具箱</div><div class="metric-value">${TOOLS.length}</div><div class="metric-unit">項</div></div>
         <div class="metric-card"><div class="metric-label">職安衛工具</div><div class="metric-value">${TOOLS.filter(t=>t.category==='osh').length}</div><div class="metric-unit">項</div></div>
         <div class="metric-card"><div class="metric-label">ESG / 永續工具</div><div class="metric-value">${TOOLS.filter(t=>t.category==='esg').length}</div><div class="metric-unit">項</div></div>
         <div class="metric-card"><div class="metric-label">文章篇數</div><div class="metric-value">${ARTICLES.length}</div><div class="metric-unit">篇</div></div>
